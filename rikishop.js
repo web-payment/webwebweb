@@ -101,7 +101,9 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rikishop';
 
 // --- Logika Firebase untuk Pengunjung & Hitungan Masuk ---
 async function setupFirebaseVisitorCounter() {
-    visitorCountSpan.textContent = '-'; // Ini akan diubah saat data dimuat
+    const visitorCountLabel = visitorCountDisplay.querySelector('i').nextSibling; // Untuk mengubah teks
+    visitorCountLabel.textContent = ' Masuk website: ';
+    visitorCountSpan.textContent = '-';
     if (!window.firebaseServices) {
         console.warn("Layanan Firebase tidak tersedia.");
         visitorCountSpan.textContent = 'N/A';
@@ -149,6 +151,7 @@ async function setupFirebaseVisitorCounter() {
         visitorCountSpan.textContent = 'Error';
     }
 }
+
 
 // --- Logika Tombol Multifungsi (FAB) ---
 multifunctionFab.addEventListener('click', (e) => {
