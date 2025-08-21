@@ -176,10 +176,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     justify-content: flex-end;
 }
 .delete-item .edit-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: none !important; /* Menyembunyikan form edit inline yang lama */
 }
 .delete-item .edit-form input,
 .delete-item .edit-form textarea {
@@ -263,13 +260,12 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: var(--white-color); /* Warna latar belakang agar tidak transparan */
-    position: sticky; /* Menempel saat di-scroll */
-    top: 0;          /* Menempel di bagian paling atas */
-    z-index: 100;      /* Memastikan header berada di lapisan terdepan */
-    border-bottom: 1px solid var(--border-color); /* Garis pemisah */
+    background-color: var(--white-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border-color);
 }
-
 .admin-header h2 {
     margin: 0;
     font-size: 1.5em;
@@ -361,7 +357,102 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Tema Gelap */
+/* Gaya Modal */
+.modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    animation: fadeInModal 0.3s;
+}
+.modal-content {
+    background-color: var(--white-color);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    animation: slideInTop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 20px;
+}
+.modal-content h2 {
+    text-align: left;
+}
+.modal-content .admin-header {
+    margin-bottom: 10px;
+}
+.close-button {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--light-text-color);
+    transition: color 0.2s ease;
+}
+.close-button:hover {
+    color: var(--error-color);
+}
+.photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+.photo-item {
+    position: relative;
+}
+.photo-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.delete-photo-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.7em;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+.add-photo-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.add-photo-container input {
+    flex: 1;
+}
+.add-photo-container button {
+    width: auto;
+    margin-top: 0;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+.modal-content button {
+    width: auto;
+    margin-top: 20px;
+    margin-left: auto;
+}
 body.dark-mode {
     --primary-color: #0a84ff;
     --secondary-color: #1c1c1e;

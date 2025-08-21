@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const manageCategorySelect = document.getElementById('manage-category');
     const manageProductList = document.getElementById('manage-product-list');
     const saveOrderButton = document.getElementById('save-order-button');
+    let currentProducts = [];
 
     const API_BASE_URL = '/api';
     let activeToastTimeout = null;
@@ -210,46 +211,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="item-header">
                     <span>${prod.nama} - ${priceDisplay} ${isNew ? '<span class="new-badge">NEW</span>' : ''}</span>
                     <div class="item-actions">
-                        <button class="edit-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="edit-btn" data-id="${prod.id}"><i class="fas fa-edit"></i> Edit</button>
                         <button class="delete-btn"><i class="fas fa-trash-alt"></i> Hapus</button>
                     </div>
-                </div>
-                <div class="edit-form" style="display: none;">
-                    <label for="edit-name-${prod.id}">Nama Produk:</label>
-                    <input type="text" id="edit-name-${prod.id}" class="edit-name-input" value="${prod.nama}">
-                    
-                    <label for="edit-price-${prod.id}">Harga Baru:</label>
-                    <input type="number" id="edit-price-${prod.id}" class="edit-price-input" value="${prod.harga}">
-                    
-                    <label for="edit-desc-${prod.id}">Deskripsi:</label>
-                    <textarea id="edit-desc-${prod.id}" class="edit-desc-input">${prod.deskripsiPanjang.replace(/ \|\| /g, '\n')}</textarea>
-                    
-                    ${(category === 'Stock Akun' || category === 'Logo') ? `
-                        <label>Kelola Foto:</label>
-                        <div class="photo-grid">
-                            ${(prod.images || []).map(img => `
-                                <div class="photo-item">
-                                    <img src="${img}" alt="Product Photo">
-                                    <button class="delete-photo-btn" data-img-url="${img}"><i class="fas fa-times"></i></button>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="add-photo-container">
-                            <input type="text" class="add-photo-input" placeholder="URL foto baru">
-                            <button class="add-photo-btn">Tambah</button>
-                        </div>
-                    ` : ''}
-
-                    <button class="save-edit-btn" data-id="${prod.id}">Simpan Perubahan</button>
                 </div>
             `;
             manageProductList.appendChild(item);
         });
 
-        setupManageActions(category);
+        setupManageActions(category, productsToRender);
     }
     
-    function setupManageActions(category) {
+    function setupManageActions(category, productsInCat) {
         // Hapus Produk
         manageProductList.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', async e => {
@@ -271,95 +244,134 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Toggle Edit Form
+        // Logika Modal Edit
+        const editModal = document.getElementById('editProductModal');
+        const closeEditModalBtn = document.getElementById('closeEditModal');
+        const editModalTitle = document.getElementById('editModalTitle');
+        const saveEditBtn = document.getElementById('save-edit-btn');
+        
+        const editProductId = document.getElementById('edit-product-id');
+        const editProductCategory = document.getElementById('edit-product-category');
+        const editNameInput = document.getElementById('edit-name');
+        const editPriceInput = document.getElementById('edit-price');
+        const editDescInput = document.getElementById('edit-desc');
+        const editPhotoSection = document.getElementById('edit-photo-section');
+        const editPhotoGrid = document.getElementById('edit-photo-grid');
+        const addPhotoInput = document.getElementById('add-photo-input');
+        const addPhotoBtn = document.getElementById('add-photo-btn');
+        const editScriptMenuSection = document.getElementById('edit-script-menu-section');
+        const editScriptMenuContent = document.getElementById('edit-script-menu-content');
+        
+        // Buka Modal
         manageProductList.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                const parent = e.target.closest('.delete-item');
-                const editForm = parent.querySelector('.edit-form');
-                const isEditing = editForm.style.display === 'flex';
-
-                editForm.style.display = isEditing ? 'none' : 'flex';
-                btn.innerHTML = isEditing ? `<i class="fas fa-edit"></i> Edit` : `<i class="fas fa-times"></i> Batal`;
-            });
-        });
-
-        // Simpan Perubahan Produk
-        manageProductList.querySelectorAll('.save-edit-btn').forEach(btn => {
-            btn.addEventListener('click', async e => {
-                const parent = e.target.closest('.delete-item');
-                const id = parseInt(parent.dataset.id);
-                const newName = parent.querySelector('.edit-name-input').value;
-                const newPrice = parseInt(parent.querySelector('.edit-price-input').value, 10);
-                const newDesc = parent.querySelector('.edit-desc-input').value.replace(/\n/g, ' || ');
+            btn.addEventListener('click', () => {
+                const productId = parseInt(btn.dataset.id);
+                const product = productsInCat.find(p => p.id === productId);
+                if (!product) return showToast('Produk tidak ditemukan.', 'error');
                 
-                let newImages = [];
+                editProductId.value = product.id;
+                editProductCategory.value = category;
+                editModalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Produk: ${product.nama}`;
+                editNameInput.value = product.nama;
+                editPriceInput.value = product.harga;
+                editDescInput.value = product.deskripsiPanjang.replace(/ \|\| /g, '\n');
+                
+                // Atur visibilitas dan konten berdasarkan kategori
                 if (category === 'Stock Akun' || category === 'Logo') {
-                    const existingImages = [...parent.querySelectorAll('.photo-grid img')].map(img => img.src);
-                    const newPhotoInput = parent.querySelector('.add-photo-input').value.trim();
-                    const newPhotos = newPhotoInput ? newPhotoInput.split(',').map(url => url.trim()) : [];
-                    newImages = [...existingImages, ...newPhotos];
-                }
-
-                if (isNaN(newPrice) || newPrice < 0 || !newName || !newDesc) {
-                    return showToast('Data tidak valid.', 'error');
-                }
-                
-                btn.textContent = '...';
-                btn.disabled = true;
-
-                try {
-                    const res = await fetch(`${API_BASE_URL}/updateProduct`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id, category, newName, newPrice, newDesc, newImages })
-                    });
-                    const result = await res.json();
-
-                    if (!res.ok) {
-                        throw new Error(result.message);
-                    }
-                    showToast(result.message, 'success');
-                    manageCategorySelect.dispatchEvent(new Event('change'));
-                } catch (err) {
-                    showToast(err.message || 'Gagal memperbarui produk.', 'error');
-                } finally {
-                    btn.textContent = 'Simpan Perubahan';
-                    btn.disabled = false;
-                }
-            });
-        });
-        
-        // Hapus Foto
-        manageProductList.querySelectorAll('.delete-photo-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.target.closest('.photo-item').remove();
-            });
-        });
-        
-        // Tambah Foto
-        manageProductList.querySelectorAll('.add-photo-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                const parent = e.target.closest('.edit-form');
-                const input = parent.querySelector('.add-photo-input');
-                const photoGrid = parent.querySelector('.photo-grid');
-                const newPhotoUrl = input.value.trim();
-                
-                if (newPhotoUrl) {
-                    const newPhotoItem = document.createElement('div');
-                    newPhotoItem.className = 'photo-item';
-                    newPhotoItem.innerHTML = `<img src="${newPhotoUrl}" alt="Product Photo"><button class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
-                    photoGrid.appendChild(newPhotoItem);
-                    input.value = '';
-                    
-                    newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', e => {
-                        e.target.closest('.photo-item').remove();
+                    editPhotoSection.style.display = 'block';
+                    editPhotoGrid.innerHTML = '';
+                    (product.images || []).forEach(img => {
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item';
+                        photoItem.innerHTML = `<img src="${img}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
+                        editPhotoGrid.appendChild(photoItem);
+                        photoItem.querySelector('.delete-photo-btn').addEventListener('click', e => e.target.closest('.photo-item').remove());
                     });
                 } else {
-                    showToast('URL foto tidak boleh kosong.', 'error');
+                    editPhotoSection.style.display = 'none';
                 }
+                
+                if (category === 'Script') {
+                    editScriptMenuSection.style.display = 'block';
+                    editScriptMenuContent.value = product.menuContent || '';
+                } else {
+                    editScriptMenuSection.style.display = 'none';
+                }
+                
+                editModal.style.display = 'flex';
             });
         });
 
+        // Tutup Modal
+        closeEditModalBtn.addEventListener('click', () => editModal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                editModal.style.display = 'none';
+            }
+        });
+        
+        // Tambah Foto dari Modal
+        addPhotoBtn.addEventListener('click', () => {
+            const newPhotoUrl = addPhotoInput.value.trim();
+            if (newPhotoUrl) {
+                const newPhotoItem = document.createElement('div');
+                newPhotoItem.className = 'photo-item';
+                newPhotoItem.innerHTML = `<img src="${newPhotoUrl}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
+                editPhotoGrid.appendChild(newPhotoItem);
+                newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', e => e.target.closest('.photo-item').remove());
+                addPhotoInput.value = '';
+            } else {
+                showToast('URL foto tidak boleh kosong.', 'error');
+            }
+        });
+
+        // Simpan Perubahan dari Modal
+        saveEditBtn.addEventListener('click', async () => {
+            const id = parseInt(editProductId.value);
+            const categoryToUpdate = editProductCategory.value;
+            const newName = editNameInput.value;
+            const newPrice = parseInt(editPriceInput.value, 10);
+            const newDesc = editDescInput.value.replace(/\n/g, ' || ');
+            
+            let newImages = [];
+            if (categoryToUpdate === 'Stock Akun' || categoryToUpdate === 'Logo') {
+                newImages = [...editPhotoGrid.querySelectorAll('img')].map(img => img.src);
+            }
+            
+            let newMenuContent = null;
+            if (categoryToUpdate === 'Script') {
+                newMenuContent = editScriptMenuContent.value;
+            }
+
+            if (isNaN(newPrice) || newPrice < 0 || !newName || !newDesc) {
+                return showToast('Data tidak valid.', 'error');
+            }
+            
+            saveEditBtn.textContent = '...';
+            saveEditBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/updateProduct`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, category: categoryToUpdate, newName, newPrice, newDesc, newImages, newMenuContent })
+                });
+                const result = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(result.message);
+                }
+                showToast('Produk berhasil diperbarui.', 'success');
+                editModal.style.display = 'none';
+                manageCategorySelect.dispatchEvent(new Event('change'));
+            } catch (err) {
+                showToast(err.message || 'Gagal memperbarui produk.', 'error');
+            } finally {
+                saveEditBtn.textContent = 'Simpan Perubahan';
+                saveEditBtn.disabled = false;
+            }
+        });
+        
         // Geser Produk
         let draggingItem = null;
         manageProductList.addEventListener('dragstart', (e) => {
@@ -404,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+    
     function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
         return draggableElements.reduce((closest, child) => {

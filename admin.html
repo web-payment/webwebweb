@@ -112,6 +112,39 @@
         </div>
     </div>
     
+    <div id="editProductModal" class="modal">
+        <div class="modal-content form-card">
+            <div class="admin-header" style="justify-content: flex-end; margin-bottom: 0; padding: 0;">
+                <h2 id="editModalTitle" style="margin-right: auto; text-align: left;"><i class="fas fa-edit"></i> Edit Produk</h2>
+                <span class="close-button" id="closeEditModal">&times;</span>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-product-id">
+                <input type="hidden" id="edit-product-category">
+
+                <label for="edit-name">Nama Produk:</label>
+                <input type="text" id="edit-name" class="edit-name-input">
+                
+                <label for="edit-price">Harga Produk:</label>
+                <input type="number" id="edit-price" class="edit-price-input">
+                
+                <label for="edit-desc">Deskripsi Produk:</label>
+                <textarea id="edit-desc" class="edit-desc-input"></textarea>
+                
+                <div id="edit-photo-section" style="display: none;">
+                    <label>Kelola Foto:</label>
+                    <div class="photo-grid" id="edit-photo-grid"></div>
+                    <div class="add-photo-container">
+                        <input type="text" id="add-photo-input" placeholder="URL foto baru">
+                        <button type="button" id="add-photo-btn">Tambah</button>
+                    </div>
+                </div>
+
+                <button type="button" id="save-edit-btn">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
     <script src="admin.js"></script>
 </body>
 </html>
