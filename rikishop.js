@@ -39,7 +39,6 @@ const bannerCarousel = document.getElementById('bannerCarousel');
 const bannerPagination = document.getElementById('bannerPagination');
 const visitorCountDisplay = document.getElementById('visitorCountDisplay');
 const visitorCountSpan = visitorCountDisplay.querySelector('.count');
-const visitorCountLabel = visitorCountDisplay.querySelector('i').nextSibling; // Untuk mengubah teks
 let currentBannerIndex = 0;
 let bannerInterval;
 
@@ -101,8 +100,6 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rikishop';
 
 // --- Logika Firebase untuk Pengunjung & Hitungan Masuk ---
 async function setupFirebaseVisitorCounter() {
-    const visitorCountLabel = visitorCountDisplay.querySelector('i').nextSibling; // Untuk mengubah teks
-    visitorCountLabel.textContent = ' Masuk website: ';
     visitorCountSpan.textContent = '-';
     if (!window.firebaseServices) {
         console.warn("Layanan Firebase tidak tersedia.");
@@ -112,10 +109,10 @@ async function setupFirebaseVisitorCounter() {
     const { auth, db, doc, runTransaction, onSnapshot, signInAnonymously, signInWithCustomToken, initialAuthToken } = window.firebaseServices;
     try {
         if (!auth.currentUser) {
-            if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); }
+            if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); } 
             else { await signInAnonymously(auth); }
         }
-
+        
         const visitorDocRef = doc(db, "artifacts", appId, "public/data/site_stats/visitors");
 
         onSnapshot(visitorDocRef, (doc) => {
@@ -124,7 +121,7 @@ async function setupFirebaseVisitorCounter() {
             if (doc.exists() && typeof doc.data().count === 'number' && !isNaN(doc.data().count)) {
                 newCountText = doc.data().count.toString();
             }
-
+            
             visitorCountSpan.textContent = newCountText;
 
             if (oldCount !== '-' && oldCount !== newCountText) {
@@ -134,7 +131,7 @@ async function setupFirebaseVisitorCounter() {
                 }, 500);
             }
         });
-
+        
         // Menambah hitungan setiap kali halaman dimuat
         await runTransaction(db, async (transaction) => {
             const visitorDoc = await transaction.get(visitorDocRef);
@@ -151,7 +148,6 @@ async function setupFirebaseVisitorCounter() {
         visitorCountSpan.textContent = 'Error';
     }
 }
-
 
 // --- Logika Tombol Multifungsi (FAB) ---
 multifunctionFab.addEventListener('click', (e) => {
