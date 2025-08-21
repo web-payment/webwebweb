@@ -263,12 +263,13 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: var(--white-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--white-color); /* Warna latar belakang agar tidak transparan */
+    position: sticky; /* Menempel saat di-scroll */
+    top: 0;          /* Menempel di bagian paling atas */
+    z-index: 100;      /* Memastikan header berada di lapisan terdepan */
+    border-bottom: 1px solid var(--border-color); /* Garis pemisah */
 }
+
 .admin-header h2 {
     margin: 0;
     font-size: 1.5em;
