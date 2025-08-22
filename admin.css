@@ -50,13 +50,13 @@ body {
     min-height: 100vh;
 }
 
-/* Container admin - Disesuaikan untuk responsif */
+/* Container admin - Pastikan selalu terpusat dan tidak melewati batas */
 .main-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px; /* Tambahkan padding agar tidak terlalu mepet ke samping */
-    box-sizing: border-box;
+    margin: 0 auto; /* Ini yang membuat konten utama terpusat */
+    padding: 15px; /* Padding agar tidak terlalu mepet ke samping */
+    box-sizing: border-box; /* Penting agar padding tidak menambah lebar */
 }
 
 /* ============================================== */
@@ -74,6 +74,7 @@ body {
     text-align: center;
     width: 100%;
     max-width: 400px;
+    margin: 0 auto; /* Pastikan kartu login terpusat */
 }
 .login-header {
     margin-bottom: 25px;
@@ -100,6 +101,30 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
+
+/* Perbaikan posisi ikon mata pada input password */
+.password-input-container {
+    position: relative; /* Kontainer menjadi relatif */
+    width: 100%; /* Pastikan mengambil lebar penuh */
+    margin-bottom: 15px; /* Tambahkan sedikit ruang di bawah input */
+}
+.password-input-container input {
+    padding-right: 40px; /* Tambahkan padding agar ikon tidak menutupi teks */
+    width: 100%;
+}
+.password-toggle {
+    position: absolute; /* Ikon menjadi absolut */
+    right: 15px; /* Posisikan di sebelah kanan */
+    top: 50%; /* Tengah vertikal */
+    transform: translateY(-50%); /* Penyesuaian tengah vertikal */
+    cursor: pointer;
+    color: var(--light-text-color);
+    font-size: 1em;
+}
+.password-toggle:hover {
+    color: var(--text-color);
+}
+
 
 /* ============================================== */
 /* FORM CARD & GENERAL ELEMENTS                 */
@@ -182,40 +207,42 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .admin-header {
     width: 100%;
     background-color: var(--white-color);
-    padding: 10px 15px; /* Kurangi padding untuk efisiensi ruang */
+    padding: 10px 15px; /* Sesuaikan padding */
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Untuk mendorong elemen ke ujung */
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-sizing: border-box; /* Penting agar padding tidak menambah lebar */
 }
 .admin-header h2 {
     margin: 0;
-    font-size: 1.4em; /* Sedikit lebih kecil */
-    flex-grow: 1;
+    font-size: 1.4em;
+    flex-grow: 1; /* Memberikan ruang ke judul */
     text-align: center;
-    padding: 0 10px; /* Tambahkan padding horizontal agar tidak terlalu mepet */
+    padding: 0 10px; /* Padding horizontal untuk mencegah teks terlalu mepet */
+    min-width: 0; /* Memungkinkan teks judul untuk menyusut jika diperlukan */
+    white-space: nowrap; /* Mencegah teks wrapping */
+    overflow: hidden; /* Menyembunyikan teks yang meluber */
+    text-overflow: ellipsis; /* Menambahkan elipsis (...) jika teks terlalu panjang */
 }
-.admin-header .profile-pic {
-    width: 38px; /* Sedikit lebih kecil */
+.admin-header .profile-pic,
+.admin-header .theme-switch {
+    width: 38px;
     height: 38px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0; /* Pastikan gambar tidak menyusut */
+    flex-shrink: 0; /* Pastikan gambar dan tombol tidak menyusut */
 }
 .theme-switch {
-    width: 38px; /* Sedikit lebih kecil */
-    height: 38px;
-    border-radius: 50%;
     background-color: var(--secondary-color);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Pastikan tombol tidak menyusut */
 }
 .theme-switch:hover { filter: brightness(0.95); }
 .theme-switch i { font-size: 1.0em; transition: transform 0.2s ease; }
