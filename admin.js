@@ -480,6 +480,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return showToast('Data tidak valid (Nama, Harga, Deskripsi harus diisi dan harga harus angka positif).', 'error');
             }
             
+            // Validasi format nomor WA
+            if (newWaNumber && (!newWaNumber.startsWith('62') || newWaNumber.length < 10)) {
+                return showToast('Nomor WhatsApp harus diawali dengan kode negara (62).', 'error');
+            }
+            
             saveEditBtn.textContent = 'Menyimpan...';
             saveEditBtn.disabled = true;
 
@@ -684,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyBulkPriceBtn.disabled = true;
 
             try {
-                const res = await fetch(`${API_BASE_URL}/updateProductsInCategory`, { 
+                const res = await fetch(`${API_BASE_URL}/updateProduct`, { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ category, newPrice: newBulkPrice })
@@ -725,6 +730,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!newNumber) {
             return showToast('Nomor tidak boleh kosong.', 'error');
         }
+
+        // Validasi format nomor WA
+        if (!newNumber.startsWith('62') || newNumber.length < 10) {
+            return showToast('Nomor WhatsApp harus diawali dengan kode negara (62).', 'error');
+        }
+
         showToast('Menyimpan nomor admin...', 'info');
         saveAdminWaBtn.disabled = true;
         try {
