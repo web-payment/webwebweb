@@ -423,22 +423,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Geser Produk
         let draggingItem = null;
-        let autoScrollAnimationFrame = null; // Menggunakan requestAnimationFrame
-        const SCROLL_SPEED = 8; // Kecepatan scroll (dapat disesuaikan)
-        const SCROLL_AREA_HEIGHT = 80; // Tinggi area di atas/bawah yang memicu scroll (dapat disesuaikan)
+        let autoScrollAnimationFrame = null; 
+        // Mengoptimalkan kecepatan dan area pemicu scroll
+        const SCROLL_SPEED = 15; // Kecepatan scroll (ditingkatkan untuk lebih lancar)
+        const SCROLL_AREA_HEIGHT = 100; // Tinggi area di atas/bawah yang memicu scroll (ditingkatkan)
 
-        // Fungsi untuk autoscroll menggunakan requestAnimationFrame
         function scrollManageProductList(direction) {
             if (direction === 'up') {
                 manageProductList.scrollTop -= SCROLL_SPEED;
             } else if (direction === 'down') {
                 manageProductList.scrollTop += SCROLL_SPEED;
             }
-            // Lanjutkan animasi jika masih ada arah scroll
             if (autoScrollAnimationFrame && (direction === 'up' || direction === 'down')) {
-                requestAnimationFrame(() => scrollManageProductList(direction));
+                // Hanya lanjutkan jika masih dalam area pemicu
+                const containerRect = manageProductList.getBoundingClientRect();
+                const currentMouseY = lastDragoverY; // Gunakan posisi Y mouse terakhir
+                if (currentMouseY < containerRect.top + SCROLL_AREA_HEIGHT && direction === 'up' ||
+                    currentMouseY > containerRect.bottom - SCROLL_AREA_HEIGHT && direction === 'down') {
+                    autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList(direction));
+                } else {
+                    // Hentikan jika mouse sudah keluar dari area pemicu scroll
+                    cancelAnimationFrame(autoScrollAnimationFrame);
+                    autoScrollAnimationFrame = null;
+                }
             }
         }
+
+        let lastDragoverY = 0; // Menyimpan posisi Y mouse terakhir saat dragover
 
         manageProductList.addEventListener('dragstart', (e) => {
             draggingItem = e.target.closest('.delete-item');
@@ -454,7 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 draggingItem.classList.remove('dragging');
                 draggingItem = null;
             }
-            // Hentikan autoscroll saat drag berakhir
             if (autoScrollAnimationFrame) {
                 cancelAnimationFrame(autoScrollAnimationFrame);
                 autoScrollAnimationFrame = null;
@@ -463,6 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         manageProductList.addEventListener('dragover', (e) => {
             e.preventDefault(); 
+            lastDragoverY = e.clientY; // Update posisi Y mouse terakhir
+
             const afterElement = getDragAfterElement(manageProductList, e.clientY);
             const draggable = document.querySelector('.dragging');
             if (!draggable || draggable === afterElement) return;
@@ -473,27 +485,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 manageProductList.insertBefore(draggable, afterElement);
             }
 
-            // Logika autoscroll
             const containerRect = manageProductList.getBoundingClientRect();
             const mouseY = e.clientY;
 
-            // Hentikan animasi yang ada sebelum memulai yang baru
             if (autoScrollAnimationFrame) {
                 cancelAnimationFrame(autoScrollAnimationFrame);
                 autoScrollAnimationFrame = null;
             }
 
             if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
-                // Scroll ke atas
                 autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('up'));
             } else if (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT) {
-                // Scroll ke bawah
                 autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('down'));
             }
-            // Jika di tengah, autoScrollAnimationFrame akan tetap null, sehingga tidak ada scroll
         });
 
-        // Hentikan autoscroll saat meninggalkan area manageProductList
         manageProductList.addEventListener('dragleave', () => {
             if (autoScrollAnimationFrame) {
                 cancelAnimationFrame(autoScrollAnimationFrame);
@@ -510,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
         manageProductList.addEventListener('drop', (e) => {
             e.preventDefault(); 
             manageProductList.classList.remove('drag-over');
-            // Hentikan autoscroll saat drop
             if (autoScrollAnimationFrame) {
                 cancelAnimationFrame(autoScrollAnimationFrame);
                 autoScrollAnimationFrame = null;
