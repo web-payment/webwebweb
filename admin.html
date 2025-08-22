@@ -107,6 +107,17 @@
                 </select>
                 <div id="manage-product-list"></div>
                 <button type="button" id="save-order-button" style="display:none;">Simpan Urutan</button>
+
+                <!-- Fitur Edit Harga Massal per Kategori - DITAMBAHKAN DI SINI -->
+                <div id="bulk-price-edit-container" class="bulk-price-edit-container" style="display: none;">
+                    <label for="bulk-price-input">Ubah Harga Semua Produk di Kategori Ini:</label>
+                    <div class="bulk-price-input-group">
+                        <input type="number" id="bulk-price-input" placeholder="Masukkan harga baru (contoh: 5000)">
+                        <button type="button" id="apply-bulk-price-btn">Terapkan Harga</button>
+                    </div>
+                </div>
+                <!-- Akhir Fitur Edit Harga Massal -->
+
             </form>
         </div>
     </div>
