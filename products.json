@@ -439,5 +439,15 @@
                 "https://d.top4top.io/p_3520eqk5b0.jpg"
             ]
         }
+    ],
+    "Suntik Sosmed": [
+        {
+            "id": 70,
+            "nama": "Suntik",
+            "harga": 1946494,
+            "hargaAsli": 1946494,
+            "deskripsiPanjang": "Kanaba",
+            "createdAt": "2025-08-22T05:27:33.002Z"
+        }
     ]
 }
