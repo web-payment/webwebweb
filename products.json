@@ -172,6 +172,14 @@
     ],
     "Script": [
         {
+            "id": 67,
+            "nama": "Script pusj",
+            "harga": 13333,
+            "deskripsiPanjang": "Iana",
+            "createdAt": "2025-08-21T13:49:38.544Z",
+            "menuContent": "Auto pusj"
+        },
+        {
             "id": 58,
             "nama": "Script Hikmal-v1",
             "harga": 25000,
@@ -221,14 +229,6 @@
             "harga": 20000,
             "deskripsiPanjang": "Script ini cocok untuk Pushkontak dan open bot Pushkontak fitur lumayan.",
             "menuContent": "Fitur Script new-push-rikishop:\n..."
-        },
-        {
-            "id": 67,
-            "nama": "Script pusj",
-            "harga": 13333,
-            "deskripsiPanjang": "Iana",
-            "createdAt": "2025-08-21T13:49:38.544Z",
-            "menuContent": "Auto pusj"
         },
         {
             "id": 31,
