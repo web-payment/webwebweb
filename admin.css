@@ -358,7 +358,6 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 }
 
 /* Gaya Modal */
-/* Gaya Modal */
 .modal {
     position: fixed;
     z-index: 2000;
@@ -367,7 +366,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.6);
-    display: none; /* Awalnya tersembunyi */
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 15px;
@@ -382,159 +381,14 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     flex-direction: column;
     position: relative;
     padding: 20px;
-    /* Menambahkan animasi untuk muncul dengan halus */
     opacity: 0;
     transform: scale(0.95) translateY(-20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
+.modal.is-visible {
+    display: flex;
+}
 .modal.is-visible .modal-content {
     opacity: 1;
     transform: scale(1) translateY(0);
-}
-
-.modal-content h2 {
-    text-align: left;
-}
-.modal-content .admin-header {
-    margin-bottom: 10px;
-}
-.close-button {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    color: var(--light-text-color);
-    transition: color 0.2s ease;
-}
-.close-button:hover {
-    color: var(--error-color);
-}
-.photo-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
-.photo-item {
-    position: relative;
-}
-.photo-item img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-.delete-photo-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 25px;
-    height: 25px;
-    background-color: var(--error-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.7em;
-    margin: 0;
-    padding: 0;
-    border: none;
-}
-.add-photo-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-.add-photo-container input {
-    flex: 1;
-}
-.add-photo-container button {
-    width: auto;
-    margin-top: 0;
-    padding: 8px 12px;
-    font-size: 0.9em;
-    white-space: nowrap;
-}
-.modal-content button {
-    width: auto;
-    margin-top: 20px;
-    margin-left: auto;
-}
-body.dark-mode {
-    --primary-color: #0a84ff;
-    --secondary-color: #1c1c1e;
-    --text-color: #f5f5f7;
-    --light-text-color: #a1a1a6;
-    --white-color: #2c2c2e;
-    --border-color: #3a3a3c;
-    --shadow-color: rgba(0, 0, 0, 0.6);
-}
-
-body.dark-mode {
-    background-color: var(--secondary-color);
-    color: var(--text-color);
-}
-body.dark-mode h2, body.dark-mode .delete-item span {
-    color: var(--text-color);
-}
-body.dark-mode p, body.dark-mode .password-toggle {
-    color: var(--light-text-color);
-}
-body.dark-mode .form-card {
-    background-color: var(--white-color);
-    border-color: var(--border-color);
-    box-shadow: 0 10px 30px var(--shadow-color);
-}
-body.dark-mode .form-card h2 i {
-    color: var(--primary-color);
-}
-body.dark-mode label {
-    color: var(--text-color);
-}
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-    background-color: #2f2f31;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-}
-body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus {
-    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
-}
-body.dark-mode button {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-}
-body.dark-mode .toast {
-    background-color: rgba(44, 44, 46, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--text-color);
-}
-body.dark-mode .delete-item {
-    background: var(--secondary-color);
-    border-color: var(--border-color);
-}
-body.dark-mode .delete-item:hover {
-    background: #2f2f31;
-}
-body.dark-mode .delete-item span {
-    color: var(--text-color);
-}
-body.dark-mode .theme-switch {
-    background-color: var(--secondary-color);
-}
-body.dark-mode .theme-switch i {
-    color: var(--text-color);
-}
-body.dark-mode .admin-tabs {
-    background-color: var(--white-color);
-    border-color: var(--border-color);
-}
-body.dark-mode .tab-button {
-    color: var(--text-color);
-}
-body.dark-mode .tab-button.active {
-    background-color: var(--primary-color);
-    color: var(--white-color);
 }
