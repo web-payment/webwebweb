@@ -460,6 +460,14 @@
             "hargaAsli": 1946494,
             "deskripsiPanjang": "Kanaba",
             "createdAt": "2025-08-22T05:27:33.002Z"
+        },
+        {
+            "id": 73,
+            "nama": "Suntik",
+            "harga": 3161,
+            "hargaAsli": 3161,
+            "deskripsiPanjang": "Usbs",
+            "createdAt": "2025-08-22T07:54:35.335Z"
         }
     ]
 }
