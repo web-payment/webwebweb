@@ -11,6 +11,7 @@
 <body class="light-mode">
     <div id="toast-container"></div>
 
+    <!-- Login Screen -->
     <div id="login-screen" class="main-container">
         <div class="form-card login-card">
             <div class="login-header">
@@ -29,6 +30,7 @@
         </div>
     </div>
 
+    <!-- Product Form Screen -->
     <div id="product-form-screen" class="main-container" style="display: none;">
         <header class="admin-header">
             <img src="logo.jpg" alt="Rikishopreal" class="profile-pic">
@@ -43,38 +45,48 @@
             <button class="tab-button" data-tab="manageProducts">Kelola Produk</button>
         </nav>
         
+        <!-- Tambah Produk -->
         <div id="addProduct" class="admin-tab-content active form-card">
-            <h2><i class="fas fa-plus-circle"></i> Tambah Produk</h2>
-            <label for="category">Kategori Produk:</label>
-            <select id="category">
-                <option value="Panel">Panel</option>
-                <option value="VPS">VPS</option>
-                <option value="Script">Script</option>
-                <option value="Jasa">Jasa</option>
-                <option value="murid">Join Murid</option>
-                <option value="Sewa Bot">Sewa Bot</option>
-                <option value="Stock Akun">Stock Akun</option>
-                <option value="Logo">Logo</option>
-                <option value="Suntik Sosmed">Suntik Sosmed</option>
-            </select>
-            <label for="product-name">Nama Produk:</label>
-            <input type="text" id="product-name" placeholder="Contoh: Panel Ram 1GB">
-            <label for="product-price">Harga Produk (hanya angka):</label>
-            <input type="number" id="product-price" placeholder="Contoh: 3000">
-            <label for="product-description">Deskripsi Produk (Tekan Enter untuk baris baru):</label>
-            <textarea id="product-description" rows="5" placeholder="Tulis deskripsi di sini..."></textarea>
-            
-            <div id="scriptMenuSection" style="display: none;">
-                <label for="script-menu-content">Konten Menu Script:</label>
-                <textarea id="script-menu-content" rows="10" placeholder="Tulis menu script di sini..."></textarea>
-            </div>
-            <div id="stock-photo-section" style="display: none;">
-                <label for="product-photos">Link Foto (pisahkan dengan koma):</label>
-                <input type="text" id="product-photos" placeholder="https://url.com/foto1.jpg, https://url.com/foto2.jpg">
-            </div>
-            <button id="add-product-button">Tambah Produk</button>
+            <form class="admin-form" id="addProductForm">
+                <h2><i class="fas fa-plus-circle"></i> Tambah Produk</h2>
+                
+                <label for="category">Kategori Produk:</label>
+                <select id="category">
+                    <option value="Panel">Panel</option>
+                    <option value="VPS">VPS</option>
+                    <option value="Script">Script</option>
+                    <option value="Jasa">Jasa</option>
+                    <option value="murid">Join Murid</option>
+                    <option value="Sewa Bot">Sewa Bot</option>
+                    <option value="Stock Akun">Stock Akun</option>
+                    <option value="Logo">Logo</option>
+                    <option value="Suntik Sosmed">Suntik Sosmed</option>
+                </select>
+                
+                <label for="product-name">Nama Produk:</label>
+                <input type="text" id="product-name" placeholder="Contoh: Panel Ram 1GB">
+                
+                <label for="product-price">Harga Produk (hanya angka):</label>
+                <input type="number" id="product-price" placeholder="Contoh: 3000">
+                
+                <label for="product-description">Deskripsi Produk (Tekan Enter untuk baris baru):</label>
+                <textarea id="product-description" rows="5" placeholder="Tulis deskripsi di sini..."></textarea>
+                
+                <div id="scriptMenuSection" style="display: none;">
+                    <label for="script-menu-content">Konten Menu Script:</label>
+                    <textarea id="script-menu-content" rows="10" placeholder="Tulis menu script di sini..."></textarea>
+                </div>
+                
+                <div id="stock-photo-section" style="display: none;">
+                    <label for="product-photos">Link Foto (pisahkan dengan koma):</label>
+                    <input type="text" id="product-photos" placeholder="https://url.com/foto1.jpg, https://url.com/foto2.jpg">
+                </div>
+                
+                <button id="add-product-button">Tambah Produk</button>
+            </form>
         </div>
         
+        <!-- Kelola Produk -->
         <div id="manageProducts" class="admin-tab-content form-card">
             <h2><i class="fas fa-cogs"></i> Kelola Produk</h2>
             <label for="manage-category">Pilih Kategori:</label>
@@ -95,34 +107,44 @@
         </div>
     </div>
     
+    <!-- Modal Edit Produk -->
     <div id="editProductModal" class="modal">
         <div class="modal-content form-card">
-            <span class="close-button" id="closeEditModal">&times;</span>
-            <h2 id="editModalTitle">Edit Produk</h2>
-            <input type="hidden" id="edit-product-id">
-            <input type="hidden" id="edit-product-category">
-            <label for="edit-name">Nama Produk:</label>
-            <input type="text" id="edit-name">
-            <label for="edit-price">Harga Produk:</label>
-            <input type="number" id="edit-price">
-            <label for="edit-desc">Deskripsi Produk:</label>
-            <textarea id="edit-desc" rows="5"></textarea>
-            
-            <div id="edit-photo-section" style="display: none;">
-                <label>Kelola Foto:</label>
-                <div class="photo-grid" id="edit-photo-grid"></div>
-                <div class="add-photo-container">
-                    <input type="text" id="add-photo-input" placeholder="URL foto baru">
-                    <button type="button" id="add-photo-btn">Tambah</button>
+            <form class="admin-form" id="editProductForm">
+                <span class="close-button" id="closeEditModal">&times;</span>
+                <h2 id="editModalTitle">Edit Produk</h2>
+                
+                <input type="hidden" id="edit-product-id">
+                <input type="hidden" id="edit-product-category">
+                
+                <label for="edit-name">Nama Produk:</label>
+                <input type="text" id="edit-name">
+                
+                <label for="edit-price">Harga Produk:</label>
+                <input type="number" id="edit-price">
+                
+                <label for="edit-desc">Deskripsi Produk:</label>
+                <textarea id="edit-desc" rows="5"></textarea>
+                
+                <div id="edit-photo-section" style="display: none;">
+                    <label>Kelola Foto:</label>
+                    <div class="photo-grid" id="edit-photo-grid"></div>
+                    <div class="add-photo-container">
+                        <input type="text" id="add-photo-input" placeholder="URL foto baru">
+                        <button type="button" id="add-photo-btn">Tambah</button>
+                    </div>
                 </div>
-            </div>
-            <div id="edit-script-menu-section" style="display: none;">
-                <label for="edit-script-menu-content">Konten Menu Script:</label>
-                <textarea id="edit-script-menu-content" rows="10"></textarea>
-            </div>
-            <button type="button" id="save-edit-btn">Simpan Perubahan</button>
+                
+                <div id="edit-script-menu-section" style="display: none;">
+                    <label for="edit-script-menu-content">Konten Menu Script:</label>
+                    <textarea id="edit-script-menu-content" rows="10"></textarea>
+                </div>
+                
+                <button type="button" id="save-edit-btn">Simpan Perubahan</button>
+            </form>
         </div>
     </div>
+    
     <script src="admin.js"></script>
 </body>
 </html>

@@ -505,3 +505,65 @@ button:disabled {
     align-items: center;
     z-index: 10;
 }
+
+
+/* ============================================== */
+/* FORM TAMBAH & EDIT PRODUK                     */
+/* ============================================== */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--white-color);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* Label */
+.admin-form label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    color: var(--text-color);
+}
+
+/* Input & Textarea */
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,122,255,0.25);
+}
+
+/* Tombol */
+.admin-form button {
+    background: var(--primary-color);
+    color: var(--white-color);
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-form button:hover {
+    background: #0056cc;
+}
