@@ -38,6 +38,28 @@ body {
     overflow-x: hidden;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
+.light-mode {
+    --primary-color: #007aff;
+    --secondary-color: #f2f2f7;
+    --text-color: #1d1d1f;
+    --light-text-color: #8e8e93;
+    --white-color: #fff;
+    --border-color: #d1d1d6;
+    --shadow-color: rgba(0, 0, 0, 0.12);
+    --error-color: #ff3b30;
+    --success-color: #34c759;
+}
+.dark-mode {
+    --primary-color: #0a84ff;
+    --secondary-color: #1c1c1e;
+    --text-color: #f2f2f7;
+    --light-text-color: #8e8e93;
+    --white-color: #2c2c2e;
+    --border-color: #48484a;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --error-color: #ff453a;
+    --success-color: #32d74b;
+}
 
 .admin-container {
     width: 100%;
@@ -59,6 +81,26 @@ body {
 }
 .form-card:first-child {
     margin-top: 0;
+}
+/* Style tambahan untuk tampilan seperti gambar */
+.login-card {
+    text-align: center;
+}
+.login-card .profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.login-card h2 {
+    font-size: 1.8em;
+    font-weight: 700;
+}
+.login-card p {
+    font-size: 1em;
+    margin-bottom: 30px;
 }
 
 h2 {
@@ -370,6 +412,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     align-items: center;
     justify-content: center;
     padding: 15px;
+    transition: background-color 0.3s ease;
 }
 .modal-content {
     background-color: var(--white-color);
@@ -382,7 +425,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     position: relative;
     padding: 20px;
     opacity: 0;
-    transform: scale(0.95) translateY(-20px);
+    transform: scale(0.95) translateY(0);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .modal.is-visible {
@@ -391,4 +434,12 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .modal.is-visible .modal-content {
     opacity: 1;
     transform: scale(1) translateY(0);
+}
+.close-button {
+    font-size: 1.5rem;
+    color: var(--light-text-color);
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
 }
