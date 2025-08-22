@@ -6,7 +6,7 @@ export default async function handler(request, response) {
     }
 
     try {
-        const { id, category, newName, newPrice, newDesc, newImages } = request.body;
+        const { id, category, newName, newPrice, newDesc, newImages, newMenuContent } = request.body;
         if (!id || !category || !newName || !newDesc || typeof newPrice !== 'number' || newPrice < 0) {
             return response.status(400).json({ message: 'Data tidak valid.' });
         }
@@ -41,8 +41,11 @@ export default async function handler(request, response) {
                 product.nama = newName;
                 product.harga = newPrice;
                 product.deskripsiPanjang = newDesc;
-                if (newImages) {
+                if (newImages !== undefined) {
                     product.images = newImages;
+                }
+                if (newMenuContent !== undefined) {
+                    product.menuContent = newMenuContent;
                 }
             }
             return product;
