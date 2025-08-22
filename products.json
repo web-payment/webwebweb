@@ -1,6 +1,14 @@
 {
     "Panel": [
         {
+            "id": 76,
+            "nama": "Fghhh",
+            "harga": 15888,
+            "hargaAsli": 15888,
+            "deskripsiPanjang": "Gdhbb",
+            "createdAt": "2025-08-22T08:15:17.506Z"
+        },
+        {
             "id": 75,
             "nama": "Gshbb",
             "harga": 12000,
