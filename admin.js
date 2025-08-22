@@ -184,13 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(button.dataset.tab).classList.add('active');
             if (button.dataset.tab === 'manageProducts') {
-                // Saat tab "Kelola Produk" diaktifkan, reset pilihan kategori dan muat ulang
-                manageCategorySelect.value = ''; // Reset pilihan kategori
-                manageProductList.innerHTML = ''; // Kosongkan daftar
-                saveOrderButton.style.display = 'none'; // Sembunyikan tombol simpan urutan
-                // Opsional: Langsung memuat produk dari kategori pertama atau yang terakhir dilihat
-                // manageCategorySelect.value = 'Panel'; // Contoh: otomatis pilih 'Panel'
-                // manageCategorySelect.dispatchEvent(new Event('change'));
+                // Saat tab "Kelola Produk" diaktifkan, muat ulang daftar
+                // Ini akan memastikan UI diperbarui dengan data terbaru dari products.json
+                const currentCategory = manageCategorySelect.value;
+                if (currentCategory) { // Hanya muat ulang jika ada kategori yang dipilih
+                    manageCategorySelect.dispatchEvent(new Event('change'));
+                } else {
+                    manageProductList.innerHTML = '<p>Pilih kategori untuk mengelola produk.</p>';
+                    saveOrderButton.style.display = 'none';
+                }
             }
         });
     });
@@ -279,6 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     parent.remove(); // Hapus item dari DOM setelah berhasil
                     showToast(result.message, 'success');
+                    // Tidak perlu memuat ulang seluruh daftar karena item sudah dihapus dari DOM
+                    // Jika ingin memastikan seluruh daftar selalu sinkron, bisa panggil:
+                    // manageCategorySelect.dispatchEvent(new Event('change'));
                 } catch (err) {
                     console.error('Error deleting product:', err);
                     showToast(err.message || 'Gagal menghapus produk.', 'error');
@@ -320,7 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 editModalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Produk: ${product.nama}`;
                 editNameInput.value = product.nama;
                 editPriceInput.value = product.harga;
-                editDescInput.value = product.deskripsiPanjang.replace(/ \|\| /g, '\n');
+                // Pastikan deskripsi ditampilkan dengan baris baru yang benar
+                editDescInput.value = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/ \|\| /g, '\n') : '';
                 
                 // Atur visibilitas dan konten berdasarkan kategori
                 if (category === 'Stock Akun' || category === 'Logo') {
@@ -385,9 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // PENTING: Mencegah submit form default
             const id = parseInt(editProductId.value);
             const categoryToUpdate = editProductCategory.value;
-            const newName = editNameInput.value;
+            const newName = editNameInput.value.trim();
             const newPrice = parseInt(editPriceInput.value, 10);
-            const newDesc = editDescInput.value.replace(/\n/g, ' || ');
+            const newDesc = editDescInput.value.trim().replace(/\n/g, ' || ');
             
             let newImages = null;
             if (categoryToUpdate === 'Stock Akun' || categoryToUpdate === 'Logo') {
@@ -396,10 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let newMenuContent = null;
             if (categoryToUpdate === 'Script') {
-                newMenuContent = editScriptMenuContent.value;
+                newMenuContent = editScriptMenuContent.value.trim();
             }
 
-            if (isNaN(newPrice) || newPrice < 0 || !newName.trim() || !newDesc.trim()) {
+            if (isNaN(newPrice) || newPrice < 0 || !newName || !newDesc) {
                 return showToast('Data tidak valid (Nama, Harga, Deskripsi harus diisi dan harga harus angka positif).', 'error');
             }
             

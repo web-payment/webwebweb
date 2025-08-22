@@ -182,7 +182,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .admin-header {
     width: 100%;
     background-color: var(--white-color);
-    padding: 15px 20px;
+    padding: 10px 15px; /* Kurangi padding untuk efisiensi ruang */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -193,19 +193,21 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 }
 .admin-header h2 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.4em; /* Sedikit lebih kecil */
     flex-grow: 1;
     text-align: center;
+    padding: 0 10px; /* Tambahkan padding horizontal agar tidak terlalu mepet */
 }
 .admin-header .profile-pic {
-    width: 40px;
-    height: 40px;
+    width: 38px; /* Sedikit lebih kecil */
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0; /* Pastikan gambar tidak menyusut */
 }
 .theme-switch {
-    width: 40px;
-    height: 40px;
+    width: 38px; /* Sedikit lebih kecil */
+    height: 38px;
     border-radius: 50%;
     background-color: var(--secondary-color);
     display: flex;
@@ -213,9 +215,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Pastikan tombol tidak menyusut */
 }
 .theme-switch:hover { filter: brightness(0.95); }
-.theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
+.theme-switch i { font-size: 1.0em; transition: transform 0.2s ease; }
 
 /* Tabs - Disesuaikan untuk responsif */
 .admin-tabs {
