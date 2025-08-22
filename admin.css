@@ -32,6 +32,10 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-100%); }
+}
 
 /* ============================================== */
 /* LAYOUT DASAR                                 */
@@ -43,24 +47,62 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
-    display: flex;
-    justify-content: center;
-    align-items: center;   /* ✅ tengah vertikal */
     min-height: 100vh;
 }
 
-
-/* Supaya konten admin responsif */
+/* Container admin */
 .main-container {
     width: 100%;
-    max-width: 1200px;  /* lebih lebar untuk admin */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 15px;
     box-sizing: border-box;
 }
 
 /* ============================================== */
-/* KOMPONEN UMUM                                */
+/* LOGIN SCREEN                                 */
+/* ============================================== */
+#login-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.login-card {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+.login-header {
+    margin-bottom: 25px;
+}
+.login-header .profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.login-header h2 {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.login-header p {
+    font-size: 1em;
+    margin-bottom: 0;
+}
+.login-card .theme-switch {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================== */
+/* FORM CARD & GENERAL ELEMENTS                 */
 /* ============================================== */
 .form-card {
     background-color: var(--white-color);
@@ -84,7 +126,6 @@ h2 i {
     margin-right: 10px;
     color: var(--primary-color);
 }
-
 p {
     text-align: center;
     color: var(--light-text-color);
@@ -99,7 +140,6 @@ label {
     font-weight: 500;
     font-size: 0.9em;
 }
-
 input, select, textarea {
     width: 100%;
     padding: 12px 15px;
@@ -117,10 +157,7 @@ input:focus, select:focus, textarea:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
 }
-textarea {
-    resize: vertical;
-    min-height: 100px;
-}
+textarea { resize: vertical; min-height: 100px; }
 
 button {
     width: 100%;
@@ -135,66 +172,13 @@ button {
     cursor: pointer;
     transition: all 0.2s ease;
 }
-button:hover {
-    filter: brightness(1.1);
-}
-button:active {
-    transform: scale(0.97);
-}
-button:disabled {
-    background-color: var(--light-text-color);
-    cursor: not-allowed;
-}
-
-/* ============================================== */
-/* HALAMAN LOGIN                                */
-/* ============================================== */
-#login-screen {
-    display: flex;
-    justify-content: center;   /* horizontal center */
-    align-items: center;       /* vertical center */
-    min-height: 100vh;         /* penuh layar */
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-/* Supaya form login tetap responsif */
-.login-card {
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-}
-.login-header {
-    margin-bottom: 25px;
-}
-.login-header .profile-pic {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-.login-header h2 {
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-.login-header p {
-    font-size: 1em;
-    margin-bottom: 0;
-}
-.login-card .theme-switch {
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-}
+button:hover { filter: brightness(1.1); }
+button:active { transform: scale(0.97); }
+button:disabled { background-color: var(--light-text-color); cursor: not-allowed; }
 
 /* ============================================== */
 /* PANEL ADMIN                                  */
 /* ============================================== */
-
-
 .admin-header {
     width: 100%;
     background-color: var(--white-color);
@@ -203,9 +187,9 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    position: sticky;    /* sticky agar tetap di atas */
+    position: sticky;
     top: 0;
-    z-index: 1000;       /* pastikan di atas konten lain */
+    z-index: 1000;
 }
 .admin-header h2 {
     margin: 0;
@@ -230,31 +214,8 @@ button:disabled {
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
-.theme-switch:hover {
-    filter: brightness(0.95);
-}
-.theme-switch i {
-    font-size: 1.1em;
-    transition: transform 0.2s ease;
-}
-
-/* Password Toggle */
-.password-input-container {
-    position: relative;
-    width: 100%;
-}
-.password-input-container input {
-    width: 100%;
-    padding-right: 45px;
-}
-.password-toggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--light-text-color);
-}
+.theme-switch:hover { filter: brightness(0.95); }
+.theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
 
 /* Tabs */
 .admin-tabs {
@@ -267,7 +228,6 @@ button:disabled {
     margin-top: 20px;
     flex-wrap: wrap;
 }
-
 .tab-button {
     flex: 1;
     border: none;
@@ -316,7 +276,7 @@ button:disabled {
     color: var(--text-color);
     padding: 12px 20px;
     border-radius: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     font-size: 0.95em;
     font-weight: 500;
     backdrop-filter: blur(10px);
@@ -326,18 +286,9 @@ button:disabled {
     pointer-events: auto;
 }
 .toast.success { background-color: rgba(52, 199, 89, 0.9); color: white; }
-.toast.success i { color: white; }
 .toast.error { background-color: rgba(255, 59, 48, 0.9); color: white; }
-.toast.error i { color: white; }
 .toast.info { background-color: rgba(0, 122, 255, 0.9); color: white; }
-.toast.info i { color: white; }
-.toast.fade-out {
-    animation: fadeOut 0.5s ease forwards;
-}
-@keyframes fadeOut {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-100%); }
-}
+.toast.fade-out { animation: fadeOut 0.5s ease forwards; }
 
 .modal {
     position: fixed;
@@ -346,37 +297,29 @@ button:disabled {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0,0,0,0.6);
     display: flex;
-    align-items: center;   /* vertical center */
-    justify-content: center; /* horizontal center */
+    align-items: center;
+    justify-content: center;
     padding: 15px;
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease;
 }
-
-.modal.is-visible {
-    visibility: visible;
-    opacity: 1;
-}
-
+.modal.is-visible { visibility: visible; opacity: 1; }
 .modal-content {
     background-color: var(--white-color);
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
-    margin: auto; /* biar selalu tengah */
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    margin: auto;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     padding: 25px;
     position: relative;
     transform: scale(0.95);
     transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
-
-.modal.is-visible .modal-content {
-    transform: scale(1);
-}
+.modal.is-visible .modal-content { transform: scale(1); }
 .close-button {
     font-size: 2rem;
     color: var(--light-text-color);
@@ -385,16 +328,12 @@ button:disabled {
     right: 15px;
     cursor: pointer;
 }
-.close-button:hover {
-    color: var(--text-color);
-}
+.close-button:hover { color: var(--text-color); }
 
 /* ============================================== */
 /* KELOLA PRODUK (MANAGE)                       */
 /* ============================================== */
-.delete-list {
-    margin-top: 15px;
-}
+.delete-list { margin-top: 15px; }
 .delete-item {
     display: flex;
     flex-direction: column;
@@ -408,22 +347,15 @@ button:disabled {
     cursor: grab;
     transition: background 0.2s, box-shadow 0.2s;
 }
-.delete-item:hover {
-    background: var(--border-color);
-}
-.delete-item.dragging {
-    opacity: 0.7;
-    transform: scale(1.02);
-}
+.delete-item:hover { background: var(--border-color); }
+.delete-item.dragging { opacity: 0.7; transform: scale(1.02); }
 .item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
 }
-.item-header span {
-    font-weight: 500;
-}
+.item-header span { font-weight: 500; }
 .item-header .new-badge {
     background-color: var(--error-color);
     color: var(--white-color);
@@ -433,11 +365,7 @@ button:disabled {
     font-weight: bold;
     margin-left: 10px;
 }
-.item-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
+.item-actions { display: flex; gap: 10px; margin-top: 10px; }
 .edit-btn, .delete-btn {
     padding: 8px 12px;
     border-radius: 8px;
@@ -445,43 +373,20 @@ button:disabled {
     margin-top: 0;
     width: auto;
 }
-.edit-btn {
-    background-color: var(--primary-color);
-}
-.delete-btn {
-    background-color: var(--error-color);
-}
-.save-order-button {
-    margin-top: 20px;
-}
-.price-display {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.original-price del {
-    color: var(--light-text-color);
-    font-size: 0.9em;
-}
-.discounted-price {
-    font-weight: bold;
-}
-.add-photo-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
+.edit-btn { background-color: var(--primary-color); }
+.delete-btn { background-color: var(--error-color); }
+.save-order-button { margin-top: 20px; }
+.price-display { display: flex; align-items: center; gap: 5px; }
+.original-price del { color: var(--light-text-color); font-size: 0.9em; }
+.discounted-price { font-weight: bold; }
+.add-photo-container { display: flex; gap: 10px; margin-top: 10px; }
 .photo-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
 }
-.photo-item {
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
+.photo-item { position: relative; width: 80px; height: 80px; }
 .photo-item img {
     width: 100%;
     height: 100%;
@@ -506,7 +411,9 @@ button:disabled {
     z-index: 10;
 }
 
-/* FORM TAMBAH & EDIT PRODUK */
+/* ============================================== */
+/* FORM TAMBAH & EDIT PRODUK                    */
+/* ============================================== */
 .admin-form {
     display: flex;
     flex-direction: column;
@@ -519,14 +426,10 @@ button:disabled {
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-
-/* Supaya header H2 di dalam form lebih elegan */
 .admin-form h2 {
     text-align: center;
     margin-bottom: 10px;
 }
-
-/* Input, select, textarea */
 .admin-form input,
 .admin-form textarea,
 .admin-form select {
@@ -537,7 +440,6 @@ button:disabled {
     font-size: 1em;
     background: transparent;
 }
-
 .admin-form input:focus,
 .admin-form textarea:focus,
 .admin-form select:focus {
@@ -545,8 +447,6 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(0,122,255,0.25);
     outline: none;
 }
-
-/* Tombol */
 .admin-form button {
     background: var(--primary-color);
     color: var(--white-color);
@@ -558,15 +458,4 @@ button:disabled {
     cursor: pointer;
     transition: background 0.2s ease;
 }
-
-.admin-form button:hover {
-    background: #0056cc;
-}
-
-/* Override: kalau sudah masuk halaman admin, biarkan align top */
-#product-form-screen {
-    display: block;        /* biar normal */
-    margin: 0 auto;
-    padding: 20px;
-    max-width: 1200px;
-}
+.admin-form button:hover { background: #0056cc; }
