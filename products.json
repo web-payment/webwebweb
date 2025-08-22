@@ -253,6 +253,15 @@
             "harga": 25000,
             "deskripsiPanjang": "Script ini cocok untuk Pushkontak dan open bot Pushkontak fitur lumayan.",
             "menuContent": "Fitur Script push-versi-new:\n..."
+        },
+        {
+            "id": 72,
+            "nama": "Script tes",
+            "harga": 13464,
+            "hargaAsli": 13464,
+            "deskripsiPanjang": "Cocok || Untuk rokok",
+            "createdAt": "2025-08-22T07:53:11.091Z",
+            "menuContent": "1\nA\nA\nSsd\nD\nD\nD\nD\nD\nD\nD\nD\nD"
         }
     ],
     "Jasa": [
