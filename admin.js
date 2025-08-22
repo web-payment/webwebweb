@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeToastTimeout = null;
 
     function showToast(message, type = 'info', duration = 3000) {
-        // Hapus toast yang ada sebelum menampilkan yang baru
         if (toastContainer.firstChild) {
             clearTimeout(activeToastTimeout);
             toastContainer.innerHTML = '';
@@ -102,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loginScreen.style.display = 'none';
             productFormScreen.style.display = 'block';
             showToast('Login berhasil!', 'success');
-            // Picu klik pada tab "Tambah Produk" setelah login berhasil
             document.querySelector('.tab-button[data-tab="addProduct"]').click();
         } catch (e) {
             console.error('Login error:', e);
@@ -115,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginButton.addEventListener('click', handleLogin);
     passwordInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Mencegah submit form default
+            e.preventDefault(); 
             handleLogin();
         }
     });
@@ -157,14 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.message);
             }
             showToast(`Produk "${productData.nama}" berhasil ditambahkan.`, 'success');
-            // Reset form
             nameInput.value = '';
             priceInput.value = '';
             descriptionInput.value = '';
             photosInput.value = '';
             scriptMenuContentInput.value = '';
-            categorySelect.value = 'Panel'; // Reset ke kategori default
-            categorySelect.dispatchEvent(new Event('change')); // Picu perubahan untuk menyembunyikan/menampilkan seksi yang relevan
+            categorySelect.value = 'Panel'; 
+            categorySelect.dispatchEvent(new Event('change')); 
         } catch (err) {
             console.error('Error adding product:', err);
             showToast(err.message || 'Gagal menambahkan produk.', 'error');
@@ -426,9 +423,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Geser Produk
         let draggingItem = null;
-        let autoScrollInterval = null;
-        const SCROLL_SPEED = 10; // Kecepatan scroll
-        const SCROLL_AREA_HEIGHT = 50; // Tinggi area di atas/bawah yang memicu scroll
+        let autoScrollAnimationFrame = null; // Menggunakan requestAnimationFrame
+        const SCROLL_SPEED = 8; // Kecepatan scroll (dapat disesuaikan)
+        const SCROLL_AREA_HEIGHT = 80; // Tinggi area di atas/bawah yang memicu scroll (dapat disesuaikan)
+
+        // Fungsi untuk autoscroll menggunakan requestAnimationFrame
+        function scrollManageProductList(direction) {
+            if (direction === 'up') {
+                manageProductList.scrollTop -= SCROLL_SPEED;
+            } else if (direction === 'down') {
+                manageProductList.scrollTop += SCROLL_SPEED;
+            }
+            // Lanjutkan animasi jika masih ada arah scroll
+            if (autoScrollAnimationFrame && (direction === 'up' || direction === 'down')) {
+                requestAnimationFrame(() => scrollManageProductList(direction));
+            }
+        }
 
         manageProductList.addEventListener('dragstart', (e) => {
             draggingItem = e.target.closest('.delete-item');
@@ -438,14 +448,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.dataTransfer.setData('text/html', draggingItem.innerHTML);
             }
         });
+
         manageProductList.addEventListener('dragend', () => {
             if (draggingItem) {
                 draggingItem.classList.remove('dragging');
                 draggingItem = null;
             }
             // Hentikan autoscroll saat drag berakhir
-            clearInterval(autoScrollInterval);
-            autoScrollInterval = null;
+            if (autoScrollAnimationFrame) {
+                cancelAnimationFrame(autoScrollAnimationFrame);
+                autoScrollAnimationFrame = null;
+            }
         });
         
         manageProductList.addEventListener('dragover', (e) => {
@@ -464,33 +477,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const containerRect = manageProductList.getBoundingClientRect();
             const mouseY = e.clientY;
 
-            // Hentikan interval yang ada sebelum memulai yang baru
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
+            // Hentikan animasi yang ada sebelum memulai yang baru
+            if (autoScrollAnimationFrame) {
+                cancelAnimationFrame(autoScrollAnimationFrame);
+                autoScrollAnimationFrame = null;
             }
 
             if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
                 // Scroll ke atas
-                autoScrollInterval = setInterval(() => {
-                    manageProductList.scrollTop -= SCROLL_SPEED;
-                }, 30);
+                autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('up'));
             } else if (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT) {
                 // Scroll ke bawah
-                autoScrollInterval = setInterval(() => {
-                    manageProductList.scrollTop += SCROLL_SPEED;
-                }, 30);
-            } else {
-                // Di tengah, tidak perlu scroll
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
+                autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('down'));
             }
+            // Jika di tengah, autoScrollAnimationFrame akan tetap null, sehingga tidak ada scroll
         });
 
         // Hentikan autoscroll saat meninggalkan area manageProductList
         manageProductList.addEventListener('dragleave', () => {
-            clearInterval(autoScrollInterval);
-            autoScrollInterval = null;
+            if (autoScrollAnimationFrame) {
+                cancelAnimationFrame(autoScrollAnimationFrame);
+                autoScrollAnimationFrame = null;
+            }
             manageProductList.classList.remove('drag-over');
         });
 
@@ -503,8 +511,10 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); 
             manageProductList.classList.remove('drag-over');
             // Hentikan autoscroll saat drop
-            clearInterval(autoScrollInterval);
-            autoScrollInterval = null;
+            if (autoScrollAnimationFrame) {
+                cancelAnimationFrame(autoScrollAnimationFrame);
+                autoScrollAnimationFrame = null;
+            }
         });
 
 

@@ -96,11 +96,26 @@ body {
     font-size: 1em;
     margin-bottom: 0;
 }
-.login-card .theme-switch {
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
+
+/* Tombol Masuk - Dikembalikan ke bentuk persegi panjang */
+#login-button {
+    width: 100%; /* Lebar penuh */
+    padding: 14px;
+    margin-top: 30px;
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 10px; /* Sudut membulat */
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none; /* Hapus shadow tambahan jika ada */
 }
+#login-button:hover { filter: brightness(1.1); }
+#login-button:active { transform: scale(0.97); }
+#login-button:disabled { background-color: var(--light-text-color); cursor: not-allowed; }
+
 
 /* Perbaikan posisi ikon mata pada input password */
 .password-input-container {
@@ -125,22 +140,22 @@ body {
     color: var(--text-color);
 }
 
-/* Tombol Login - dibuat bulat */
-#login-button {
-    width: 60px; /* Lebar dan tinggi sama untuk membuatnya bulat */
-    height: 60px;
+/* Tombol Tema (theme-switch) - Dibuat bulat */
+.theme-switch {
+    width: 40px; /* Lebar dan tinggi sama untuk membuatnya bulat */
+    height: 40px;
     border-radius: 50%; /* Membuat tombol bulat */
-    padding: 0; /* Hapus padding agar teks/ikon pas di tengah */
-    display: flex; /* Menggunakan flexbox untuk memusatkan konten */
-    justify-content: center;
+    background-color: var(--secondary-color);
+    display: flex;
     align-items: center;
-    margin: 30px auto 0 auto; /* Pusatkan tombol secara horizontal */
-    font-size: 1em; /* Sesuaikan ukuran font jika perlu */
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.4); /* Tambahkan shadow agar lebih menonjol */
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Pastikan tombol tidak menyusut */
+    box-shadow: 0 2px 5px var(--shadow-color); /* Tambahkan sedikit shadow */
 }
-#login-button i {
-    margin: 0; /* Pastikan tidak ada margin tambahan pada ikon jika ada */
-}
+.theme-switch:hover { filter: brightness(0.95); }
+.theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
 
 
 /* ============================================== */
@@ -201,6 +216,7 @@ input:focus, select:focus, textarea:focus {
 }
 textarea { resize: vertical; min-height: 100px; }
 
+/* Tombol umum (selain login) */
 button {
     width: 100%;
     padding: 14px;
@@ -224,49 +240,38 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .admin-header {
     width: 100%;
     background-color: var(--white-color);
-    padding: 10px 15px; /* Sesuaikan padding */
+    padding: 10px 15px; 
     display: flex;
-    justify-content: space-between; /* Untuk mendorong elemen ke ujung */
+    justify-content: space-between; 
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-sizing: border-box; /* Penting agar padding tidak menambah lebar */
+    box-sizing: border-box; 
 }
 .admin-header h2 {
     margin: 0;
     font-size: 1.4em;
-    flex-grow: 1; /* Memberikan ruang ke judul */
+    flex-grow: 1; 
     text-align: center;
-    padding: 0 10px; /* Padding horizontal untuk mencegah teks terlalu mepet */
-    min-width: 0; /* Memungkinkan teks judul untuk menyusut jika diperlukan */
-    white-space: nowrap; /* Mencegah teks wrapping */
-    overflow: hidden; /* Menyembunyikan teks yang meluber */
-    text-overflow: ellipsis; /* Menambahkan elipsis (...) jika teks terlalu panjang */
+    padding: 0 10px; 
+    min-width: 0; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
 }
-.admin-header .profile-pic,
-.admin-header .theme-switch {
-    width: 38px;
+.admin-header .profile-pic {
+    width: 38px; 
     height: 38px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0; /* Pastikan gambar dan tombol tidak menyusut */
+    flex-shrink: 0; 
 }
-.theme-switch {
-    background-color: var(--secondary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.theme-switch:hover { filter: brightness(0.95); }
-.theme-switch i { font-size: 1.0em; transition: transform 0.2s ease; }
 
 /* Tabs - Perbaikan agar tidak "lewat ke pinggir" */
 .admin-tabs {
-    width: 100%; /* Pastikan lebar 100% dari parent */
+    width: 100%; 
     display: flex;
     background-color: var(--white-color);
     border-radius: 12px;
@@ -276,7 +281,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     flex-wrap: wrap; 
     justify-content: center; 
     box-sizing: border-box; /* Penting untuk mencegah overflow */
-    overflow: hidden; /* Tambahkan untuk memastikan tidak ada overflow horizontal */
+    /* overflow: hidden; -- Dihapus karena bisa menyembunyikan shadow/border jika ada */
 }
 .tab-button {
     flex: 1; 
@@ -562,10 +567,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         padding: 5px 0; 
     }
     .tab-button {
-        margin: 5px; 
+        margin: 5px auto; /* Pusatkan tombol tab saat dalam mode kolom */
         padding: 12px 10px;
         font-size: 0.9em;
-        max-width: 100%; /* Batasi lebar agar tidak melewati */
+        max-width: 90%; /* Batasi lebar agar tidak melewati */
     }
     .admin-tab-content {
         padding: 0 10px; /* Kurangi padding horizontal di layar kecil */
