@@ -298,15 +298,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     editScriptMenuSection.style.display = 'none';
                 }
                 
-                editModal.style.display = 'flex';
+                editModal.classList.add('is-visible');
             });
         });
 
         // Tutup Modal
-        closeEditModalBtn.addEventListener('click', () => editModal.style.display = 'none');
+        closeEditModalBtn.addEventListener('click', () => editModal.classList.remove('is-visible'));
         window.addEventListener('click', (e) => {
             if (e.target === editModal) {
-                editModal.style.display = 'none';
+                editModal.classList.remove('is-visible');
             }
         });
         
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(result.message);
                 }
                 showToast('Produk berhasil diperbarui.', 'success');
-                editModal.style.display = 'none';
+                editModal.classList.remove('is-visible');
                 manageCategorySelect.dispatchEvent(new Event('change'));
             } catch (err) {
                 showToast(err.message || 'Gagal memperbarui produk.', 'error');
