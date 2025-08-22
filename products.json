@@ -213,6 +213,14 @@
             "menuContent": "Fitur Script new-push-rikishop:\n..."
         },
         {
+            "id": 67,
+            "nama": "Script pusj",
+            "harga": 13333,
+            "deskripsiPanjang": "Iana",
+            "createdAt": "2025-08-21T13:49:38.544Z",
+            "menuContent": "Auto pusj"
+        },
+        {
             "id": 30,
             "nama": "Script push-versi-new",
             "harga": 25000,
@@ -232,14 +240,6 @@
             "harga": 15000,
             "deskripsiPanjang": "cocok untuk jaga grup dan ada fitur addlist nya.",
             "menuContent": "Fitur Script NEW-STORE-X-GRUP-Rikibtz:\n..."
-        },
-        {
-            "id": 67,
-            "nama": "Script pusj",
-            "harga": 13333,
-            "deskripsiPanjang": "Iana",
-            "createdAt": "2025-08-21T13:49:38.544Z",
-            "menuContent": "Auto pusj"
         },
         {
             "id": 68,
