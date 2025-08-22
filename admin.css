@@ -43,15 +43,16 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
-    display: flex; /* Tambahkan ini */
-    justify-content: center; /* Tambahkan ini */
-    min-height: 100vh; /* Tambahkan ini */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Ubah ini agar konten tidak terlalu ke tengah */
+    min-height: 100vh;
 }
 
-.screen {
+.main-container {
     width: 100%;
     max-width: 500px;
-    margin: 0 auto; /* Ubah ini */
+    margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
@@ -149,6 +150,10 @@ button:disabled {
 /* ============================================== */
 /* HALAMAN LOGIN                                */
 /* ============================================== */
+#login-screen {
+    justify-content: center; /* Khusus halaman login, kita tetap posisikan di tengah vertikal */
+}
+
 .login-card {
     text-align: center;
 }
