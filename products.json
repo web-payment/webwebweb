@@ -469,5 +469,22 @@
             "deskripsiPanjang": "Usbs",
             "createdAt": "2025-08-22T07:54:35.335Z"
         }
+    ],
+    "Logo": [
+        {
+            "id": 74,
+            "nama": "Logo",
+            "harga": 100000,
+            "hargaAsli": 100000,
+            "deskripsiPanjang": "Logo riki nih bos",
+            "createdAt": "2025-08-22T07:56:55.757Z",
+            "images": [
+                "https://c.top4top.io/p_3521rx4761.jpg",
+                "https://c.top4top.io/p_3521rx4761.jpg",
+                "https://c.top4top.io/p_3521rx4761.jpg",
+                "https://c.top4top.io/p_3521rx4761.jpg",
+                "https://c.top4top.io/p_3521rx4761.jpg"
+            ]
+        }
     ]
 }
