@@ -63,6 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const bulkPriceInput = document.getElementById('bulk-price-input');
     const applyBulkPriceBtn = document.getElementById('apply-bulk-price-btn');
 
+    // Elemen untuk Custom Confirmation Modal
+    const customConfirmModal = document.getElementById('customConfirmModal');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmOkBtn = document.getElementById('confirmOkBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    let resolveConfirmPromise; // Untuk menyimpan resolve dari Promise konfirmasi
 
     const API_BASE_URL = '/api';
     let activeToastTimeout = null;
@@ -84,6 +90,45 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.addEventListener('animationend', () => toast.remove());
         }, duration);
     }
+
+    // Fungsi untuk menampilkan modal konfirmasi kustom
+    function showCustomConfirm(message) {
+        confirmMessage.innerHTML = message;
+        customConfirmModal.classList.add('is-visible');
+        return new Promise((resolve) => {
+            resolveConfirmPromise = resolve;
+        });
+    }
+
+    // Event listener untuk tombol OK di modal konfirmasi kustom
+    confirmOkBtn.addEventListener('click', () => {
+        customConfirmModal.classList.remove('is-visible');
+        if (resolveConfirmPromise) {
+            resolveConfirmPromise(true);
+            resolveConfirmPromise = null;
+        }
+    });
+
+    // Event listener untuk tombol Batal di modal konfirmasi kustom
+    confirmCancelBtn.addEventListener('click', () => {
+        customConfirmModal.classList.remove('is-visible');
+        if (resolveConfirmPromise) {
+            resolveConfirmPromise(false);
+            resolveConfirmPromise = null;
+        }
+    });
+
+    // Tutup modal konfirmasi jika klik di luar area konten
+    customConfirmModal.addEventListener('click', (e) => {
+        if (e.target === customConfirmModal) {
+            customConfirmModal.classList.remove('is-visible');
+            if (resolveConfirmPromise) {
+                resolveConfirmPromise(false);
+                resolveConfirmPromise = null;
+            }
+        }
+    });
+
 
     const handleLogin = async () => {
         const password = passwordInput.value;
@@ -279,6 +324,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault(); 
                 const parent = e.target.closest('.delete-item');
                 const id = parseInt(parent.dataset.id);
+                
+                const confirmMessageHtml = `Apakah Anda yakin ingin menghapus produk <b>${parent.querySelector('.item-header span').textContent.split(' - ')[0]}</b>?`;
+                const userConfirmed = await showCustomConfirm(confirmMessageHtml);
+
+                if (!userConfirmed) {
+                    showToast('Penghapusan dibatalkan.', 'info');
+                    return;
+                }
+
                 showToast('Menghapus produk...', 'info', 5000); 
                 try {
                     const res = await fetch(`${API_BASE_URL}/deleteProduct`, {
@@ -442,8 +496,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Geser Produk
         let draggingItem = null;
         let autoScrollAnimationFrame = null; 
-        const SCROLL_SPEED = 20; // Kecepatan scroll ditingkatkan
-        const SCROLL_AREA_HEIGHT = 120; // Tinggi area pemicu scroll ditingkatkan
+        const SCROLL_SPEED = 25; // Kecepatan scroll ditingkatkan lagi
+        const SCROLL_AREA_HEIGHT = 150; // Tinggi area pemicu scroll ditingkatkan lagi
 
         function scrollManageProductList(direction) {
             if (direction === 'up') {
@@ -456,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentMouseY = lastDragoverY; 
                 
                 const isInScrollArea = (currentMouseY < containerRect.top + SCROLL_AREA_HEIGHT && direction === 'up') ||
-                                       (currentMouseY > containerRect.bottom - SCROLL_AREA_HEIGHT && direction === 'down'); // Perbaikan di sini
+                                       (currentMouseY > containerRect.bottom - SCROLL_AREA_HEIGHT && direction === 'down');
 
                 if (isInScrollArea) {
                     autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList(direction));
@@ -506,7 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const containerRect = manageProductList.getBoundingClientRect();
             const mouseY = e.clientY;
 
-            // Hanya mulai autoscroll jika belum berjalan atau jika arah berubah
             if (!autoScrollAnimationFrame) {
                 if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
                     autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('up'));
@@ -514,24 +567,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('down'));
                 }
             } else {
-                // Jika sudah berjalan, periksa apakah arah scroll perlu diubah atau mouse keluar dari area pemicu
                 const currentDirection = mouseY < containerRect.top + SCROLL_AREA_HEIGHT ? 'up' : 
                                          (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT ? 'down' : null);
                 
-                // Hentikan dan mulai ulang jika arah berubah atau mouse keluar dari area pemicu
                 if (currentDirection !== getCurrentScrollDirection() && currentDirection !== null) {
                     cancelAnimationFrame(autoScrollAnimationFrame);
-                    autoScrollAnimationFrame = null; // Reset untuk memulai yang baru
+                    autoScrollAnimationFrame = null; 
                     autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList(currentDirection));
                 } else if (currentDirection === null) {
-                    // Jika mouse di tengah, hentikan scroll
                     cancelAnimationFrame(autoScrollAnimationFrame);
                     autoScrollAnimationFrame = null;
                 }
             }
         });
 
-        // Helper untuk mendapatkan arah scroll saat ini (estimasi)
         function getCurrentScrollDirection() {
             if (!autoScrollAnimationFrame) return null;
             const containerRect = manageProductList.getBoundingClientRect();
@@ -610,8 +659,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return showToast('Harga massal tidak valid. Masukkan angka positif.', 'error');
             }
 
-            const confirmUpdate = window.confirm(`Apakah Anda yakin ingin mengubah harga SEMUA produk di kategori "${category}" menjadi ${formatRupiah(newBulkPrice)}?`);
-            if (!confirmUpdate) {
+            const confirmMessageHtml = `Apakah Anda yakin ingin mengubah harga SEMUA produk di kategori "<b>${category}</b>" menjadi <b>${formatRupiah(newBulkPrice)}</b>?`;
+            const userConfirmed = await showCustomConfirm(confirmMessageHtml);
+            
+            if (!userConfirmed) {
+                showToast('Pembaruan harga massal dibatalkan.', 'info');
                 return; 
             }
 
@@ -627,14 +679,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await res.json();
 
                 if (!res.ok) {
-                    throw new Error(result.message);
+                    // Coba baca error dari response jika ada
+                    const errorDetail = result.message || await res.text();
+                    throw new Error(errorDetail);
                 }
                 showToast(result.message, 'success');
                 bulkPriceInput.value = ''; 
                 manageCategorySelect.dispatchEvent(new Event('change')); 
             } catch (err) {
                 console.error('Error applying bulk price:', err);
-                showToast(err.message || 'Gagal menerapkan harga massal.', 'error');
+                showToast(`Gagal menerapkan harga massal. Detail: ${err.message || 'Terjadi kesalahan tidak dikenal.'}`, 'error');
             } finally {
                 applyBulkPriceBtn.disabled = false;
             }

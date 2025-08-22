@@ -430,6 +430,49 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 }
 .close-button:hover { color: var(--text-color); }
 
+/* Styling untuk Custom Confirmation Modal */
+.confirm-modal-content {
+    text-align: center;
+    padding: 20px;
+    max-width: 300px; /* Ukuran lebih kecil untuk konfirmasi */
+}
+.confirm-message {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: var(--text-color);
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-top: 20px;
+}
+.confirm-actions button {
+    flex: 1;
+    margin-top: 0; /* Override margin-top default button */
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1em;
+    transition: all 0.2s ease;
+}
+.confirm-ok-btn {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+.confirm-ok-btn:hover {
+    filter: brightness(1.1);
+}
+.confirm-cancel-btn {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.confirm-cancel-btn:hover {
+    background-color: var(--border-color);
+}
+
+
 /* ============================================== */
 /* KELOLA PRODUK (MANAGE)                       */
 /* ============================================== */
