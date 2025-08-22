@@ -1,4 +1,6 @@
-/* Menggunakan variabel dari style.css utama Anda */
+/* ============================================== */
+/* VARIABLE DAN FONT                  */
+/* ============================================== */
 :root {
     --primary-color: #007aff;
     --secondary-color: #f2f2f7;
@@ -11,7 +13,6 @@
     --success-color: #34c759;
 }
 
-/* Mode Gelap */
 .dark-mode {
     --primary-color: #0a84ff;
     --secondary-color: #1c1c1e;
@@ -24,7 +25,9 @@
     --success-color: #32d74b;
 }
 
-/* Animasi untuk muncul dari atas */
+/* ============================================== */
+/* ANIMASI                         */
+/* ============================================== */
 @keyframes toast-in {
     from { opacity: 0; transform: translateY(-100%); }
     to   { opacity: 1; transform: translateY(0); }
@@ -38,6 +41,9 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* ============================================== */
+/* LAYOUT DASAR                 */
+/* ============================================== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Poppins', sans-serif;
     background-color: var(--secondary-color);
@@ -54,18 +60,16 @@ body {
 
 .admin-container {
     width: 100%;
+    max-width: 500px;
     padding: 20px;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
+/* ============================================== */
+/* KOMPONEN UMUM                */
+/* ============================================== */
 .form-card {
     background-color: var(--white-color);
-    max-width: 500px;
-    width: 100%;
     padding: 30px 35px;
     border-radius: 20px;
     box-shadow: 0 10px 30px var(--shadow-color);
@@ -78,7 +82,81 @@ body {
     margin-top: 0;
 }
 
-/* KHUSUS UNTUK HALAMAN LOGIN */
+h2 {
+    text-align: center;
+    color: var(--text-color);
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+h2 i {
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+p {
+    text-align: center;
+    color: var(--light-text-color);
+    font-size: 0.95em;
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1em;
+    background-color: #f0f0f5;
+    color: var(--text-color);
+    transition: box-shadow 0.2s, background-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+}
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 30px;
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+button:hover {
+    filter: brightness(1.1);
+}
+button:active {
+    transform: scale(0.97);
+}
+button:disabled {
+    background-color: var(--light-text-color);
+    cursor: not-allowed;
+}
+
+/* ============================================== */
+/* HALAMAN LOGIN                    */
+/* ============================================== */
 .login-card {
     text-align: center;
 }
@@ -103,7 +181,9 @@ body {
     margin-top: 20px;
 }
 
-/* STYLING PANEL ADMIN UTAMA */
+/* ============================================== */
+/* PANEL ADMIN                    */
+/* ============================================== */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -206,7 +286,54 @@ body {
     animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Gaya Modal */
+/* ============================================== */
+/* MODAL & TOAST                  */
+/* ============================================== */
+.toast-container {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
+    padding: 12px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    font-size: 0.95em;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.05);
+    animation: toast-in 0.5s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+    pointer-events: auto;
+}
+.toast.fade-out {
+    animation: toast-out 0.5s ease forwards;
+}
+.toast i {
+    font-size: 1.2em;
+}
+.toast.success i {
+    color: var(--success-color);
+}
+.toast.error i {
+    color: var(--error-color);
+}
+.toast.info i {
+    color: var(--primary-color);
+}
+
 .modal {
     position: fixed;
     z-index: 2000;
@@ -251,7 +378,9 @@ body {
     right: 15px;
 }
 
-/* Gaya untuk daftar item yang akan dihapus */
+/* ============================================== */
+/* KELOLA PRODUK (MANAGE)               */
+/* ============================================== */
 .delete-list {
     margin-top: 15px;
 }
@@ -264,7 +393,7 @@ body {
     padding: 12px 10px;
     border-radius: 6px;
     transition: background 0.2s, color 0.2s;
-    cursor: grab; /* Menandakan item bisa di-drag */
+    cursor: grab;
     border: 1px solid var(--border-color);
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
@@ -295,60 +424,6 @@ body {
 .delete-item .edit-form {
     display: none !important;
 }
-.delete-item .edit-form input,
-.delete-item .edit-form textarea {
-    width: 100%;
-    margin-top: 0;
-    margin-bottom: 0;
-}
-.delete-item .edit-form .photo-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
-.delete-item .edit-form .photo-grid .photo-item {
-    position: relative;
-}
-.delete-item .edit-form .photo-grid img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-.delete-item .edit-form .photo-grid .delete-photo-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 25px;
-    height: 25px;
-    background-color: var(--error-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.7em;
-    margin: 0;
-    padding: 0;
-    border: none;
-}
-.delete-item .edit-form .add-photo-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-.delete-item .edit-form .add-photo-container input {
-    flex: 1;
-}
-.delete-item .edit-form .add-photo-btn {
-    width: auto;
-    margin: 0;
-    padding: 8px 12px;
-    font-size: 0.9em;
-    white-space: nowrap;
-}
 .edit-btn, .delete-btn {
     background-color: var(--primary-color);
     color: #fff;
@@ -369,4 +444,63 @@ body {
     margin-left: auto;
     padding: 8px 12px;
     font-size: 0.9em;
+}
+.new-badge {
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Gaya untuk foto di dalam modal edit */
+.photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+.photo-item {
+    position: relative;
+}
+.photo-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.delete-photo-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 25px;
+    height: 25px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.7em;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+.add-photo-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.add-photo-container input {
+    flex: 1;
+}
+.add-photo-btn {
+    width: auto;
+    margin: 0;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    white-space: nowrap;
 }
