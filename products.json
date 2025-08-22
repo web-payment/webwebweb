@@ -231,13 +231,6 @@
             "menuContent": "Auto pusj"
         },
         {
-            "id": 30,
-            "nama": "Script push-versi-new",
-            "harga": 25000,
-            "deskripsiPanjang": "Script ini cocok untuk Pushkontak dan open bot Pushkontak fitur lumayan.",
-            "menuContent": "Fitur Script push-versi-new:\n..."
-        },
-        {
             "id": 31,
             "nama": "Script rikishopreal-v0.5",
             "harga": 45000,
@@ -257,6 +250,13 @@
             "harga": 3999,
             "deskripsiPanjang": "Ssjs",
             "createdAt": "2025-08-21T14:36:32.649Z"
+        },
+        {
+            "id": 30,
+            "nama": "Script push-versi-new",
+            "harga": 25000,
+            "deskripsiPanjang": "Script ini cocok untuk Pushkontak dan open bot Pushkontak fitur lumayan.",
+            "menuContent": "Fitur Script push-versi-new:\n..."
         }
     ],
     "Jasa": [
