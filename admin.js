@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scriptMenuContentInput = document.getElementById('script-menu-content');
     const stockPhotoSection = document.getElementById('stock-photo-section');
     const photosInput = document.getElementById('product-photos');
+    const productWaNumber = document.getElementById('product-wa-number');
     const addButton = document.getElementById('add-product-button');
 
     const manageCategorySelect = document.getElementById('manage-category');
@@ -184,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             harga: parseInt(priceInput.value, 10),
             deskripsiPanjang: descriptionInput.value.trim(),
             images: photosInput.value.split(',').map(l => l.trim()).filter(Boolean),
+            waNumber: productWaNumber.value.trim(),
             createdAt: new Date().toISOString()
         };
         if (productData.category === 'Script') {
@@ -211,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             descriptionInput.value = '';
             photosInput.value = '';
             scriptMenuContentInput.value = '';
+            productWaNumber.value = '';
             categorySelect.value = 'Panel'; 
             categorySelect.dispatchEvent(new Event('change')); 
         } catch (err) {
@@ -225,6 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Logika tab
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.admin-tab-content');
+    const settingsTab = document.getElementById('settings');
+    const adminWaNumberInput = document.getElementById('admin-wa-number');
+    const saveAdminWaBtn = document.getElementById('save-admin-wa');
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -240,6 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveOrderButton.style.display = 'none';
                     bulkPriceEditContainer.style.display = 'none'; 
                 }
+            } else if (button.dataset.tab === 'settings') {
+                loadAdminWaNumber();
             } else {
                 bulkPriceEditContainer.style.display = 'none'; 
             }
@@ -370,6 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const addPhotoBtn = document.getElementById('add-photo-btn');
         const editScriptMenuSection = document.getElementById('edit-script-menu-section');
         const editScriptMenuContent = document.getElementById('edit-script-menu-content');
+        const editWaNumber = document.getElementById('edit-wa-number');
+
         
         // Buka Modal
         manageProductList.querySelectorAll('.edit-btn').forEach(btn => {
@@ -388,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editNameInput.value = product.nama;
                 editPriceInput.value = product.harga;
                 editDescInput.value = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/ \|\| /g, '\n') : '';
+                editWaNumber.value = product.waNumber || '';
                 
                 if (category === 'Stock Akun' || category === 'Logo') {
                     editPhotoSection.style.display = 'block';
@@ -452,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newName = editNameInput.value.trim();
             const newPrice = parseInt(editPriceInput.value, 10);
             const newDesc = editDescInput.value.trim().replace(/\n/g, ' || ');
+            const newWaNumber = editWaNumber.value.trim();
             
             let newImages = null;
             if (categoryToUpdate === 'Stock Akun' || categoryToUpdate === 'Logo') {
@@ -474,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch(`${API_BASE_URL}/updateProduct`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, category: categoryToUpdate, newName, newPrice, newDesc, newImages, newMenuContent })
+                    body: JSON.stringify({ id, category: categoryToUpdate, newName, newPrice, newDesc, newImages, newMenuContent, newWaNumber })
                 });
                 const result = await res.json();
 
@@ -694,7 +707,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
+    // --- Logika untuk tab Pengaturan ---
+    async function loadAdminWaNumber() {
+        try {
+            const res = await fetch('/config.json');
+            const config = await res.json();
+            adminWaNumberInput.value = config.WA_ADMIN_NUMBER;
+        } catch (err) {
+            console.error('Failed to load admin number:', err);
+            showToast('Gagal memuat nomor admin.', 'error');
+        }
+    }
+
+    saveAdminWaBtn.addEventListener('click', async () => {
+        const newNumber = adminWaNumberInput.value.trim();
+        if (!newNumber) {
+            return showToast('Nomor tidak boleh kosong.', 'error');
+        }
+        showToast('Menyimpan nomor admin...', 'info');
+        saveAdminWaBtn.disabled = true;
+        try {
+            const res = await fetch(`${API_BASE_URL}/updateAdminNumber`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ WA_ADMIN_NUMBER: newNumber })
+            });
+            const result = await res.json();
+            if (!res.ok) {
+                throw new Error(result.message);
+            }
+            showToast('Nomor admin berhasil diperbarui.', 'success');
+        } catch (err) {
+            console.error('Error saving admin number:', err);
+            showToast(err.message || 'Gagal menyimpan nomor admin.', 'error');
+        } finally {
+            saveAdminWaBtn.disabled = false;
+        }
+    });
+
     function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
 
