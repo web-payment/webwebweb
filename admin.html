@@ -23,7 +23,8 @@
                 <input type="password" id="password" placeholder="••••••••••">
                 <span class="password-toggle" id="passwordToggle"><i class="fas fa-eye-slash"></i></span>
             </div>
-            <button id="login-button">Masuk</button>
+            <!-- PENTING: Tambahkan type="button" untuk mencegah submit form default -->
+            <button type="button" id="login-button">Masuk</button>
             <div class="theme-switch" id="themeSwitchBtnLogin">
                 <i class="fas fa-moon"></i>
             </div>
@@ -41,8 +42,8 @@
         </header>
         
         <nav class="admin-tabs">
-            <button class="tab-button active" data-tab="addProduct">Tambah Produk</button>
-            <button class="tab-button" data-tab="manageProducts">Kelola Produk</button>
+            <button type="button" class="tab-button active" data-tab="addProduct">Tambah Produk</button>
+            <button type="button" class="tab-button" data-tab="manageProducts">Kelola Produk</button>
         </nav>
         
         <!-- Tambah Produk -->
@@ -82,13 +83,14 @@
                     <input type="text" id="product-photos" placeholder="https://url.com/foto1.jpg, https://url.com/foto2.jpg">
                 </div>
 
-                <button id="add-product-button">Tambah Produk</button>
+                <!-- PENTING: Tambahkan type="button" untuk mencegah submit form default -->
+                <button type="button" id="add-product-button">Tambah Produk</button>
             </form>
         </div>
         
         <!-- Kelola Produk -->
-        <div id="manageProducts" class="admin-tab-content"> <!-- Hapus class form-card agar tidak bertumpuk dengan admin-form -->
-            <form class="admin-form"> <!-- Masukkan form di dalam admin-form untuk styling konsisten -->
+        <div id="manageProducts" class="admin-tab-content">
+            <form class="admin-form">
                 <h2><i class="fas fa-cogs"></i> Kelola Produk</h2>
                 <label for="manage-category">Pilih Kategori:</label>
                 <select id="manage-category">

@@ -243,7 +243,7 @@ openMenuBtn.addEventListener('click', () => {
 function closeOffcanvas() {
     offcanvasMenu.classList.remove('active');
     overlay.classList.remove('active');
-}
+});
 closeMenuBtn.addEventListener('click', closeOffcanvas);
 overlay.addEventListener('click', closeOffcanvas);
 
@@ -285,14 +285,7 @@ function loadServiceProducts(serviceType) {
     let productData = products[serviceType];
     
     if (productData && productData.length > 0) {
-        // --- PERBAIKAN: Hapus pengurutan lokal berdasarkan createdAt ---
         // Produk seharusnya sudah terurut dari products.json yang diupdate oleh admin panel
-        // productData.sort((a, b) => {
-        //     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        //     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        //     return dateB - dateA;
-        // });
-
         productData.forEach(product => {
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
@@ -511,17 +504,17 @@ function renderCart() {
                 itemActionsHTML = `
                     <div class="item-actions">
                         <span class="stock-info">Hanya 1 Stok</span>
-                        <button class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
                     </div>`;
             } else {
                 itemActionsHTML = `
                     <div class="item-actions">
                         <div class="quantity-controls">
-                            <button class="quantity-btn" onclick="decreaseQuantity(${item.id})">-</button>
+                            <button type="button" class="quantity-btn" onclick="decreaseQuantity(${item.id})">-</button>
                             <span class="item-quantity">${item.quantity}</span>
-                            <button class="quantity-btn" onclick="increaseQuantity(${item.id})">+</button>
+                            <button type="button" class="quantity-btn" onclick="increaseQuantity(${item.id})">+</button>
                         </div>
-                        <button class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
                     </div>`;
             }
 

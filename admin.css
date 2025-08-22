@@ -307,13 +307,14 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease;
+    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
 }
 .modal.is-visible { visibility: visible; opacity: 1; }
 .modal-content {
     background-color: var(--white-color);
     border-radius: 12px;
-    width: 95%; /* Disesuaikan agar lebih responsif */
-    max-width: 600px; /* Meningkatkan max-width untuk ukuran sedang */
+    width: 90%; /* Sedikit lebih kecil dari sebelumnya */
+    max-width: 550px; /* Batasi maksimal agar tidak terlalu besar */
     margin: auto;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     padding: 25px;
@@ -321,6 +322,8 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     transform: scale(0.95);
     transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     box-sizing: border-box; /* Pastikan padding dihitung dalam width */
+    max-height: 90vh; /* Batasi tinggi maksimal */
+    overflow-y: auto; /* Tambahkan scroll jika konten terlalu panjang */
 }
 .modal.is-visible .modal-content { transform: scale(1); }
 .close-button {
@@ -354,9 +357,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .delete-item.dragging { opacity: 0.7; transform: scale(1.02); }
 .item-header {
     display: flex;
-    flex-direction: column; /* Ubah menjadi kolom di mobile */
-    align-items: flex-start; /* Sejajarkan ke kiri */
+    justify-content: space-between; /* Untuk responsivitas */
+    align-items: center;
     width: 100%;
+    flex-wrap: wrap; /* Memungkinkan wrap pada layar kecil */
     gap: 10px; /* Jarak antar elemen di header */
 }
 .item-header span { font-weight: 500; }
@@ -367,7 +371,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     border-radius: 50px;
     font-size: 0.7em;
     font-weight: bold;
-    margin-left: 0; /* Hapus margin-left */
+    margin-left: 10px; /* Pertahankan margin-left untuk badge NEW */
 }
 .item-actions { 
     display: flex; 
@@ -381,7 +385,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     border-radius: 8px;
     font-size: 0.85em;
     margin-top: 0;
-    width: 100%; /* Tombol memenuhi lebar di dalam item-actions */
+    flex: 1; /* Agar tombol memenuhi ruang secara merata */
 }
 .edit-btn { background-color: var(--primary-color); }
 .delete-btn { background-color: var(--error-color); }
@@ -499,11 +503,14 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         align-items: flex-start;
     }
     .item-actions {
-        flex-direction: column;
+        flex-direction: row; /* Pertahankan dalam baris, tapi bungkus */
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 5px;
     }
     .edit-btn, .delete-btn {
-        width: 100%;
+        width: calc(50% - 5px); /* Bagi dua lebar */
+        flex: none; /* Hapus flex grow */
     }
     .add-photo-container {
         flex-direction: column;
@@ -538,6 +545,12 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         font-size: 0.85em;
     }
     .modal-content {
-        padding: 20px;
+        padding: 15px; /* Kurangi padding modal untuk layar sangat kecil */
+    }
+    .item-actions {
+        flex-direction: column; /* Stack tombol Edit/Hapus di layar sangat kecil */
+    }
+    .edit-btn, .delete-btn {
+        width: 100%; /* Lebar penuh */
     }
 }
