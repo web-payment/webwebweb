@@ -277,8 +277,11 @@
         {
             "id": 37,
             "nama": "Jasa pembuatan website payment",
-            "harga": 15000,
-            "deskripsiPanjang": "untuk tampil website nya silahkan salin link di bawah ini. https://paymet-rikishop.vercel.app/"
+            "harga": 1500,
+            "deskripsiPanjang": "untuk tampil website nya silahkan salin link di bawah ini. https://paymet-rikishop.vercel.app/",
+            "hargaAsli": 15000,
+            "images": null,
+            "menuContent": null
         },
         {
             "id": 38,
