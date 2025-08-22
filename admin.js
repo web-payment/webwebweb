@@ -58,6 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const manageProductList = document.getElementById('manage-product-list');
     const saveOrderButton = document.getElementById('save-order-button');
 
+    // Elemen untuk fitur edit harga massal
+    const bulkPriceEditContainer = document.getElementById('bulk-price-edit-container');
+    const bulkPriceInput = document.getElementById('bulk-price-input');
+    const applyBulkPriceBtn = document.getElementById('apply-bulk-price-btn');
+
+
     const API_BASE_URL = '/api';
     let activeToastTimeout = null;
 
@@ -187,7 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     manageProductList.innerHTML = '<p>Pilih kategori untuk mengelola produk.</p>';
                     saveOrderButton.style.display = 'none';
+                    bulkPriceEditContainer.style.display = 'none'; // Sembunyikan fitur bulk edit jika tidak ada kategori
                 }
+            } else {
+                bulkPriceEditContainer.style.display = 'none'; // Sembunyikan fitur bulk edit di tab lain
             }
         });
     });
@@ -199,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!category) {
             manageProductList.innerHTML = '<p>Pilih kategori untuk mengelola produk.</p>';
             saveOrderButton.style.display = 'none';
+            bulkPriceEditContainer.style.display = 'none';
             return;
         }
         try {
@@ -209,14 +219,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (productsInCat.length === 0) {
                 manageProductList.innerHTML = '<p>Tidak ada produk di kategori ini.</p>';
                 saveOrderButton.style.display = 'none';
+                bulkPriceEditContainer.style.display = 'none';
                 return;
             }
             renderManageList(productsInCat, category);
             saveOrderButton.style.display = 'block';
+            bulkPriceEditContainer.style.display = 'flex'; // Tampilkan fitur bulk edit
         } catch (err) {
             console.error("Error loading products for management:", err); 
             manageProductList.innerHTML = '<p>Gagal memuat produk.</p>';
             saveOrderButton.style.display = 'none';
+            bulkPriceEditContainer.style.display = 'none';
         }
     });
 
@@ -424,9 +437,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Geser Produk
         let draggingItem = null;
         let autoScrollAnimationFrame = null; 
-        // Mengoptimalkan kecepatan dan area pemicu scroll
-        const SCROLL_SPEED = 15; // Kecepatan scroll (ditingkatkan untuk lebih lancar)
-        const SCROLL_AREA_HEIGHT = 100; // Tinggi area di atas/bawah yang memicu scroll (ditingkatkan)
+        const SCROLL_SPEED = 15; 
+        const SCROLL_AREA_HEIGHT = 100; 
 
         function scrollManageProductList(direction) {
             if (direction === 'up') {
@@ -434,22 +446,24 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (direction === 'down') {
                 manageProductList.scrollTop += SCROLL_SPEED;
             }
-            if (autoScrollAnimationFrame && (direction === 'up' || direction === 'down')) {
-                // Hanya lanjutkan jika masih dalam area pemicu
+            if (autoScrollAnimationFrame) {
                 const containerRect = manageProductList.getBoundingClientRect();
-                const currentMouseY = lastDragoverY; // Gunakan posisi Y mouse terakhir
-                if (currentMouseY < containerRect.top + SCROLL_AREA_HEIGHT && direction === 'up' ||
-                    currentMouseY > containerRect.bottom - SCROLL_AREA_HEIGHT && direction === 'down') {
+                const currentMouseY = lastDragoverY; 
+                
+                // Periksa apakah mouse masih di area pemicu scroll
+                const isInScrollArea = (currentMouseY < containerRect.top + SCROLL_AREA_HEIGHT && direction === 'up') ||
+                                       (currentMouseY > containerRect.bottom - SCROLL_AREA_HEIGHT && direction === 'down');
+
+                if (isInScrollArea) {
                     autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList(direction));
                 } else {
-                    // Hentikan jika mouse sudah keluar dari area pemicu scroll
                     cancelAnimationFrame(autoScrollAnimationFrame);
                     autoScrollAnimationFrame = null;
                 }
             }
         }
 
-        let lastDragoverY = 0; // Menyimpan posisi Y mouse terakhir saat dragover
+        let lastDragoverY = 0; 
 
         manageProductList.addEventListener('dragstart', (e) => {
             draggingItem = e.target.closest('.delete-item');
@@ -473,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         manageProductList.addEventListener('dragover', (e) => {
             e.preventDefault(); 
-            lastDragoverY = e.clientY; // Update posisi Y mouse terakhir
+            lastDragoverY = e.clientY; 
 
             const afterElement = getDragAfterElement(manageProductList, e.clientY);
             const draggable = document.querySelector('.dragging');
@@ -488,17 +502,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const containerRect = manageProductList.getBoundingClientRect();
             const mouseY = e.clientY;
 
-            if (autoScrollAnimationFrame) {
-                cancelAnimationFrame(autoScrollAnimationFrame);
-                autoScrollAnimationFrame = null;
-            }
-
-            if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
-                autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('up'));
-            } else if (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT) {
-                autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('down'));
+            // Hanya mulai autoscroll jika belum berjalan atau jika arah berubah
+            if (!autoScrollAnimationFrame) {
+                if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
+                    autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('up'));
+                } else if (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT) {
+                    autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList('down'));
+                }
+            } else {
+                // Jika sudah berjalan, periksa apakah arah scroll perlu diubah
+                const currentDirection = mouseY < containerRect.top + SCROLL_AREA_HEIGHT ? 'up' : 
+                                         (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT ? 'down' : null);
+                
+                // Jika arah berubah atau mouse keluar dari area pemicu, hentikan dan mulai ulang
+                if (currentDirection !== getCurrentScrollDirection() && currentDirection !== null) {
+                    cancelAnimationFrame(autoScrollAnimationFrame);
+                    autoScrollAnimationFrame = null; // Reset untuk memulai yang baru
+                    autoScrollAnimationFrame = requestAnimationFrame(() => scrollManageProductList(currentDirection));
+                } else if (currentDirection === null) {
+                    // Jika mouse di tengah, hentikan scroll
+                    cancelAnimationFrame(autoScrollAnimationFrame);
+                    autoScrollAnimationFrame = null;
+                }
             }
         });
+
+        // Helper untuk mendapatkan arah scroll saat ini (estimasi)
+        function getCurrentScrollDirection() {
+            if (!autoScrollAnimationFrame) return null;
+            // Ini adalah estimasi, karena kita tidak bisa langsung membaca parameter requestAnimationFrame
+            // Kita bisa menyimpan arah terakhir yang diminta
+            // Untuk kesederhanaan, kita bisa mengandalkan lastDragoverY
+            const containerRect = manageProductList.getBoundingClientRect();
+            if (lastDragoverY < containerRect.top + SCROLL_AREA_HEIGHT) return 'up';
+            if (lastDragoverY > containerRect.bottom - SCROLL_AREA_HEIGHT) return 'down';
+            return null;
+        }
+
 
         manageProductList.addEventListener('dragleave', () => {
             if (autoScrollAnimationFrame) {
@@ -553,6 +593,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(err.message || 'Gagal menyimpan urutan.', 'error');
             } finally {
                 saveOrderButton.disabled = false;
+            }
+        });
+
+        // --- Logika Fitur Edit Harga Massal ---
+        applyBulkPriceBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const category = manageCategorySelect.value;
+            const newBulkPrice = parseInt(bulkPriceInput.value, 10);
+
+            if (!category) {
+                return showToast('Pilih kategori terlebih dahulu untuk menerapkan harga massal.', 'error');
+            }
+            if (isNaN(newBulkPrice) || newBulkPrice < 0) {
+                return showToast('Harga massal tidak valid. Masukkan angka positif.', 'error');
+            }
+
+            // Konfirmasi sebelum menerapkan harga massal
+            const confirmUpdate = window.confirm(`Apakah Anda yakin ingin mengubah harga SEMUA produk di kategori "${category}" menjadi ${formatRupiah(newBulkPrice)}?`);
+            if (!confirmUpdate) {
+                return; // Batalkan jika pengguna tidak mengkonfirmasi
+            }
+
+            showToast(`Menerapkan harga massal untuk kategori "${category}"...`, 'info', 5000);
+            applyBulkPriceBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/updateProductsInCategory`, { // API endpoint baru
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, newPrice: newBulkPrice })
+                });
+                const result = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(result.message);
+                }
+                showToast(result.message, 'success');
+                bulkPriceInput.value = ''; // Bersihkan input
+                manageCategorySelect.dispatchEvent(new Event('change')); // Muat ulang daftar produk
+            } catch (err) {
+                console.error('Error applying bulk price:', err);
+                showToast(err.message || 'Gagal menerapkan harga massal.', 'error');
+            } finally {
+                applyBulkPriceBtn.disabled = false;
             }
         });
     }

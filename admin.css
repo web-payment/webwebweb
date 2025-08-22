@@ -75,6 +75,7 @@ body {
     width: 100%;
     max-width: 400px;
     margin: 0 auto; /* Pastikan kartu login terpusat */
+    position: relative; /* Untuk memposisikan tombol tema */
 }
 .login-header {
     margin-bottom: 25px;
@@ -140,22 +141,43 @@ body {
     color: var(--text-color);
 }
 
-/* Tombol Tema (theme-switch) - Dibuat bulat */
-.theme-switch {
-    width: 40px; /* Lebar dan tinggi sama untuk membuatnya bulat */
+/* Tombol Tema (theme-switch) - Dibuat bulat dan diposisikan */
+/* Untuk layar login */
+#login-screen .theme-switch {
+    position: absolute; /* Posisikan absolut di dalam login-card */
+    top: 15px; /* Jarak dari atas */
+    right: 15px; /* Jarak dari kanan */
+    width: 40px; 
     height: 40px;
-    border-radius: 50%; /* Membuat tombol bulat */
+    border-radius: 50%;
     background-color: var(--secondary-color);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Pastikan tombol tidak menyusut */
-    box-shadow: 0 2px 5px var(--shadow-color); /* Tambahkan sedikit shadow */
+    flex-shrink: 0; 
+    box-shadow: 0 2px 5px var(--shadow-color); 
 }
-.theme-switch:hover { filter: brightness(0.95); }
-.theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
+#login-screen .theme-switch:hover { filter: brightness(0.95); }
+#login-screen .theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
+
+/* Untuk panel admin (header) */
+.admin-header .theme-switch {
+    width: 38px; /* Sedikit lebih kecil agar pas di header */
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; 
+    box-shadow: 0 2px 5px var(--shadow-color); /* Tambahkan shadow */
+}
+.admin-header .theme-switch:hover { filter: brightness(0.95); }
+.admin-header .theme-switch i { font-size: 1.0em; transition: transform 0.2s ease; }
 
 
 /* ============================================== */
@@ -280,8 +302,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     margin-top: 20px;
     flex-wrap: wrap; 
     justify-content: center; 
-    box-sizing: border-box; /* Penting untuk mencegah overflow */
-    /* overflow: hidden; -- Dihapus karena bisa menyembunyikan shadow/border jika ada */
+    box-sizing: border-box; 
 }
 .tab-button {
     flex: 1; 
@@ -295,7 +316,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     cursor: pointer;
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
-    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
+    box-sizing: border-box; 
 }
 .tab-button.active {
     background-color: var(--primary-color);
@@ -305,7 +326,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     display: none;
     width: 100%;
     margin-top: 20px;
-    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
+    box-sizing: border-box; 
     padding: 0 15px; /* Tambahkan padding ke konten tab agar tidak terlalu mepet */
 }
 .admin-tab-content.active {
@@ -319,8 +340,8 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    max-width: 600px; /* Batasi lebar maksimal */
-    margin: 0 auto; /* Pusatkan form */
+    max-width: 600px; 
+    margin: 0 auto; 
     background: var(--white-color);
     padding: 25px;
     border-radius: 16px;
@@ -557,6 +578,40 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 }
 .admin-form button:hover { background: #0056cc; }
 
+/* Styling untuk fitur edit harga massal */
+.bulk-price-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--secondary-color);
+}
+.bulk-price-edit-container label {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+.bulk-price-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.bulk-price-input-group input {
+    flex-grow: 1;
+    margin-top: 0;
+}
+.bulk-price-input-group button {
+    width: auto;
+    margin-top: 0;
+    padding: 10px 15px;
+    font-size: 0.9em;
+    flex-shrink: 0;
+}
+
+
 /* Media Queries untuk Responsivitas */
 @media (max-width: 768px) {
     .admin-header h2 {
@@ -596,6 +651,13 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         width: 100%;
     }
     .add-photo-container button {
+        width: 100%;
+    }
+    .bulk-price-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .bulk-price-input-group button {
         width: 100%;
     }
 }
