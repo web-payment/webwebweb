@@ -125,6 +125,23 @@ body {
     color: var(--text-color);
 }
 
+/* Tombol Login - dibuat bulat */
+#login-button {
+    width: 60px; /* Lebar dan tinggi sama untuk membuatnya bulat */
+    height: 60px;
+    border-radius: 50%; /* Membuat tombol bulat */
+    padding: 0; /* Hapus padding agar teks/ikon pas di tengah */
+    display: flex; /* Menggunakan flexbox untuk memusatkan konten */
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto 0 auto; /* Pusatkan tombol secara horizontal */
+    font-size: 1em; /* Sesuaikan ukuran font jika perlu */
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.4); /* Tambahkan shadow agar lebih menonjol */
+}
+#login-button i {
+    margin: 0; /* Pastikan tidak ada margin tambahan pada ikon jika ada */
+}
+
 
 /* ============================================== */
 /* FORM CARD & GENERAL ELEMENTS                 */
@@ -247,21 +264,24 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .theme-switch:hover { filter: brightness(0.95); }
 .theme-switch i { font-size: 1.0em; transition: transform 0.2s ease; }
 
-/* Tabs - Disesuaikan untuk responsif */
+/* Tabs - Perbaikan agar tidak "lewat ke pinggir" */
 .admin-tabs {
-    width: 100%;
+    width: 100%; /* Pastikan lebar 100% dari parent */
     display: flex;
     background-color: var(--white-color);
     border-radius: 12px;
     padding: 5px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     margin-top: 20px;
-    flex-wrap: wrap; /* Memungkinkan tab untuk wrap ke baris baru pada layar kecil */
-    justify-content: center; /* Pusatkan tab pada layar kecil */
+    flex-wrap: wrap; 
+    justify-content: center; 
+    box-sizing: border-box; /* Penting untuk mencegah overflow */
+    overflow: hidden; /* Tambahkan untuk memastikan tidak ada overflow horizontal */
 }
 .tab-button {
-    flex: 1; /* Memungkinkan tombol tab untuk mengisi ruang */
-    min-width: 120px; /* Batas lebar minimum untuk setiap tombol */
+    flex: 1; 
+    min-width: 120px; 
+    max-width: 50%; /* Batasi lebar maksimal tombol tab agar tidak terlalu besar */
     border: none;
     background-color: transparent;
     padding: 10px 15px;
@@ -270,6 +290,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     cursor: pointer;
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
+    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
 }
 .tab-button.active {
     background-color: var(--primary-color);
@@ -279,10 +300,27 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     display: none;
     width: 100%;
     margin-top: 20px;
+    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
+    padding: 0 15px; /* Tambahkan padding ke konten tab agar tidak terlalu mepet */
 }
 .admin-tab-content.active {
     display: block;
     animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Form admin - Pastikan selalu di tengah dan tidak lewat */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 600px; /* Batasi lebar maksimal */
+    margin: 0 auto; /* Pusatkan form */
+    background: var(--white-color);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box;
 }
 
 /* ============================================== */
@@ -343,17 +381,17 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .modal-content {
     background-color: var(--white-color);
     border-radius: 12px;
-    width: 90%; /* Sedikit lebih kecil dari sebelumnya */
-    max-width: 550px; /* Batasi maksimal agar tidak terlalu besar */
+    width: 90%; 
+    max-width: 550px; 
     margin: auto;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     padding: 25px;
     position: relative;
     transform: scale(0.95);
     transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
-    max-height: 90vh; /* Batasi tinggi maksimal */
-    overflow-y: auto; /* Tambahkan scroll jika konten terlalu panjang */
+    box-sizing: border-box; 
+    max-height: 90vh; 
+    overflow-y: auto; 
 }
 .modal.is-visible .modal-content { transform: scale(1); }
 .close-button {
@@ -387,11 +425,11 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .delete-item.dragging { opacity: 0.7; transform: scale(1.02); }
 .item-header {
     display: flex;
-    justify-content: space-between; /* Untuk responsivitas */
+    justify-content: space-between; 
     align-items: center;
     width: 100%;
-    flex-wrap: wrap; /* Memungkinkan wrap pada layar kecil */
-    gap: 10px; /* Jarak antar elemen di header */
+    flex-wrap: wrap; 
+    gap: 10px; 
 }
 .item-header span { font-weight: 500; }
 .item-header .new-badge {
@@ -401,21 +439,21 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     border-radius: 50px;
     font-size: 0.7em;
     font-weight: bold;
-    margin-left: 10px; /* Pertahankan margin-left untuk badge NEW */
+    margin-left: 10px; 
 }
 .item-actions { 
     display: flex; 
     gap: 10px; 
     margin-top: 10px; 
-    width: 100%; /* Lebarkan tombol agar memenuhi lebar */
-    justify-content: stretch; /* Regangkan tombol */
+    width: 100%; 
+    justify-content: stretch; 
 }
 .edit-btn, .delete-btn {
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 0.85em;
     margin-top: 0;
-    flex: 1; /* Agar tombol memenuhi ruang secara merata */
+    flex: 1; 
 }
 .edit-btn { background-color: var(--primary-color); }
 .delete-btn { background-color: var(--error-color); }
@@ -424,22 +462,22 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     display: flex; 
     align-items: center; 
     gap: 5px; 
-    flex-wrap: wrap; /* Izinkan harga untuk wrap */
+    flex-wrap: wrap; 
 }
 .original-price del { color: var(--light-text-color); font-size: 0.9em; }
 .discounted-price { font-weight: bold; }
 .add-photo-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-.add-photo-container input { flex-grow: 1; min-width: 150px; } /* Input agar responsif */
-.add-photo-container button { width: auto; margin-top: 0; } /* Tombol tambah foto */
+.add-photo-container input { flex-grow: 1; min-width: 150px; } 
+.add-photo-container button { width: auto; margin-top: 0; } 
 
 .photo-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
-    justify-content: center; /* Pusatkan gambar */
+    justify-content: center; 
 }
-.photo-item { position: relative; width: 80px; height: 80px; flex-shrink: 0; } /* Jangan menyusut */
+.photo-item { position: relative; width: 80px; height: 80px; flex-shrink: 0; } 
 .photo-item img {
     width: 100%;
     height: 100%;
@@ -472,13 +510,13 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 600px; 
+    margin: 0 auto; 
     background: var(--white-color);
     padding: 25px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    box-sizing: border-box; /* Penting untuk responsivitas */
+    box-sizing: border-box; 
 }
 .admin-form h2 {
     text-align: center;
@@ -520,27 +558,31 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         font-size: 1.2em;
     }
     .admin-tabs {
-        flex-direction: column; /* Tabs menjadi kolom */
-        padding: 5px 0; /* Kurangi padding horizontal */
+        flex-direction: column; 
+        padding: 5px 0; 
     }
     .tab-button {
-        margin: 5px; /* Tambah margin vertikal antar tab */
+        margin: 5px; 
         padding: 12px 10px;
         font-size: 0.9em;
+        max-width: 100%; /* Batasi lebar agar tidak melewati */
+    }
+    .admin-tab-content {
+        padding: 0 10px; /* Kurangi padding horizontal di layar kecil */
     }
     .item-header {
         flex-direction: column;
         align-items: flex-start;
     }
     .item-actions {
-        flex-direction: row; /* Pertahankan dalam baris, tapi bungkus */
+        flex-direction: row; 
         flex-wrap: wrap;
         justify-content: center;
         gap: 5px;
     }
     .edit-btn, .delete-btn {
-        width: calc(50% - 5px); /* Bagi dua lebar */
-        flex: none; /* Hapus flex grow */
+        width: calc(50% - 5px); 
+        flex: none; 
     }
     .add-photo-container {
         flex-direction: column;
@@ -575,12 +617,12 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
         font-size: 0.85em;
     }
     .modal-content {
-        padding: 15px; /* Kurangi padding modal untuk layar sangat kecil */
+        padding: 15px; 
     }
     .item-actions {
-        flex-direction: column; /* Stack tombol Edit/Hapus di layar sangat kecil */
+        flex-direction: column; 
     }
     .edit-btn, .delete-btn {
-        width: 100%; /* Lebar penuh */
+        width: 100%; 
     }
 }

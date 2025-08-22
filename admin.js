@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    addButton.addEventListener('click', async (e) => { // Tambahkan e sebagai parameter
-        e.preventDefault(); // Mencegah submit form default
+    addButton.addEventListener('click', async (e) => { 
+        e.preventDefault(); 
         const productData = {
             category: categorySelect.value,
             nama: nameInput.value.trim(),
@@ -184,10 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(button.dataset.tab).classList.add('active');
             if (button.dataset.tab === 'manageProducts') {
-                // Saat tab "Kelola Produk" diaktifkan, muat ulang daftar
-                // Ini akan memastikan UI diperbarui dengan data terbaru dari products.json
                 const currentCategory = manageCategorySelect.value;
-                if (currentCategory) { // Hanya muat ulang jika ada kategori yang dipilih
+                if (currentCategory) { 
                     manageCategorySelect.dispatchEvent(new Event('change'));
                 } else {
                     manageProductList.innerHTML = '<p>Pilih kategori untuk mengelola produk.</p>';
@@ -207,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            // Tambahkan timestamp untuk mencegah cache pada products.json
             const timestamp = new Date().getTime();
             const res = await fetch(`/products.json?v=${timestamp}`);
             const data = await res.json();
@@ -220,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderManageList(productsInCat, category);
             saveOrderButton.style.display = 'block';
         } catch (err) {
-            console.error("Error loading products for management:", err); // Log error
+            console.error("Error loading products for management:", err); 
             manageProductList.innerHTML = '<p>Gagal memuat produk.</p>';
             saveOrderButton.style.display = 'none';
         }
@@ -252,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
             manageProductList.appendChild(item);
         });
 
-        // Panggil setupManageActions setiap kali daftar dirender ulang
         setupManageActions(category, productsToRender);
     }
     
@@ -265,10 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hapus Produk
         manageProductList.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', async e => {
-                e.preventDefault(); // PENTING: Mencegah perilaku default tombol
+                e.preventDefault(); 
                 const parent = e.target.closest('.delete-item');
                 const id = parseInt(parent.dataset.id);
-                showToast('Menghapus produk...', 'info', 5000); // Tampilkan loading toast
+                showToast('Menghapus produk...', 'info', 5000); 
                 try {
                     const res = await fetch(`${API_BASE_URL}/deleteProduct`, {
                         method: 'DELETE',
@@ -279,11 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!res.ok) {
                         throw new Error(result.message);
                     }
-                    parent.remove(); // Hapus item dari DOM setelah berhasil
+                    parent.remove(); 
                     showToast(result.message, 'success');
-                    // Tidak perlu memuat ulang seluruh daftar karena item sudah dihapus dari DOM
-                    // Jika ingin memastikan seluruh daftar selalu sinkron, bisa panggil:
-                    // manageCategorySelect.dispatchEvent(new Event('change'));
                 } catch (err) {
                     console.error('Error deleting product:', err);
                     showToast(err.message || 'Gagal menghapus produk.', 'error');
@@ -312,8 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Buka Modal
         manageProductList.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // PENTING: Mencegah perilaku default tombol
-                const productId = parseInt(e.target.closest('.edit-btn').dataset.id); // Ambil ID dari tombol
+                e.preventDefault(); 
+                const productId = parseInt(e.target.closest('.edit-btn').dataset.id); 
                 const product = productsInCat.find(p => p.id === productId);
                 if (!product) {
                     showToast('Produk tidak ditemukan.', 'error');
@@ -325,10 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 editModalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Produk: ${product.nama}`;
                 editNameInput.value = product.nama;
                 editPriceInput.value = product.harga;
-                // Pastikan deskripsi ditampilkan dengan baris baru yang benar
                 editDescInput.value = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/ \|\| /g, '\n') : '';
                 
-                // Atur visibilitas dan konten berdasarkan kategori
                 if (category === 'Stock Akun' || category === 'Logo') {
                     editPhotoSection.style.display = 'block';
                     editPhotoGrid.innerHTML = '';
@@ -337,9 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         photoItem.className = 'photo-item';
                         photoItem.innerHTML = `<img src="${img}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
                         editPhotoGrid.appendChild(photoItem);
-                        // Tambahkan event listener untuk tombol hapus foto yang baru ditambahkan
                         photoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => {
-                            e_photo.stopPropagation(); // Mencegah event klik menyebar ke parent
+                            e_photo.stopPropagation(); 
                             e_photo.target.closest('.photo-item').remove();
                         });
                     });
@@ -368,16 +358,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Tambah Foto dari Modal
         addPhotoBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Mencegah submit form default
+            e.preventDefault(); 
             const newPhotoUrl = addPhotoInput.value.trim();
             if (newPhotoUrl) {
                 const newPhotoItem = document.createElement('div');
                 newPhotoItem.className = 'photo-item';
                 newPhotoItem.innerHTML = `<img src="${newPhotoUrl}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
                 editPhotoGrid.appendChild(newPhotoItem);
-                // Tambahkan event listener untuk tombol hapus foto yang baru ditambahkan
                 newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => {
-                    e_photo.stopPropagation(); // Mencegah event klik menyebar ke parent
+                    e_photo.stopPropagation(); 
                     e_photo.target.closest('.photo-item').remove();
                 });
                 addPhotoInput.value = '';
@@ -388,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Simpan Perubahan dari Modal
         saveEditBtn.addEventListener('click', async (e) => {
-            e.preventDefault(); // PENTING: Mencegah submit form default
+            e.preventDefault(); 
             const id = parseInt(editProductId.value);
             const categoryToUpdate = editProductCategory.value;
             const newName = editNameInput.value.trim();
@@ -424,8 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(result.message);
                 }
                 showToast('Produk berhasil diperbarui.', 'success');
-                editModal.classList.remove('is-visible'); // Tutup modal setelah berhasil
-                // Setelah menyimpan, perbarui daftar produk di admin panel
+                editModal.classList.remove('is-visible'); 
                 manageCategorySelect.dispatchEvent(new Event('change'));
             } catch (err) {
                 console.error('Error updating product:', err);
@@ -438,12 +426,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Geser Produk
         let draggingItem = null;
+        let autoScrollInterval = null;
+        const SCROLL_SPEED = 10; // Kecepatan scroll
+        const SCROLL_AREA_HEIGHT = 50; // Tinggi area di atas/bawah yang memicu scroll
+
         manageProductList.addEventListener('dragstart', (e) => {
             draggingItem = e.target.closest('.delete-item');
             if (draggingItem) {
                 setTimeout(() => draggingItem.classList.add('dragging'), 0);
                 e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', draggingItem.innerHTML); // Data transfer for Firefox compatibility
+                e.dataTransfer.setData('text/html', draggingItem.innerHTML);
             }
         });
         manageProductList.addEventListener('dragend', () => {
@@ -451,36 +443,73 @@ document.addEventListener('DOMContentLoaded', () => {
                 draggingItem.classList.remove('dragging');
                 draggingItem = null;
             }
+            // Hentikan autoscroll saat drag berakhir
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
         });
+        
         manageProductList.addEventListener('dragover', (e) => {
-            e.preventDefault(); // Diperlukan untuk memungkinkan drop
+            e.preventDefault(); 
             const afterElement = getDragAfterElement(manageProductList, e.clientY);
             const draggable = document.querySelector('.dragging');
-            if (!draggable || draggable === afterElement) return; // Mencegah error jika draggable tidak ada atau sama
+            if (!draggable || draggable === afterElement) return;
 
             if (afterElement == null) {
                 manageProductList.appendChild(draggable);
             } else {
                 manageProductList.insertBefore(draggable, afterElement);
             }
+
+            // Logika autoscroll
+            const containerRect = manageProductList.getBoundingClientRect();
+            const mouseY = e.clientY;
+
+            // Hentikan interval yang ada sebelum memulai yang baru
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+
+            if (mouseY < containerRect.top + SCROLL_AREA_HEIGHT) {
+                // Scroll ke atas
+                autoScrollInterval = setInterval(() => {
+                    manageProductList.scrollTop -= SCROLL_SPEED;
+                }, 30);
+            } else if (mouseY > containerRect.bottom - SCROLL_AREA_HEIGHT) {
+                // Scroll ke bawah
+                autoScrollInterval = setInterval(() => {
+                    manageProductList.scrollTop += SCROLL_SPEED;
+                }, 30);
+            } else {
+                // Di tengah, tidak perlu scroll
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
         });
 
-        // Event listener untuk dragenter dan dragleave agar visual feedback lebih baik (opsional)
+        // Hentikan autoscroll saat meninggalkan area manageProductList
+        manageProductList.addEventListener('dragleave', () => {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+            manageProductList.classList.remove('drag-over');
+        });
+
         manageProductList.addEventListener('dragenter', (e) => {
             e.preventDefault();
             manageProductList.classList.add('drag-over');
         });
-        manageProductList.addEventListener('dragleave', () => {
-            manageProductList.classList.remove('drag-over');
-        });
+        
         manageProductList.addEventListener('drop', (e) => {
-            e.preventDefault(); // PENTING: Mencegah perilaku drop default
+            e.preventDefault(); 
             manageProductList.classList.remove('drag-over');
+            // Hentikan autoscroll saat drop
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
         });
 
 
         saveOrderButton.addEventListener('click', async (e) => {
-            e.preventDefault(); // PENTING: Mencegah submit form default
+            e.preventDefault(); 
             const newOrder = [...manageProductList.children].map(item => parseInt(item.dataset.id));
             const category = manageCategorySelect.value;
             if (!category) {
@@ -503,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(result.message);
                 }
                 showToast('Urutan berhasil disimpan.', 'success');
-                // Setelah menyimpan urutan, muat ulang daftar untuk memastikan tampilan sesuai
                 manageCategorySelect.dispatchEvent(new Event('change'));
             } catch (err) {
                 console.error('Error saving order:', err);
@@ -515,27 +543,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function getDragAfterElement(container, y) {
-        // Filter elemen yang sedang tidak di-drag
         const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            // Menghitung offset relatif ke tengah elemen
             const offset = y - box.top - box.height / 2;
-            // Jika offset negatif (di atas tengah elemen) dan lebih besar dari offset terdekat saat ini (artinya lebih dekat ke tengah)
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
             } else {
                 return closest;
             }
-        }, { offset: Number.NEGATIVE_INFINITY }).element; // Inisialisasi dengan offset negatif tak hingga
+        }, { offset: Number.NEGATIVE_INFINITY }).element; 
     }
 
     // Cek status login saat halaman dimuat
     if (sessionStorage.getItem('isAdminAuthenticated')) {
         loginScreen.style.display = 'none';
         productFormScreen.style.display = 'block';
-        // Picu klik pada tab "Tambah Produk" setelah login berhasil
         document.querySelector('.tab-button[data-tab="addProduct"]').click();
     }
 });
