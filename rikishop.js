@@ -103,7 +103,7 @@ async function setupFirebaseVisitorCounter() {
     visitorCountSpan.textContent = '-';
     if (!window.firebaseServices) {
         console.warn("Layanan Firebase tidak tersedia.");
-        visitorCountSpan.textContent = 'N/A';
+        visitorCountSpan.textContent = 'R/S';
         return;
     }
     const { auth, db, doc, runTransaction, onSnapshot, signInAnonymously, signInWithCustomToken, initialAuthToken } = window.firebaseServices;
@@ -482,7 +482,7 @@ function addToCart(event) {
     localStorage.setItem('rikishop_cart', JSON.stringify(cart));
     updateCartCount();
     const itemInCart = cart.find(item => item.id === id);
-    showToastNotification(`<b>${productName} (${itemInCart.quantity} barang)</b> ditambahkan.`);
+    showToastNotification(`<b>${productName}</b><b>(${itemInCart.quantity} barang)</b> ditambahkan.`);
 }
 function renderCart() {
     cartItemsList.innerHTML = '';
@@ -735,5 +735,5 @@ document.addEventListener('firebaseReady', () => {
 document.addEventListener('firebaseFailed', () => {
     console.log("Firebase failed to load, initializing app without visitor counter.");
     initializeApp();
-    visitorCountDisplay.querySelector('.count').textContent = 'N/A';
+    visitorCountDisplay.querySelector('.count').textContent = 'R/S';
 });
