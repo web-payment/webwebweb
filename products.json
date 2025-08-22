@@ -172,15 +172,6 @@
     ],
     "Script": [
         {
-            "id": 59,
-            "nama": "Script RikiTelebot",
-            "harga": 2500,
-            "deskripsiPanjang": "scrip ini cocok untuk open resller di telegram||ada fitur jaga grup telegram nya juga||dan ada fitur lain nya||bisa simpan banyak server panel",
-            "menuContent": "Menu Fitur Script RikiTelebot:\n...",
-            "hargaAsli": 25000,
-            "images": null
-        },
-        {
             "id": 58,
             "nama": "Script Hikmal-v1",
             "harga": 25000,
@@ -193,6 +184,15 @@
             "harga": 15000,
             "deskripsiPanjang": "cocok untuk open bot push, dan cocok juga untuk pushkontak.",
             "menuContent": "Menu Fitur Script push no button:\n..."
+        },
+        {
+            "id": 59,
+            "nama": "Script RikiTelebot",
+            "harga": 2500,
+            "deskripsiPanjang": "scrip ini cocok untuk open resller di telegram||ada fitur jaga grup telegram nya juga||dan ada fitur lain nya||bisa simpan banyak server panel",
+            "menuContent": "Menu Fitur Script RikiTelebot:\n...",
+            "hargaAsli": 25000,
+            "images": null
         },
         {
             "id": 26,
