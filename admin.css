@@ -305,9 +305,19 @@ button:disabled {
     animation: fadeIn 0.5s ease forwards;
     pointer-events: auto;
 }
-.toast.success i { color: var(--success-color); }
-.toast.error i { color: var(--error-color); }
-.toast.info i { color: var(--primary-color); }
+.toast.success { background-color: rgba(52, 199, 89, 0.9); color: white; }
+.toast.success i { color: white; }
+.toast.error { background-color: rgba(255, 59, 48, 0.9); color: white; }
+.toast.error i { color: white; }
+.toast.info { background-color: rgba(0, 122, 255, 0.9); color: white; }
+.toast.info i { color: white; }
+.toast.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-100%); }
+}
 
 .modal {
     position: fixed;
