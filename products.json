@@ -1,14 +1,6 @@
 {
     "Panel": [
         {
-            "id": 76,
-            "nama": "Fghhh",
-            "harga": 15888,
-            "hargaAsli": 15888,
-            "deskripsiPanjang": "Gdhbb",
-            "createdAt": "2025-08-22T08:15:17.506Z"
-        },
-        {
             "id": 75,
             "nama": "Gshbb",
             "harga": 12000,
@@ -91,6 +83,14 @@
             "nama": "Panel Ram 11GB",
             "harga": 13000,
             "deskripsiPanjang": "Syarat & Ketentuan : Server private & kualitas terbaik! || Script bot dijamin aman (anti drama/maling) | masa aktif panel 30 hari || Garansi 15 hari (1x replace) || Server anti delay/lemot! || Claim garansi wajib bawa bukti transaksi dan data panel yang lengkap"
+        },
+        {
+            "id": 76,
+            "nama": "Fghhh",
+            "harga": 15888,
+            "hargaAsli": 15888,
+            "deskripsiPanjang": "Gdhbb",
+            "createdAt": "2025-08-22T08:15:17.506Z"
         },
         {
             "id": 12,
