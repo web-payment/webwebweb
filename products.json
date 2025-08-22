@@ -174,9 +174,11 @@
         {
             "id": 59,
             "nama": "Script RikiTelebot",
-            "harga": 25000,
+            "harga": 2500,
             "deskripsiPanjang": "scrip ini cocok untuk open resller di telegram||ada fitur jaga grup telegram nya juga||dan ada fitur lain nya||bisa simpan banyak server panel",
-            "menuContent": "Menu Fitur Script RikiTelebot:\n..."
+            "menuContent": "Menu Fitur Script RikiTelebot:\n...",
+            "hargaAsli": 25000,
+            "images": null
         },
         {
             "id": 58,
