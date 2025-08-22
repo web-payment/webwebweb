@@ -285,12 +285,13 @@ function loadServiceProducts(serviceType) {
     let productData = products[serviceType];
     
     if (productData && productData.length > 0) {
-        // Urutkan produk, yang terbaru (createdAt tertinggi) di atas
-        productData.sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return dateB - dateA;
-        });
+        // --- PERBAIKAN: Hapus pengurutan lokal berdasarkan createdAt ---
+        // Produk seharusnya sudah terurut dari products.json yang diupdate oleh admin panel
+        // productData.sort((a, b) => {
+        //     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        //     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        //     return dateB - dateA;
+        // });
 
         productData.forEach(product => {
             const productItem = document.createElement('div');
@@ -698,7 +699,7 @@ function playBackgroundMusic() {
 async function initializeApp() {
     mainContainer.style.display = 'none';
     try {
-        // Tambahkan timestamp untuk mencegah cache
+        // Tambahkan timestamp untuk mencegah cache saat memuat products.json
         const timestamp = new Date().getTime();
         const response = await fetch(`products.json?v=${timestamp}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeToastTimeout = null;
 
     function showToast(message, type = 'info', duration = 3000) {
+        // Hapus toast yang ada sebelum menampilkan yang baru
         if (toastContainer.firstChild) {
             clearTimeout(activeToastTimeout);
             toastContainer.innerHTML = '';
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.addEventListener('animationend', () => toast.remove());
         }, duration);
     }
+
     const handleLogin = async () => {
         const password = passwordInput.value;
         if (!password) return showToast('Password tidak boleh kosong.', 'error');
@@ -140,11 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
             if (!res.ok) throw new Error(result.message);
             showToast(`Produk "${productData.nama}" berhasil ditambahkan.`, 'success');
+            // Reset form
             nameInput.value = '';
             priceInput.value = '';
             descriptionInput.value = '';
             photosInput.value = '';
             scriptMenuContentInput.value = '';
+            categorySelect.value = 'Panel'; // Reset ke kategori default
+            categorySelect.dispatchEvent(new Event('change')); // Picu perubahan untuk menyembunyikan/menampilkan seksi yang relevan
         } catch (err) {
             showToast(err.message || 'Gagal menambahkan produk.', 'error');
         } finally {
@@ -163,8 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(button.dataset.tab).classList.add('active');
             if (button.dataset.tab === 'manageProducts') {
-                manageCategorySelect.value = '';
-                manageProductList.innerHTML = '';
+                // Pastikan untuk memicu pemuatan ulang daftar produk saat tab "Kelola Produk" diaktifkan
+                // ini akan memuat produk sesuai urutan terbaru
+                manageCategorySelect.value = ''; // Reset pilihan kategori
+                manageProductList.innerHTML = ''; // Kosongkan daftar
+                saveOrderButton.style.display = 'none'; // Sembunyikan tombol simpan urutan
             }
         });
     });
@@ -179,7 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            const res = await fetch('/products.json');
+            // Tambahkan timestamp untuk mencegah cache pada products.json
+            const timestamp = new Date().getTime();
+            const res = await fetch(`/products.json?v=${timestamp}`);
             const data = await res.json();
             const productsInCat = data[category] || [];
             if (productsInCat.length === 0) {
@@ -190,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderManageList(productsInCat, category);
             saveOrderButton.style.display = 'block';
         } catch (err) {
+            console.error("Error loading products:", err); // Log error
             manageProductList.innerHTML = '<p>Gagal memuat produk.</p>';
         }
     });
@@ -285,7 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         photoItem.className = 'photo-item';
                         photoItem.innerHTML = `<img src="${img}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
                         editPhotoGrid.appendChild(photoItem);
-                        photoItem.querySelector('.delete-photo-btn').addEventListener('click', e => e.target.closest('.photo-item').remove());
+                        // Tambahkan event listener untuk tombol hapus foto yang baru ditambahkan
+                        photoItem.querySelector('.delete-photo-btn').addEventListener('click', (e) => {
+                            e.stopPropagation(); // Mencegah event klik menyebar ke parent
+                            e.target.closest('.photo-item').remove();
+                        });
                     });
                 } else {
                     editPhotoSection.style.display = 'none';
@@ -318,7 +333,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 newPhotoItem.className = 'photo-item';
                 newPhotoItem.innerHTML = `<img src="${newPhotoUrl}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
                 editPhotoGrid.appendChild(newPhotoItem);
-                newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', e => e.target.closest('.photo-item').remove());
+                // Tambahkan event listener untuk tombol hapus foto yang baru ditambahkan
+                newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', (e) => {
+                    e.stopPropagation(); // Mencegah event klik menyebar ke parent
+                    e.target.closest('.photo-item').remove();
+                });
                 addPhotoInput.value = '';
             } else {
                 showToast('URL foto tidak boleh kosong.', 'error');
@@ -335,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let newImages = null;
             if (categoryToUpdate === 'Stock Akun' || categoryToUpdate === 'Logo') {
-                newImages = [...editPhotoGrid.querySelectorAll('img')].map(img => img.src);
+                newImages = [...editPhotoGrid.querySelectorAll('.photo-item img')].map(img => img.src);
             }
             
             let newMenuContent = null;
@@ -344,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (isNaN(newPrice) || newPrice < 0 || !newName || !newDesc) {
-                return showToast('Data tidak valid.', 'error');
+                return showToast('Data tidak valid (Nama, Harga, Deskripsi harus diisi dan harga harus angka positif).', 'error');
             }
             
             saveEditBtn.textContent = '...';
@@ -363,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 showToast('Produk berhasil diperbarui.', 'success');
                 editModal.classList.remove('is-visible');
+                // Setelah menyimpan, perbarui daftar produk di admin panel
                 manageCategorySelect.dispatchEvent(new Event('change'));
             } catch (err) {
                 showToast(err.message || 'Gagal memperbarui produk.', 'error');
@@ -378,6 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
             draggingItem = e.target.closest('.delete-item');
             if (draggingItem) {
                 setTimeout(() => draggingItem.classList.add('dragging'), 0);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', draggingItem.innerHTML); // Data transfer for Firefox compatibility
             }
         });
         manageProductList.addEventListener('dragend', () => {
@@ -387,19 +409,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         manageProductList.addEventListener('dragover', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Diperlukan untuk memungkinkan drop
             const afterElement = getDragAfterElement(manageProductList, e.clientY);
             const draggable = document.querySelector('.dragging');
+            if (draggable === null || draggable === afterElement) return; // Mencegah error jika draggable tidak ada atau sama
+
             if (afterElement == null) {
                 manageProductList.appendChild(draggable);
             } else {
                 manageProductList.insertBefore(draggable, afterElement);
             }
         });
+
+        // Event listener untuk dragenter dan dragleave agar visual feedback lebih baik (opsional)
+        manageProductList.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            manageProductList.classList.add('drag-over');
+        });
+        manageProductList.addEventListener('dragleave', () => {
+            manageProductList.classList.remove('drag-over');
+        });
+        manageProductList.addEventListener('drop', () => {
+            manageProductList.classList.remove('drag-over');
+        });
+
+
         saveOrderButton.addEventListener('click', async () => {
             const newOrder = [...manageProductList.children].map(item => parseInt(item.dataset.id));
             const category = manageCategorySelect.value;
-            if (!category || newOrder.length === 0) return;
+            if (!category || newOrder.length === 0) {
+                return showToast('Tidak ada kategori atau produk untuk diurutkan.', 'error');
+            }
 
             showToast('Menyimpan urutan...', 'info', 5000);
             try {
@@ -411,28 +451,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.message);
                 showToast('Urutan berhasil disimpan.', 'success');
+                // Setelah menyimpan urutan, muat ulang daftar untuk memastikan tampilan sesuai
+                manageCategorySelect.dispatchEvent(new Event('change'));
             } catch (err) {
+                console.error("Error saving order:", err); // Log error
                 showToast(err.message || 'Gagal menyimpan urutan.', 'error');
             }
         });
     }
     
     function getDragAfterElement(container, y) {
+        // Filter elemen yang sedang tidak di-drag
         const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
+
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
+            // Menghitung offset relatif ke tengah elemen
             const offset = y - box.top - box.height / 2;
+            // Jika offset negatif (di atas tengah elemen) dan lebih besar dari offset terdekat saat ini (artinya lebih dekat ke tengah)
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
             } else {
                 return closest;
             }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }, { offset: Number.NEGATIVE_INFINITY }).element; // Inisialisasi dengan offset negatif tak hingga
     }
 
     // Cek status login saat halaman dimuat
     if (sessionStorage.getItem('isAdminAuthenticated')) {
         loginScreen.style.display = 'none';
         productFormScreen.style.display = 'block';
+        // Picu pemuatan daftar kategori pertama kali setelah login
+        // agar tab "Tambah Produk" aktif secara default
+        document.querySelector('.tab-button[data-tab="addProduct"]').click();
     }
 });

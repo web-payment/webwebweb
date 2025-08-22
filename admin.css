@@ -50,12 +50,12 @@ body {
     min-height: 100vh;
 }
 
-/* Container admin */
+/* Container admin - Disesuaikan untuk responsif */
 .main-container {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px;
+    padding: 15px; /* Tambahkan padding agar tidak terlalu mepet ke samping */
     box-sizing: border-box;
 }
 
@@ -217,7 +217,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .theme-switch:hover { filter: brightness(0.95); }
 .theme-switch i { font-size: 1.1em; transition: transform 0.2s ease; }
 
-/* Tabs */
+/* Tabs - Disesuaikan untuk responsif */
 .admin-tabs {
     width: 100%;
     display: flex;
@@ -226,10 +226,12 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     padding: 5px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     margin-top: 20px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Memungkinkan tab untuk wrap ke baris baru pada layar kecil */
+    justify-content: center; /* Pusatkan tab pada layar kecil */
 }
 .tab-button {
-    flex: 1;
+    flex: 1; /* Memungkinkan tombol tab untuk mengisi ruang */
+    min-width: 120px; /* Batas lebar minimum untuk setiap tombol */
     border: none;
     background-color: transparent;
     padding: 10px 15px;
@@ -310,14 +312,15 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .modal-content {
     background-color: var(--white-color);
     border-radius: 12px;
-    width: 100%;
-    max-width: 500px;
+    width: 95%; /* Disesuaikan agar lebih responsif */
+    max-width: 600px; /* Meningkatkan max-width untuk ukuran sedang */
     margin: auto;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     padding: 25px;
     position: relative;
     transform: scale(0.95);
     transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-sizing: border-box; /* Pastikan padding dihitung dalam width */
 }
 .modal.is-visible .modal-content { transform: scale(1); }
 .close-button {
@@ -351,9 +354,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .delete-item.dragging { opacity: 0.7; transform: scale(1.02); }
 .item-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; /* Ubah menjadi kolom di mobile */
+    align-items: flex-start; /* Sejajarkan ke kiri */
     width: 100%;
+    gap: 10px; /* Jarak antar elemen di header */
 }
 .item-header span { font-weight: 500; }
 .item-header .new-badge {
@@ -363,30 +367,45 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     border-radius: 50px;
     font-size: 0.7em;
     font-weight: bold;
-    margin-left: 10px;
+    margin-left: 0; /* Hapus margin-left */
 }
-.item-actions { display: flex; gap: 10px; margin-top: 10px; }
+.item-actions { 
+    display: flex; 
+    gap: 10px; 
+    margin-top: 10px; 
+    width: 100%; /* Lebarkan tombol agar memenuhi lebar */
+    justify-content: stretch; /* Regangkan tombol */
+}
 .edit-btn, .delete-btn {
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 0.85em;
     margin-top: 0;
-    width: auto;
+    width: 100%; /* Tombol memenuhi lebar di dalam item-actions */
 }
 .edit-btn { background-color: var(--primary-color); }
 .delete-btn { background-color: var(--error-color); }
 .save-order-button { margin-top: 20px; }
-.price-display { display: flex; align-items: center; gap: 5px; }
+.price-display { 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    flex-wrap: wrap; /* Izinkan harga untuk wrap */
+}
 .original-price del { color: var(--light-text-color); font-size: 0.9em; }
 .discounted-price { font-weight: bold; }
-.add-photo-container { display: flex; gap: 10px; margin-top: 10px; }
+.add-photo-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.add-photo-container input { flex-grow: 1; min-width: 150px; } /* Input agar responsif */
+.add-photo-container button { width: auto; margin-top: 0; } /* Tombol tambah foto */
+
 .photo-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
+    justify-content: center; /* Pusatkan gambar */
 }
-.photo-item { position: relative; width: 80px; height: 80px; }
+.photo-item { position: relative; width: 80px; height: 80px; flex-shrink: 0; } /* Jangan menyusut */
 .photo-item img {
     width: 100%;
     height: 100%;
@@ -425,6 +444,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     padding: 25px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box; /* Penting untuk responsivitas */
 }
 .admin-form h2 {
     text-align: center;
@@ -459,3 +479,65 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     transition: background 0.2s ease;
 }
 .admin-form button:hover { background: #0056cc; }
+
+/* Media Queries untuk Responsivitas */
+@media (max-width: 768px) {
+    .admin-header h2 {
+        font-size: 1.2em;
+    }
+    .admin-tabs {
+        flex-direction: column; /* Tabs menjadi kolom */
+        padding: 5px 0; /* Kurangi padding horizontal */
+    }
+    .tab-button {
+        margin: 5px; /* Tambah margin vertikal antar tab */
+        padding: 12px 10px;
+        font-size: 0.9em;
+    }
+    .item-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .item-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .edit-btn, .delete-btn {
+        width: 100%;
+    }
+    .add-photo-container {
+        flex-direction: column;
+    }
+    .add-photo-container input {
+        width: 100%;
+    }
+    .add-photo-container button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        padding: 10px;
+    }
+    .form-card, .admin-form {
+        padding: 20px 15px;
+    }
+    .login-header h2 {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 1.3em;
+    }
+    input, select, textarea, button {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .toast {
+        padding: 10px 15px;
+        font-size: 0.85em;
+    }
+    .modal-content {
+        padding: 20px;
+    }
+}
