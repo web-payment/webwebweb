@@ -261,12 +261,6 @@
     ],
     "Jasa": [
         {
-            "id": 33,
-            "nama": "Jasa install panel",
-            "harga": 10000,
-            "deskripsiPanjang": "terima jadi, free domain, data vps di jamin aman 100%."
-        },
-        {
             "id": 34,
             "nama": "Jasa install tema",
             "harga": 10000,
