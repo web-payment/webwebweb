@@ -45,7 +45,7 @@ body {
     -webkit-font-smoothing: antialiased;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Ubah ini agar konten tidak terlalu ke tengah */
+    align-items: center;   /* ✅ tengah vertikal */
     min-height: 100vh;
 }
 
@@ -561,4 +561,12 @@ button:disabled {
 
 .admin-form button:hover {
     background: #0056cc;
+}
+
+/* Override: kalau sudah masuk halaman admin, biarkan align top */
+#product-form-screen {
+    display: block;        /* biar normal */
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 1200px;
 }
