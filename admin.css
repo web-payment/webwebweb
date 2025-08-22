@@ -1,5 +1,5 @@
 /* ============================================== */
-/* VARIABLE DAN FONT                  */
+/* VARIABLE DAN FONT                            */
 /* ============================================== */
 :root {
     --primary-color: #007aff;
@@ -26,60 +26,50 @@
 }
 
 /* ============================================== */
-/* ANIMASI                         */
+/* ANIMASI                                      */
 /* ============================================== */
-@keyframes toast-in {
-    from { opacity: 0; transform: translateY(-100%); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes toast-out {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-100%); }
-}
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================== */
-/* LAYOUT DASAR                 */
+/* LAYOUT DASAR                                 */
 /* ============================================== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Poppins', sans-serif;
     background-color: var(--secondary-color);
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
     transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
 }
 
-.admin-container {
+.screen {
     width: 100%;
     max-width: 500px;
+    margin: auto;
     padding: 20px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
 }
 
 /* ============================================== */
-/* KOMPONEN UMUM                */
+/* KOMPONEN UMUM                                */
 /* ============================================== */
 .form-card {
     background-color: var(--white-color);
-    padding: 30px 35px;
+    width: 100%;
+    padding: 30px 25px;
     border-radius: 20px;
     box-shadow: 0 10px 30px var(--shadow-color);
     border: 1px solid var(--border-color);
     animation: fadeIn 0.5s ease-out forwards;
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    margin-top: 20px;
-}
-.form-card:first-child {
-    margin-top: 0;
 }
 
 h2 {
@@ -87,7 +77,7 @@ h2 {
     color: var(--text-color);
     font-weight: 600;
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 h2 i {
     margin-right: 10px;
@@ -112,17 +102,18 @@ label {
 input, select, textarea {
     width: 100%;
     padding: 12px 15px;
-    border: none;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     box-sizing: border-box;
     font-family: inherit;
     font-size: 1em;
-    background-color: #f0f0f5;
+    background-color: transparent;
     color: var(--text-color);
-    transition: box-shadow 0.2s, background-color 0.2s;
+    transition: box-shadow 0.2s, background-color 0.2s, border-color 0.2s;
 }
 input:focus, select:focus, textarea:focus {
     outline: none;
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
 }
 textarea {
@@ -155,69 +146,66 @@ button:disabled {
 }
 
 /* ============================================== */
-/* HALAMAN LOGIN                    */
+/* HALAMAN LOGIN                                */
 /* ============================================== */
 .login-card {
     text-align: center;
 }
-.login-card .profile-pic {
+.login-header {
+    margin-bottom: 25px;
+}
+.login-header .profile-pic {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    overflow: hidden;
-    margin: 0 auto 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    object-fit: cover;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-.login-card h2 {
+.login-header h2 {
     font-size: 1.8em;
     font-weight: 700;
     margin-bottom: 5px;
 }
-.login-card p {
+.login-header p {
     font-size: 1em;
-    margin-bottom: 30px;
+    margin-bottom: 0;
 }
 .login-card .theme-switch {
     margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ============================================== */
-/* PANEL ADMIN                    */
+/* PANEL ADMIN                                  */
 /* ============================================== */
 .admin-header {
+    width: 100%;
+    background-color: var(--white-color);
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    background-color: var(--white-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 .admin-header h2 {
     margin: 0;
     font-size: 1.5em;
-    text-align: center;
     flex-grow: 1;
+    text-align: center;
 }
 .admin-header .profile-pic {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    overflow: hidden;
-    margin-right: 15px;
-}
-.admin-header .profile-pic img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
 }
 .theme-switch {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #f0f0f5;
+    background-color: var(--secondary-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -225,10 +213,9 @@ button:disabled {
     transition: background-color 0.2s ease;
 }
 .theme-switch:hover {
-    background-color: #e9e9e9;
+    filter: brightness(0.95);
 }
 .theme-switch i {
-    color: var(--text-color);
     font-size: 1.1em;
     transition: transform 0.2s ease;
 }
@@ -253,15 +240,13 @@ button:disabled {
 
 /* Tabs */
 .admin-tabs {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     background-color: var(--white-color);
     border-radius: 12px;
     padding: 5px;
-    border: 1px solid var(--border-color);
-    max-width: 500px;
-    margin: 20px auto 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-top: 20px;
 }
 .tab-button {
     flex: 1;
@@ -280,6 +265,8 @@ button:disabled {
 }
 .admin-tab-content {
     display: none;
+    width: 100%;
+    margin-top: 20px;
 }
 .admin-tab-content.active {
     display: block;
@@ -287,9 +274,9 @@ button:disabled {
 }
 
 /* ============================================== */
-/* MODAL & TOAST                  */
+/* MODAL & TOAST                                */
 /* ============================================== */
-.toast-container {
+#toast-container {
     position: fixed;
     top: 30px;
     left: 50%;
@@ -315,24 +302,12 @@ button:disabled {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(0,0,0,0.05);
-    animation: toast-in 0.5s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+    animation: fadeIn 0.5s ease forwards;
     pointer-events: auto;
 }
-.toast.fade-out {
-    animation: toast-out 0.5s ease forwards;
-}
-.toast i {
-    font-size: 1.2em;
-}
-.toast.success i {
-    color: var(--success-color);
-}
-.toast.error i {
-    color: var(--error-color);
-}
-.toast.info i {
-    color: var(--primary-color);
-}
+.toast.success i { color: var(--success-color); }
+.toast.error i { color: var(--error-color); }
+.toast.info i { color: var(--primary-color); }
 
 .modal {
     position: fixed;
@@ -341,45 +316,47 @@ button:disabled {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6);
-    display: none;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
     align-items: center;
     justify-content: center;
     padding: 15px;
-    transition: background-color 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+.modal.is-visible {
+    visibility: visible;
+    opacity: 1;
 }
 .modal-content {
     background-color: var(--white-color);
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    padding: 25px;
     position: relative;
-    padding: 20px;
-    opacity: 0;
-    transform: scale(0.95) translateY(0);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.modal.is-visible {
-    display: flex;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 .modal.is-visible .modal-content {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
 }
 .close-button {
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: var(--light-text-color);
-    cursor: pointer;
     position: absolute;
     top: 10px;
     right: 15px;
+    cursor: pointer;
+}
+.close-button:hover {
+    color: var(--text-color);
 }
 
 /* ============================================== */
-/* KELOLA PRODUK (MANAGE)               */
+/* KELOLA PRODUK (MANAGE)                       */
 /* ============================================== */
 .delete-list {
     margin-top: 15px;
@@ -388,74 +365,78 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    background: #f7f7f7;
-    margin: 4px 0;
-    padding: 12px 10px;
-    border-radius: 6px;
-    transition: background 0.2s, color 0.2s;
-    cursor: grab;
+    background: var(--secondary-color);
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px var(--shadow-color);
+    cursor: grab;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 .delete-item:hover {
-    background: #e9e9e9;
+    background: var(--border-color);
 }
 .delete-item.dragging {
-    opacity: 0.5;
+    opacity: 0.7;
     transform: scale(1.02);
 }
-.delete-item > .item-header {
+.item-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
-    margin-bottom: 10px;
 }
-.delete-item > .item-header > span {
-    font-size: 0.9em;
-    color: var(--text-color);
-    flex: 1;
+.item-header span {
+    font-weight: 500;
 }
-.delete-item .item-actions {
+.item-header .new-badge {
+    background-color: var(--error-color);
+    color: var(--white-color);
+    padding: 2px 8px;
+    border-radius: 50px;
+    font-size: 0.7em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.item-actions {
     display: flex;
     gap: 10px;
-    width: 100%;
-    justify-content: flex-end;
-}
-.delete-item .edit-form {
-    display: none !important;
+    margin-top: 10px;
 }
 .edit-btn, .delete-btn {
-    background-color: var(--primary-color);
-    color: #fff;
-    border: none;
     padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
     font-size: 0.85em;
+    margin-top: 0;
     width: auto;
-    margin: 0;
-    transition: background-color 0.2s;
+}
+.edit-btn {
+    background-color: var(--primary-color);
 }
 .delete-btn {
     background-color: var(--error-color);
 }
-.save-edit-btn {
-    width: auto;
-    margin-left: auto;
-    padding: 8px 12px;
+.save-order-button {
+    margin-top: 20px;
+}
+.price-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.original-price del {
+    color: var(--light-text-color);
     font-size: 0.9em;
 }
-.new-badge {
-    background: red;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 8px;
-    margin-left: 5px;
+.discounted-price {
     font-weight: bold;
 }
-
-/* Gaya untuk foto di dalam modal edit */
+.add-photo-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
 .photo-grid {
     display: flex;
     flex-wrap: wrap;
@@ -464,10 +445,12 @@ button:disabled {
 }
 .photo-item {
     position: relative;
-}
-.photo-item img {
     width: 80px;
     height: 80px;
+}
+.photo-item img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 8px;
 }
@@ -475,32 +458,16 @@ button:disabled {
     position: absolute;
     top: -5px;
     right: -5px;
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
     background-color: var(--error-color);
     color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.7em;
-    margin: 0;
-    padding: 0;
+    font-size: 0.8em;
     border: none;
-}
-.add-photo-container {
+    cursor: pointer;
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-.add-photo-container input {
-    flex: 1;
-}
-.add-photo-btn {
-    width: auto;
-    margin: 0;
-    padding: 8px 12px;
-    font-size: 0.9em;
-    white-space: nowrap;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }
