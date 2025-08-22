@@ -357,6 +357,14 @@
     ],
     "Sewa Bot": [
         {
+            "id": 77,
+            "nama": "Bot Push",
+            "harga": 18000,
+            "hargaAsli": 18000,
+            "deskripsiPanjang": "Oke mantap min",
+            "createdAt": "2025-08-22T11:12:19.598Z"
+        },
+        {
             "id": 46,
             "nama": "Bot Push Kontak 1 Hari",
             "harga": 5000,
