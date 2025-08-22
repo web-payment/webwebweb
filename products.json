@@ -1,14 +1,6 @@
 {
     "Panel": [
         {
-            "id": 77,
-            "nama": "Anakans",
-            "harga": 1000,
-            "hargaAsli": 1000,
-            "deskripsiPanjang": "Jabs",
-            "createdAt": "2025-08-22T09:12:51.453Z"
-        },
-        {
             "id": 1,
             "nama": "Panel Ram 1GB",
             "harga": 1000,
