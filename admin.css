@@ -176,7 +176,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     justify-content: flex-end;
 }
 .delete-item .edit-form {
-    display: none !important; /* Menyembunyikan form edit inline yang lama */
+    display: none !important;
 }
 .delete-item .edit-form input,
 .delete-item .edit-form textarea {

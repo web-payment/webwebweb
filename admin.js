@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newPrice = parseInt(editPriceInput.value, 10);
             const newDesc = editDescInput.value.replace(/\n/g, ' || ');
             
-            let newImages = [];
+            let newImages = null;
             if (categoryToUpdate === 'Stock Akun' || categoryToUpdate === 'Logo') {
                 newImages = [...editPhotoGrid.querySelectorAll('img')].map(img => img.src);
             }
