@@ -1,6 +1,14 @@
 {
     "Panel": [
         {
+            "id": 75,
+            "nama": "Gshbb",
+            "harga": 12000,
+            "hargaAsli": 12000,
+            "deskripsiPanjang": "Gblk b",
+            "createdAt": "2025-08-22T08:15:03.354Z"
+        },
+        {
             "id": 1,
             "nama": "Panel Ram 1GB",
             "harga": 1000,
