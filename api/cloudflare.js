@@ -1,15 +1,8 @@
-import { promises as fs } from 'fs';
+import { kv } from '@vercel/kv';
 import path from 'path';
 
-// --- Fungsi Helper ---
-async function readJsonFile(filePath) {
-    const data = await fs.readFile(path.join(process.cwd(), filePath), 'utf-8');
-    return JSON.parse(data);
-}
-async function writeJsonFile(filePath, content) {
-    await fs.writeFile(path.join(process.cwd(), filePath), JSON.stringify(content, null, 4));
-}
-// --------------------
+// --- KODE LAMA (fs) SUDAH TIDAK DIPAKAI ---
+// Kita ganti dengan Vercel KV
 
 export default async function handler(request, response) {
     if (request.method !== 'POST') {
@@ -31,7 +24,8 @@ export default async function handler(request, response) {
             }
         }
 
-        const apiKeys = await readJsonFile('apikeys.json');
+        // Baca data 'apikeys' dari Vercel KV. Jika tidak ada, anggap sebagai objek kosong.
+        const apiKeys = await kv.get('apikeys') || {};
 
         if (action === 'validateApiKey') {
             const keyData = apiKeys[data.apikey];
@@ -50,7 +44,8 @@ export default async function handler(request, response) {
             }
         }
 
-        const domains = await readJsonFile('domains.json');
+        // Baca data 'domains' dari Vercel KV.
+        const domains = await kv.get('domains') || {};
 
         switch (action) {
             // == AKSI UNTUK PENGGUNA ==
@@ -58,7 +53,6 @@ export default async function handler(request, response) {
                 return response.status(200).json({ domains: Object.keys(domains) });
             }
 
-            // --- FIXED: Logika yang hilang sudah ditambahkan di sini ---
             case 'createSubdomain': {
                 const { subdomain, domain, type, content, proxied } = data;
                 const domainInfo = domains[domain];
@@ -71,19 +65,12 @@ export default async function handler(request, response) {
 
                 const created_domains = [];
 
-                // 1. Buat record utama (misal: rikishop.domain.my.id)
                 const mainRecordData = {
-                    type,
-                    name: `${subdomain}.${domain}`,
-                    content,
-                    proxied,
-                    ttl: 1
+                    type, name: `${subdomain}.${domain}`, content, proxied, ttl: 1
                 };
                 
                 const mainRes = await fetch(`https://api.cloudflare.com/client/v4/zones/${domainInfo.zone}/dns_records`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(mainRecordData)
+                    method: 'POST', headers, body: JSON.stringify(mainRecordData)
                 });
                 const mainResult = await mainRes.json();
                 if (!mainResult.success) {
@@ -91,19 +78,15 @@ export default async function handler(request, response) {
                 }
                 created_domains.push(mainResult.result.name);
 
-                // 2. Buat record node jika tipenya A (untuk IP)
                 if (type === 'A') {
                     const nodeName = `node${Math.floor(10 + Math.random() * 90)}.${subdomain}.${domain}`;
                     const nodeRecordData = { type: 'A', name: nodeName, content, proxied, ttl: 1 };
                     
                     const nodeRes = await fetch(`https://api.cloudflare.com/client/v4/zones/${domainInfo.zone}/dns_records`, {
-                        method: 'POST',
-                        headers,
-                        body: JSON.stringify(nodeRecordData)
+                        method: 'POST', headers, body: JSON.stringify(nodeRecordData)
                     });
                     const nodeResult = await nodeRes.json();
                      if (!nodeResult.success) {
-                         // Meskipun node gagal, record utama tetap berhasil
                          throw new Error(`Record utama dibuat, tapi gagal membuat record node: ${nodeResult.errors[0].message}`);
                      }
                     created_domains.push(nodeResult.result.name);
@@ -126,20 +109,26 @@ export default async function handler(request, response) {
                     const now = new Date();
                     const d = parseInt(duration, 10);
                     if (unit === 'days') now.setDate(now.getDate() + d);
-                    if (unit === 'weeks') now.setDate(now.getDate() + (d * 7));
-                    if (unit === 'months') now.setMonth(now.getMonth() + d);
-                    if (unit === 'years') now.setFullYear(now.getFullYear() + d);
+                    else if (unit === 'weeks') now.setDate(now.getDate() + (d * 7));
+                    else if (unit === 'months') now.setMonth(now.getMonth() + d);
+                    else if (unit === 'years') now.setFullYear(now.getFullYear() + d);
                     expires_at = now.toISOString();
                 }
                 apiKeys[key] = { created_at: new Date().toISOString(), expires_at };
-                await writeJsonFile('apikeys.json', apiKeys);
+                
+                // Simpan data 'apikeys' yang sudah diupdate ke Vercel KV
+                await kv.set('apikeys', apiKeys);
+                
                 return response.status(200).json({ message: 'API Key berhasil dibuat.' });
             }
             case 'deleteApiKey': {
                 const { key } = data;
                 if (!apiKeys[key]) throw new Error('API Key tidak ditemukan.');
                 delete apiKeys[key];
-                await writeJsonFile('apikeys.json', apiKeys);
+                
+                // Simpan data 'apikeys' yang sudah diupdate ke Vercel KV
+                await kv.set('apikeys', apiKeys);
+                
                 return response.status(200).json({ message: 'API Key berhasil dihapus.' });
             }
             case 'getRootDomainsAdmin': {
@@ -149,14 +138,20 @@ export default async function handler(request, response) {
                 const { domain, zone, apitoken } = data;
                 if (domains[domain]) throw new Error('Domain ini sudah ada.');
                 domains[domain] = { zone, apitoken };
-                await writeJsonFile('domains.json', domains);
+                
+                // Simpan data 'domains' yang sudah diupdate ke Vercel KV
+                await kv.set('domains', domains);
+                
                 return response.status(200).json({ message: 'Domain berhasil ditambahkan.' });
             }
             case 'deleteRootDomain': {
                 const { domain } = data;
                 if (!domains[domain]) throw new Error('Domain tidak ditemukan.');
                 delete domains[domain];
-                await writeJsonFile('domains.json', domains);
+                
+                // Simpan data 'domains' yang sudah diupdate ke Vercel KV
+                await kv.set('domains', domains);
+                
                 return response.status(200).json({ message: 'Domain berhasil dihapus.' });
             }
 
