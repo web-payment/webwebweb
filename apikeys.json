@@ -2,9 +2,5 @@
   "APIKEY-RESELLER-PERMANEN": {
     "type": "reseller",
     "expires_at": null
-  },
-  "APIKEY-USER-1HARI": {
-    "type": "user",
-    "expires_at": "2025-08-25T14:00:00Z"
   }
 }
