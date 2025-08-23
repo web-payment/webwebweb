@@ -1,12 +1,11 @@
-// --- [PENAMBAHAN] Inisialisasi YouTube Player API ---
 let youtubePlayer;
 let isYouTubeApiReady = false;
 function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
 (function() { const tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; const firstScriptTag = document.getElementsByTagName('script')[0]; firstScriptTag.parentNode.insertBefore(tag, firstScriptTag); })();
 
 // --- Konfigurasi ---
-let WA_ADMIN_NUMBER = "6285771555374"; // Akan diisi dari config.json
-let WA_SELLER_NUMBER = "6285771555374"; // Akan diisi dari config.json
+const WA_ADMIN_NUMBER = "6285771555374"; // Fallback jika settings.json gagal dimuat
+const WA_SELLER_NUMBER = "6285771555374";
 const CREATOR_USERNAME = "Riki Shop Real";
 const SOSMED_LINK = "https://rikishopreal.vercel.app";
 const TESTIMONI_LINK = "https://rikishopreal.vercel.app/testimoni";
@@ -38,9 +37,13 @@ const cartEmptyMessage = document.getElementById('cartEmptyMessage');
 const bannerCarousel = document.getElementById('bannerCarousel');
 const bannerPagination = document.getElementById('bannerPagination');
 const visitorCountDisplay = document.getElementById('visitorCountDisplay');
-const visitorCountSpan = visitorCountDisplay.querySelector('.count');
+const visitorCountSpan = visitorCountDisplay ? visitorCountDisplay.querySelector('.count') : null;
 let currentBannerIndex = 0;
 let bannerInterval;
+
+// Elemen Countdown Timer
+const countdownTimerDiv = document.getElementById('countdownTimer');
+let countdownInterval = null;
 
 // --- Elemen untuk Fitur Stock Akun ---
 const stockImageSliderContainer = document.getElementById('stockImageSliderContainer');
@@ -89,17 +92,17 @@ const mediaPlayerContainer = document.getElementById('mediaPlayerContainer');
 const backgroundAudio = document.getElementById('background-audio');
 let toastTimeout;
 let customMusicMuted = false;
-let currentEmbedUrl = '';
-let currentVideoId = '';
 
 // Variabel Global
 let products = {};
+let siteSettings = {}; // Menyimpan data dari settings.json
 let cart = JSON.parse(localStorage.getItem('rikishop_cart')) || [];
 let currentPage = 'home-page';
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rikishop';
 
 // --- Logika Firebase untuk Pengunjung & Hitungan Masuk ---
 async function setupFirebaseVisitorCounter() {
+    if (!visitorCountSpan) return;
     visitorCountSpan.textContent = '-';
     if (!window.firebaseServices) {
         console.warn("Layanan Firebase tidak tersedia.");
@@ -132,7 +135,6 @@ async function setupFirebaseVisitorCounter() {
             }
         });
         
-        // Menambah hitungan setiap kali halaman dimuat
         await runTransaction(db, async (transaction) => {
             const visitorDoc = await transaction.get(visitorDocRef);
             let currentCount = 0;
@@ -206,6 +208,19 @@ function updateDateTime() {
 }
 function formatRupiah(number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+}
+function getPhoneNumberForProduct(product, serviceType) {
+    // Hierarki: Produk -> Kategori -> Global -> Default
+    if (product && product.nomorWA) {
+        return product.nomorWA;
+    }
+    if (siteSettings.categoryPhoneNumbers && siteSettings.categoryPhoneNumbers[serviceType] && siteSettings.categoryPhoneNumbers[serviceType] !== "") {
+        return siteSettings.categoryPhoneNumbers[serviceType];
+    }
+    if (siteSettings.globalPhoneNumber) {
+        return siteSettings.globalPhoneNumber;
+    }
+    return WA_ADMIN_NUMBER; // Fallback ke nomor default
 }
 
 // --- Logika Carousel ---
@@ -285,12 +300,10 @@ function loadServiceProducts(serviceType) {
     let productData = products[serviceType];
     
     if (productData && productData.length > 0) {
-        // Produk seharusnya sudah terurut dari products.json yang diupdate oleh admin panel
         productData.forEach(product => {
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
 
-            // Cek apakah produk masih dalam 24 jam terakhir
             let isNew = false;
             if (product.createdAt) {
                 const createdTime = new Date(product.createdAt).getTime();
@@ -300,11 +313,21 @@ function loadServiceProducts(serviceType) {
                     isNew = true;
                 }
             }
-            
-            let priceDisplay = `<span class="product-price-list">${formatRupiah(product.harga)}</span>`;
-            if (product.hargaAsli && product.hargaAsli > product.harga) {
-                priceDisplay = `<span class="original-price"><del>${formatRupiah(product.hargaAsli)}</del></span> <span class="discounted-price">${formatRupiah(product.harga)}</span>`;
+
+            // --- CHANGED: Logika harga dipindahkan ke sini ---
+            let finalPrice = product.harga;
+            const originalPrice = product.hargaAsli;
+
+            // Cek apakah diskon sudah berakhir
+            if (product.discountEndDate && new Date(product.discountEndDate) < new Date()) {
+                finalPrice = originalPrice; // Kembalikan ke harga asli jika sudah berakhir
             }
+
+            let priceDisplay = `<span class="product-price-list">${formatRupiah(finalPrice)}</span>`;
+            if (originalPrice && originalPrice > finalPrice) {
+                priceDisplay = `<span class="original-price"><del>${formatRupiah(originalPrice)}</del></span> <span class="discounted-price">${formatRupiah(finalPrice)}</span>`;
+            }
+            // --- END CHANGED ---
             
             productItem.innerHTML = `
                 <div>
@@ -334,11 +357,52 @@ function showProductDetail(product, serviceType) {
     productDetailViewDiv.style.display = 'block';
     detailProductName.textContent = product.nama;
     
-    const priceHtml = product.hargaAsli && product.hargaAsli > product.harga
-        ? `<span class="original-price"><del>${formatRupiah(product.hargaAsli)}</del></span> <span class="discounted-price">${formatRupiah(product.harga)}</span>`
-        : `${formatRupiah(product.harga)}`;
+    let finalPrice = product.harga;
+    let originalPrice = product.hargaAsli;
+    
+    // Cek apakah diskon sudah berakhir
+    if (product.discountEndDate && new Date(product.discountEndDate) < new Date()) {
+        finalPrice = originalPrice; 
+    }
+
+    const priceHtml = (originalPrice && originalPrice > finalPrice)
+        ? `<span class="original-price"><del>${formatRupiah(originalPrice)}</del></span> <span class="discounted-price">${formatRupiah(finalPrice)}</span>`
+        : `${formatRupiah(finalPrice)}`;
+
     detailProductPrice.innerHTML = priceHtml;
     detailProductActions.innerHTML = '';
+    
+    // Logika Countdown Timer
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (product.discountEndDate && new Date(product.discountEndDate) > new Date()) {
+        countdownTimerDiv.style.display = 'block';
+        const endTime = new Date(product.discountEndDate).getTime();
+
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                countdownTimerDiv.innerHTML = '<div class="timer-title">Diskon Berakhir</div>';
+                detailProductPrice.innerHTML = `${formatRupiah(originalPrice)}`;
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown-display').textContent = 
+                `${days}h ${hours}j ${minutes}m ${seconds}d`;
+        };
+
+        updateTimer();
+        countdownInterval = setInterval(updateTimer, 1000);
+    } else {
+        countdownTimerDiv.style.display = 'none';
+    }
 
     if ((serviceType === 'Stock Akun' || serviceType === 'Logo') && product.images && product.images.length > 0) {
         stockImageSliderContainer.style.display = 'block';
@@ -359,7 +423,7 @@ function showProductDetail(product, serviceType) {
 
     } else {
         stockImageSliderContainer.style.display = 'none';
-        detailProductDescriptionContent.innerHTML = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/\|\|/g, '<br>').replace(/▪︎/g, '•') : 'Tidak ada deskripsi.';
+        detailProductDescriptionContent.innerHTML = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/\|\|/g, '<br>').replace(/â–ªï¸Ž/g, 'â€¢') : 'Tidak ada deskripsi.';
     }
 
     const addToCartBtn = document.createElement('button');
@@ -368,8 +432,8 @@ function showProductDetail(product, serviceType) {
     Object.assign(addToCartBtn.dataset, {
         productId: product.id,
         productName: product.nama,
-        productPrice: product.harga,
-        serviceType: serviceType // Menyimpan tipe layanan untuk logika keranjang
+        productPrice: finalPrice, // Gunakan harga final untuk keranjang
+        serviceType: serviceType
     });
     addToCartBtn.addEventListener('click', addToCart);
     detailProductActions.appendChild(addToCartBtn);
@@ -377,19 +441,19 @@ function showProductDetail(product, serviceType) {
     const buyNowLink = document.createElement('a');
     buyNowLink.className = 'buy-now';
     buyNowLink.textContent = 'Beli Sekarang';
-    
-    const targetWaNumber = product.waNumber || WA_ADMIN_NUMBER;
-    
+
+    const targetPhoneNumber = getPhoneNumberForProduct(product, serviceType);
+
     let buyNowMessage = '';
     if (serviceType === 'Stock Akun' && product.images && product.images.length > 0) {
-        buyNowMessage = `Halo Kak Admin Rikishopreal ✨\n\nSaya tertarik untuk memesan Akun ini:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(product.harga)}*\n\nSebagai referensi, ini link gambarnya:\n${product.images[0]}\n\nMohon info ketersediaan dan panduan pembayarannya ya. Terima kasih! 🙏`;
+        buyNowMessage = `Halo Kak, saya tertarik memesan Akun:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nReferensi gambar:\n${product.images[0]}\n\nMohon info ketersediaannya. Terima kasih! ðŸ™ `;
     } else if (serviceType === 'Logo' && product.images && product.images.length > 0) {
-        buyNowMessage = `Halo Kak Admin Rikishopreal ✨\n\nSaya tertarik untuk memesan Logo ini:\n\nNama Logo: *${product.nama}*\nHarga: *${formatRupiah(product.harga)}*\n\nBerikut link gambar logonya:\n${product.images[0]}\n\nMohon info ketersediaan dan panduan pembayarannya ya. Terima kasih! 🙏`;
+        buyNowMessage = `Halo Kak, saya tertarik memesan Logo:\n\nNama Logo: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nReferensi gambar:\n${product.images[0]}\n\nMohon info ketersediaannya. Terima kasih! ðŸ™ `;
     } else {
-        buyNowMessage = `Halo Kak Admin Rikishopreal ✨\n\nSaya tertarik untuk memesan produk ini:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(product.harga)}*\n\nMohon info selanjutnya untuk proses pembayaran ya. Terima kasih! 🙏`;
+        buyNowMessage = `Halo Kak, saya tertarik memesan produk:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nMohon info selanjutnya. Terima kasih! ðŸ™ `;
     }
     
-    buyNowLink.href = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(buyNowMessage)}`;
+    buyNowLink.href = `https://wa.me/${targetPhoneNumber}?text=${encodeURIComponent(buyNowMessage)}`;
     buyNowLink.target = "_blank";
     detailProductActions.appendChild(buyNowLink);
 
@@ -399,7 +463,6 @@ function showProductDetail(product, serviceType) {
         cekMenuBtn.textContent = 'Cek Menu';
         cekMenuBtn.addEventListener('click', () => {
             genericScriptMenuTitle.textContent = `Menu ${product.nama}`;
-            // Memformat menuContent dengan benar dari string ke tampilan
             genericScriptMenuContent.innerHTML = product.menuContent.replace(/\n/g, '<br>');
             genericScriptMenuModal.style.display = 'flex';
         });
@@ -409,7 +472,7 @@ function showProductDetail(product, serviceType) {
 
 // --- Logika untuk Slider & Lightbox ---
 function updateSliderPosition() {
-    stockImageSlider.style.transform = `translateX(-${currentStockImageIndex * 100}%)`;
+    if(stockImageSlider) stockImageSlider.style.transform = `translateX(-${currentStockImageIndex * 100}%)`;
 }
 function showNextImage() {
     currentStockImageIndex = (currentStockImageIndex + 1) % totalStockImages;
@@ -573,9 +636,10 @@ checkoutButton.addEventListener('click', () => {
         totalOrder += item.price * item.quantity;
     });
 
-    let message = `Halo Kak Admin Rikishopreal ✨\n\nSaya ingin mengonfirmasi pesanan dari keranjang belanja saya:\n\n--- DETAIL PESANAN ---\n${itemsText}--------------------\n\n*Total Estimasi: ${formatRupiah(totalOrder)}*\n\nMohon konfirmasi ketersediaan semua item dan totalnya, beserta panduan pembayarannya ya, Kak. Terima kasih! 🙏`;
+    let message = `Halo Kak, saya ingin mengonfirmasi pesanan dari keranjang:\n\n--- PESANAN ---\n${itemsText}--------------------\n\n*Total: ${formatRupiah(totalOrder)}*\n\nMohon konfirmasinya. Terima kasih! ðŸ™ `;
     
-    window.open(`https://wa.me/${WA_ADMIN_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+    const checkoutNumber = siteSettings.globalPhoneNumber || WA_ADMIN_NUMBER;
+    window.open(`https://wa.me/${checkoutNumber}?text=${encodeURIComponent(message)}`, '_blank');
 });
 
 // --- Logika AI Lokal ---
@@ -613,7 +677,7 @@ function getAiResponse(input) {
     if (lowerInput.includes('sosmed') || lowerInput.includes('sosial media') || lowerInput.includes('link')) return `Tentu, Anda bisa mengunjungi semua sosial media kami melalui link berikut: <a href="${SOSMED_LINK}" target="_blank">${SOSMED_LINK}</a>`;
     if (lowerInput.includes('kontak') || lowerInput.includes('admin') || lowerInput.includes('nomor')) return `Anda bisa menghubungi admin kami langsung melalui WhatsApp di nomor <a href="https://wa.me/${WA_ADMIN_NUMBER}" target="_blank">${WA_ADMIN_NUMBER}</a>.`;
     if (lowerInput.includes('grup') || lowerInput.includes('channel') || lowerInput.includes('saluran')) return `Tentu, Anda bisa bergabung dengan Saluran WhatsApp kami untuk info dan promo terbaru di sini: <a href="${SALURAN_WA_LINK}" target="_blank">Gabung Saluran WA</a>.`;
-    return `Maaf, saya hanya bisa membantu dengan pertanyaan seputar Rikishop. Coba tanyakan tentang: <br>• Keamanan toko <br>• Informasi produk (Panel, VPS, dll) <br>• Harga umum <br>• Kontak admin & sosial media`;
+    return `Maaf, saya hanya bisa membantu dengan pertanyaan seputar Rikishop. Coba tanyakan tentang: <br>â€¢ Keamanan toko <br>â€¢ Informasi produk (Panel, VPS, dll) <br>â€¢ Harga umum <br>â€¢ Kontak admin & sosial media`;
 }
 function appendMessageToChatPage(text, className) {
     const messageDiv = document.createElement('div');
@@ -642,7 +706,6 @@ loadMediaBtn.addEventListener('click', () => {
         youtubePlayer = null;
     }
     mediaPlayerContainer.innerHTML = '';
-    currentVideoId = '';
     customMusicMuted = false;
 
     try {
@@ -653,8 +716,7 @@ loadMediaBtn.addEventListener('click', () => {
         }
 
         if (videoId) {
-            currentVideoId = videoId;
-            createYouTubePlayer(currentVideoId);
+            createYouTubePlayer(videoId);
             showToastNotification("Memuat video...", "fa-play-circle");
             muteAudioBtn.querySelector('i').className = 'fas fa-volume-up';
         } else {
@@ -694,21 +756,24 @@ function playBackgroundMusic() {
 async function initializeApp() {
     mainContainer.style.display = 'none';
     try {
-        // Tambahkan timestamp untuk mencegah cache saat memuat products.json
         const timestamp = new Date().getTime();
-        const productRes = await fetch(`products.json?v=${timestamp}`);
-        if (!productRes.ok) throw new Error(`HTTP error! status: ${productRes.status}`);
-        products = await productRes.json();
+        const [productsResponse, settingsResponse] = await Promise.all([
+            fetch(`products.json?v=${timestamp}`),
+            fetch(`settings.json?v=${timestamp}`)
+        ]);
 
-        // Ambil konfigurasi admin dari config.json
-        const configRes = await fetch(`config.json?v=${timestamp}`);
-        const config = await configRes.json();
-        WA_ADMIN_NUMBER = config.WA_ADMIN_NUMBER;
-        WA_SELLER_NUMBER = config.WA_ADMIN_NUMBER; // Menggunakan nomor admin untuk seller juga
+        if (!productsResponse.ok) throw new Error(`Gagal memuat produk: ${productsResponse.status}`);
+        products = await productsResponse.json();
         
+        if (settingsResponse.ok) {
+            siteSettings = await settingsResponse.json();
+        } else {
+            console.warn("Gagal memuat settings.json, menggunakan nomor fallback.");
+        }
+
     } catch (error) {
-        console.error("Gagal memuat data produk atau konfigurasi:", error);
-        document.querySelector('.main-content').innerHTML = `<p style="text-align:center; color:red;">Gagal memuat data. Mohon periksa kembali.</p>`;
+        console.error("Gagal memuat data awal:", error);
+        document.querySelector('.main-content').innerHTML = `<p style="text-align:center; color:red;">Gagal memuat data. Coba muat ulang halaman.</p>`;
     }
     updateDateTime();
     setInterval(updateDateTime, 1000);
@@ -744,5 +809,5 @@ document.addEventListener('firebaseReady', () => {
 document.addEventListener('firebaseFailed', () => {
     console.log("Firebase failed to load, initializing app without visitor counter.");
     initializeApp();
-    visitorCountDisplay.querySelector('.count').textContent = 'R/S';
+    if(visitorCountDisplay) visitorCountDisplay.querySelector('.count').textContent = 'R/S';
 });

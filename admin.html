@@ -23,9 +23,7 @@
                 <span class="password-toggle" id="passwordToggle"><i class="fas fa-eye-slash"></i></span>
             </div>
             <button type="button" id="login-button">Masuk</button>
-            <div class="theme-switch" id="themeSwitchBtnLogin">
-                <i class="fas fa-moon"></i>
-            </div>
+            <div class="theme-switch" id="themeSwitchBtnLogin"><i class="fas fa-moon"></i></div>
         </div>
     </div>
 
@@ -33,22 +31,18 @@
         <header class="admin-header">
             <img src="logo.jpg" alt="Rikishopreal" class="profile-pic">
             <h2>Admin Website</h2>
-            <div class="theme-switch" id="themeSwitchBtnPanel">
-                <i class="fas fa-moon"></i>
-            </div>
+            <div class="theme-switch" id="themeSwitchBtnPanel"><i class="fas fa-moon"></i></div>
         </header>
         
         <nav class="admin-tabs">
             <button type="button" class="tab-button active" data-tab="addProduct">Tambah Produk</button>
             <button type="button" class="tab-button" data-tab="manageProducts">Kelola Produk</button>
-            <button type="button" class="tab-button" data-tab="manageDomains">Kelola Domain</button> <!-- NEW TAB -->
             <button type="button" class="tab-button" data-tab="settings">Pengaturan</button>
         </nav>
         
         <div id="addProduct" class="admin-tab-content active">
             <form class="admin-form" id="addProductForm">
                 <h2><i class="fas fa-plus-circle"></i> Tambah Produk</h2>
-
                 <label for="category">Kategori Produk:</label>
                 <select id="category">
                     <option value="Panel">Panel</option>
@@ -61,29 +55,22 @@
                     <option value="Logo">Logo</option>
                     <option value="Suntik Sosmed">Suntik Sosmed</option>
                 </select>
-
                 <label for="product-name">Nama Produk:</label>
                 <input type="text" id="product-name" placeholder="Contoh: Panel Ram 1GB">
-
                 <label for="product-price">Harga Produk (hanya angka):</label>
-                <input type="number" id="product-price" placeholder="Contoh: 3000">
-
-                <label for="product-description">Deskripsi Produk (Tekan Enter untuk baris baru):</label>
+                <input type="number" id="product-price" placeholder="Contoh: 10000">
+                <label for="product-description">Deskripsi Produk:</label>
                 <textarea id="product-description" rows="5" placeholder="Tulis deskripsi di sini..."></textarea>
-
+                <label for="product-whatsapp-number">Nomor WA Spesifik (Opsional):</label>
+                <input type="text" id="product-whatsapp-number" placeholder="Contoh: 628123456789">
                 <div id="scriptMenuSection" style="display: none;">
                     <label for="script-menu-content">Konten Menu Script:</label>
                     <textarea id="script-menu-content" rows="10" placeholder="Tulis menu script di sini..."></textarea>
                 </div>
-
                 <div id="stock-photo-section" style="display: none;">
                     <label for="product-photos">Link Foto (pisahkan dengan koma):</label>
                     <input type="text" id="product-photos" placeholder="https://url.com/foto1.jpg, https://url.com/foto2.jpg">
                 </div>
-
-                <label for="product-wa-number">Nomor WhatsApp Produk (Opsional):</label>
-                <input type="text" id="product-wa-number" placeholder="Contoh: 6281234567890">
-
                 <button type="button" id="add-product-button">Tambah Produk</button>
             </form>
         </div>
@@ -106,78 +93,27 @@
                 </select>
                 <div id="manage-product-list"></div>
                 <button type="button" id="save-order-button" style="display:none;">Simpan Urutan</button>
-
                 <div id="bulk-price-edit-container" class="bulk-price-edit-container" style="display: none;">
-                    <label for="bulk-price-input">Ubah Harga Semua Produk di Kategori Ini:</label>
+                    <label>Manajemen Harga Kategori</label>
                     <div class="bulk-price-input-group">
-                        <input type="number" id="bulk-price-input" placeholder="Masukkan harga baru (contoh: 5000)">
-                        <button type="button" id="apply-bulk-price-btn">Terapkan Harga</button>
+                        <input type="number" id="bulk-price-input" placeholder="Harga baru untuk semua">
+                        <button type="button" id="apply-bulk-price-btn">Terapkan</button>
                     </div>
-                     <!-- NEW: Tombol Kembalikan Harga Awal -->
-                    <button type="button" id="revert-bulk-price-btn" class="secondary-button" style="margin-top: 10px;">Kembalikan Harga Awal</button>
+                    <button type="button" id="reset-prices-btn" class="secondary-button">Kembalikan Harga Awal</button>
                 </div>
             </form>
         </div>
 
-        <!-- NEW TAB: Kelola Domain -->
-        <div id="manageDomains" class="admin-tab-content">
-            <div class="admin-form">
-                <h2><i class="fas fa-globe"></i> Kelola Domain</h2>
-
-                <!-- Bagian Buat Domain -->
-                <div class="domain-section">
-                    <h3>Buat Domain Baru (VPS)</h3>
-                    <label for="subdomain-name">Nama Subdomain:</label>
-                    <input type="text" id="subdomain-name" placeholder="Contoh: toko">
-
-                    <label for="domain-category-select">Pilih Kategori Domain:</label>
-                    <select id="domain-category-select">
-                        <!-- Opsi akan dimuat secara dinamis oleh JS -->
-                        <option value="">-- Pilih Domain --</option>
-                    </select>
-
-                    <label for="ip-address">Alamat IP (Contoh: 1.1.1.1):</label>
-                    <input type="text" id="ip-address" placeholder="Contoh: 1.1.1.1">
-
-                    <button type="button" id="create-domain-btn">Buat Domain</button>
-                </div>
-
-                <hr class="section-divider">
-
-                <!-- Bagian Tambah Kategori Domain -->
-                <div class="domain-section">
-                    <h3>Tambah Kategori Domain</h3>
-                    <p class="info-text">Tambahkan domain dasar baru (misal: "example.com") yang dapat digunakan untuk membuat subdomain.</p>
-                    <label for="new-domain-category-name">Nama Domain Dasar:</label>
-                    <input type="text" id="new-domain-category-name" placeholder="Contoh: mydomain.id">
-
-                    <label for="new-domain-zone-id">Cloudflare Zone ID:</label>
-                    <input type="text" id="new-domain-zone-id" placeholder="ID Zona dari Cloudflare">
-
-                    <label for="new-domain-api-token">Cloudflare API Token:</label>
-                    <input type="text" id="new-domain-api-token" placeholder="Token API Cloudflare">
-
-                    <button type="button" id="add-domain-category-btn">Tambah Kategori</button>
-                </div>
-
-                <hr class="section-divider">
-
-                <!-- Bagian Daftar Domain (Opsional, untuk tampilan saja) -->
-                <div class="domain-section">
-                    <h3>Daftar Kategori Domain Tersedia</h3>
-                    <ul id="list-domain-categories" class="domain-category-list">
-                        <!-- Kategori domain akan dimuat di sini -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <div id="settings" class="admin-tab-content">
-            <form class="admin-form">
-                <h2><i class="fas fa-cog"></i> Pengaturan Website</h2>
-                <label for="admin-wa-number">Nomor WhatsApp Admin:</label>
-                <input type="text" id="admin-wa-number" placeholder="Contoh: 6281234567890">
-                <button type="button" id="save-admin-wa">Simpan Nomor Admin</button>
+            <form class="admin-form" id="settingsForm">
+                <h2><i class="fas fa-globe"></i> Pengaturan Nomor WhatsApp</h2>
+                <label for="global-whatsapp-number">Nomor WA Global (Wajib diisi):</label>
+                <input type="text" id="global-whatsapp-number" placeholder="Contoh: 628123456789">
+                <small>Nomor ini akan digunakan jika nomor lain tidak diatur.</small>
+                <div id="category-whatsapp-numbers-container">
+                    <h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>
+                </div>
+                <button type="button" id="save-settings-button">Simpan Pengaturan</button>
             </form>
         </div>
     </div>
@@ -187,19 +123,20 @@
             <form class="admin-form" id="editProductForm">
                 <span class="close-button" id="closeEditModal">&times;</span>
                 <h2 id="editModalTitle">Edit Produk</h2>
-                
                 <input type="hidden" id="edit-product-id">
                 <input type="hidden" id="edit-product-category">
-                
                 <label for="edit-name">Nama Produk:</label>
                 <input type="text" id="edit-name">
-                
-                <label for="edit-price">Harga Produk:</label>
+                <label for="edit-price">Harga Asli:</label>
                 <input type="number" id="edit-price">
-                
+                <label for="edit-discount-price">Harga Diskon (Opsional):</label>
+                <input type="number" id="edit-discount-price" placeholder="Kosongkan jika tidak ada diskon">
+                <label for="edit-discount-date">Tanggal Berakhir Diskon (Opsional):</label>
+                <input type="datetime-local" id="edit-discount-date">
                 <label for="edit-desc">Deskripsi Produk:</label>
                 <textarea id="edit-desc" rows="5"></textarea>
-
+                <label for="edit-whatsapp-number">Nomor WA Spesifik (Opsional):</label>
+                <input type="text" id="edit-whatsapp-number" placeholder="Contoh: 628123456789">
                 <div id="edit-photo-section" style="display: none;">
                     <label>Kelola Foto:</label>
                     <div class="photo-grid" id="edit-photo-grid"></div>
@@ -208,15 +145,10 @@
                         <button type="button" id="add-photo-btn">Tambah</button>
                     </div>
                 </div>
-                
                 <div id="edit-script-menu-section" style="display: none;">
                     <label for="edit-script-menu-content">Konten Menu Script:</label>
                     <textarea id="edit-script-menu-content" rows="10"></textarea>
                 </div>
-
-                <label for="edit-wa-number">Nomor WhatsApp Produk (Opsional):</label>
-                <input type="text" id="edit-wa-number">
-
                 <button type="button" id="save-edit-btn">Simpan Perubahan</button>
             </form>
         </div>
@@ -229,21 +161,6 @@
                 <button type="button" id="confirmCancelBtn" class="confirm-cancel-btn">Batal</button>
                 <button type="button" id="confirmOkBtn" class="confirm-ok-btn">Oke</button>
             </div>
-        </div>
-    </div>
-
-    <!-- NEW: Modal Sukses Pembuatan Domain -->
-    <div id="domainSuccessModal" class="modal">
-        <div class="modal-content confirm-modal-content">
-            <span class="close-button" id="closeDomainSuccessModal">&times;</span>
-            <h3>Domain Berhasil Dibuat!</h3>
-            <p>Berikut detail domain dan node Anda:</p>
-            <div class="domain-details-output">
-                <strong>Domain:</strong> <span id="outputDomain"></span><br>
-                <strong>Node:</strong> <span id="outputNode"></span>
-            </div>
-            <button type="button" id="copyDomainBtn" class="secondary-button" style="margin-top: 20px;">Salin Domain</button>
-            <button type="button" id="copyNodeBtn" class="secondary-button">Salin Node</button>
         </div>
     </div>
     
