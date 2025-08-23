@@ -697,6 +697,21 @@
             "discountEndDate": null
         }
     ],
-    "Logo": [],
+    "Logo": [
+        {
+            "id": 69,
+            "nama": "Logo jb",
+            "harga": 12000,
+            "hargaAsli": 12000,
+            "deskripsiPanjang": "Ughb",
+            "createdAt": "2025-08-23T13:19:51.839Z",
+            "nomorWA": "",
+            "images": [
+                "https://f.top4top.io/p_352205sj60.jpg",
+                "https://f.top4top.io/p_352205sj60.jpg"
+            ],
+            "menuContent": ""
+        }
+    ],
     "Suntik Sosmed": []
 }
