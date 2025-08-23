@@ -6,9 +6,5 @@
   "APIKEY-USER-1HARI": {
     "type": "user",
     "expires_at": "2025-08-25T14:00:00Z"
-  },
-  "APIKEY-KADALUWARSA": {
-    "type": "user",
-    "expires_at": "2024-01-01T00:00:00Z"
   }
 }
