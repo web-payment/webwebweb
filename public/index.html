@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rikishopreal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+    <div id="welcomeScreen">
+        <div class="logo-wrapper"><img src="logo.jpg" alt="Logo Rikishop"></div>
+        <h1 class="welcome-title">Selamat Datang di <span>Rikishop</span></h1>
+        <p id="recoText">Platform Layanan Digital Terpercaya</p>
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <p id="progress-text">0%</p>
+    </div>
+
+    <div id="mainContainer" class="container">
+        <header class="main-app-header">
+            <i class="fas fa-bars menu-icon" id="openMenu"></i>
+            <span class="app-title">Rikishopreal</span>
+            <div class="cart-icon" id="openCart">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cartCount" class="cart-count">0</span>
+            </div>
+        </header>
+
+        <div id="home-page" class="page-content active">
+            <div class="info-bar">
+                <div id="currentDateTime" class="date-time"></div>
+                <div id="visitorCountDisplay" class="visitor-count">
+                    <div class="visitor-pic-wrapper"><img src="logo.jpg" alt="Visitor Icon"></div>
+                    <span class="count">-</span> Pengunjung
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="banner-carousel-container">
+                    <div id="bannerCarousel" class="banner-carousel">
+                        <div class="banner-item" style="background-image: url('https://telegra.ph/file/a4d33a90095874435b430.jpg');"></div>
+                        <div class="banner-item" style="background-image: url('https://telegra.ph/file/0c44158523c04943f25d9.jpg');"></div>
+                    </div>
+                    <div id="bannerPagination" class="banner-pagination"></div>
+                </div>
+                <h3>Layanan Kami</h3>
+                <div class="service-grid">
+                    <a href="#" class="service-item" data-service="Panel"><img src="https://cdn-icons-png.flaticon.com/512/2721/2721183.png" alt="Panel"><span>Panel</span></a>
+                    <a href="#" class="service-item" data-service="VPS"><img src="https://cdn-icons-png.flaticon.com/512/888/888843.png" alt="VPS"><span>VPS</span></a>
+                    <a href="#" class="service-item" data-service="Script"><img src="https://cdn-icons-png.flaticon.com/512/6062/6062646.png" alt="Script"><span>Script</span></a>
+                    <a href="#" class="service-item" data-service="Jasa"><img src="https://cdn-icons-png.flaticon.com/512/3258/3258540.png" alt="Jasa"><span>Jasa</span></a>
+                    <a href="#" class="service-item" data-service="murid"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" alt="Join Murid"><span>Join Murid</span></a>
+                    <a href="#" class="service-item" data-service="Sewa Bot"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712139.png" alt="Sewa Bot"><span>Sewa Bot</span></a>
+                    <a href="#" class="service-item" data-service="Stock Akun"><img src="https://cdn-icons-png.flaticon.com/512/10831/10831090.png" alt="Stock Akun"><span>Stock Akun</span></a>
+                    <a href="#" class="service-item" data-service="Logo"><img src="https://cdn-icons-png.flaticon.com/512/1055/1055663.png" alt="Logo"><span>Logo</span></a>
+                    <a href="#" class="service-item" data-service="Suntik Sosmed"><img src="https://cdn-icons-png.flaticon.com/512/1968/1968666.png" alt="Suntik Sosmed"><span>Suntik Sosmed</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div id="service-detail-page" class="page-content">
+            <h2 id="serviceDetailPageTitleContainer"><i class="fas fa-chevron-left back-arrow" data-back-to="home-page"></i> <span id="serviceDetailPageTitle"></span></h2>
+            <div id="productList"></div>
+            <div id="productDetailView" style="display: none;">
+                <h3 id="detailProductName"></h3>
+                <div class="countdown-timer" id="countdownTimer" style="display: none;">
+                    <div class="timer-title">Diskon Berakhir Dalam</div>
+                    <div id="countdown-display"></div>
+                </div>
+                <div class="image-slider-container" id="stockImageSliderContainer" style="display: none;">
+                    <div class="image-slider-wrapper">
+                        <div class="image-slider" id="stockImageSlider"></div>
+                    </div>
+                    <button class="slider-nav prev" id="sliderPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="slider-nav next" id="sliderNextBtn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="product-detail">
+                    <div id="detailProductPrice" class="price-display"></div>
+                    <div id="detailProductDescriptionContent"></div>
+                    <div id="detailProductActions" class="actions"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cart-page" class="page-content">
+            <h2><i class="fas fa-chevron-left back-arrow" data-back-to="home-page"></i> Keranjang Saya</h2>
+            <div id="cartItems"></div>
+            <p id="cartEmptyMessage" style="text-align: center; color: var(--light-text-color); padding: 20px; display: none;">Keranjang Anda kosong.</p>
+            <div class="cart-summary" style="display: none;">
+                <span>Total:</span>
+                <span id="cartTotal"></span>
+            </div>
+            <button id="checkoutButton" class="checkout-button" style="display: none;">Checkout via WhatsApp</button>
+        </div>
+
+        <div id="domain-creator-page" class="page-content">
+             <div class="page-header">
+                <h2><i class="fas fa-chevron-left back-arrow" data-back-to="home-page"></i> Buat Subdomain</h2>
+            </div>
+            <div class="centered-content">
+                <form class="admin-form" id="createDomainForm">
+                    <label for="subdomain-name">Nama Subdomain:</label>
+                    <input type="text" id="subdomain-name" placeholder="contoh: tokosaya">
+                    <label for="root-domain">Pilih Domain Utama:</label>
+                    <button type="button" id="open-domain-select-popup-btn" class="select-button">Pilih Domain</button>
+                    <input type="hidden" id="root-domain-hidden">
+                    <label for="record-type">Tipe Record:</label>
+                    <select id="record-type">
+                        <option value="A">IP Address (Untuk VPS/Panel)</option>
+                        <option value="CNAME">CNAME (Untuk Vercel/Lainnya)</option>
+                    </select>
+                    <div id="ip-input-section">
+                        <label for="ip-address">IP Address VPS/Panel:</label>
+                        <input type="text" id="ip-address" placeholder="contoh: 103.123.45.67">
+                    </div>
+                    <div id="cname-input-section" style="display: none;">
+                        <label for="cname-target">Target CNAME:</label>
+                        <input type="text" id="cname-target" placeholder="contoh: cname.vercel-dns.com">
+                    </div>
+                    <div class="proxy-toggle">
+                        <label for="proxy-status">Status Proxy (Orange Cloud):</label>
+                        <label class="switch">
+                            <input type="checkbox" id="proxy-status" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <button type="button" id="create-domain-btn">Buat Domain</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="domain-history-page" class="page-content">
+            <div class="page-header">
+                <h2><i class="fas fa-chevron-left back-arrow" data-back-to="home-page"></i> Riwayat Subdomain</h2>
+            </div>
+            <div id="domain-history-list" class="result-list-container"></div>
+        </div>
+    </div>
+
+    <nav id="offcanvasMenu" class="offcanvas-menu">
+        <div class="menu-header">
+            <span>Menu Navigasi</span>
+            <button id="closeMenu" class="close-btn">&times;</button>
+        </div>
+        <ul>
+            <li><a href="#" data-page="home-page"><i class="fas fa-home"></i> Beranda</a></li>
+            <li><a href="#" data-page="cart-page"><i class="fas fa-shopping-cart"></i> Keranjang</a></li>
+            <li class="menu-section-title">Layanan Lain</li>
+            <li><a href="#" data-page="domain-creator-page"><i class="fas fa-globe"></i> Buat Subdomain</a></li>
+            <li><a href="#" data-page="domain-history-page"><i class="fas fa-history"></i> Riwayat Subdomain</a></li>
+            <li class="menu-section-title">Info</li>
+            <li><a href="#" id="openAboutUsModal"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
+            <li><a href="#" id="openChatAiModal"><i class="fas fa-robot"></i> Tanya AI</a></li>
+        </ul>
+    </nav>
+    <div id="overlay" class="overlay"></div>
+
+    <div class="multifunction-fab" id="multifunctionFab">
+        <div class="main-fab-icon"><i class="fas fa-plus"></i></div>
+        <div class="fab-options">
+            <div class="fab-option" id="themeSwitchBtn" data-tooltip="Ganti Tema"><i class="fas fa-moon"></i></div>
+            <div class="fab-option" id="openMusicPopupBtn" data-tooltip="Putar Musik"><i class="fas fa-music"></i></div>
+            <div class="fab-option" id="linktreeBtn" data-tooltip="Sosial Media"><i class="fas fa-link"></i></div>
+            <div class="fab-option" id="muteAudioBtn" data-tooltip="Suara"><i class="fas fa-volume-up"></i></div>
+        </div>
+    </div>
+
+    <div id="toast-notification"></div>
+    <audio id="background-audio" loop></audio>
+
+    <div id="aboutUsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeAboutUsModal">&times;</span>
+            <h3>Tentang Kami</h3>
+            <p>Rikishop adalah platform terpercaya penyedia layanan digital.</p>
+        </div>
+    </div>
+
+    <div id="chatAiModal" class="modal">
+        <div class="modal-content modal-chat-ai">
+            <div class="modal-header">
+                <h3>Tanya Toko Riki AI</h3>
+                <span class="close-button" id="closeChatAiModalBtn">&times;</span>
+            </div>
+            <div class="chat-interface">
+                <div id="chatAiMessagesPage" class="chat-messages"></div>
+                <div id="chatAiLoadingPage" class="chat-loading" style="display:none;"><div class="spinner"></div> Sedang berpikir...</div>
+                <div class="chat-input-area">
+                    <textarea id="chatAiInputPage" placeholder="Ketik pesan Anda..." rows="1"></textarea>
+                    <button id="sendChatAiBtnPage"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="genericScriptMenuModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeGenericScriptMenuModal">&times;</span>
+            <h3 id="genericScriptMenuTitle"></h3>
+            <div id="genericScriptMenuContent" class="script-menu-display"></div>
+        </div>
+    </div>
+
+    <div id="imageLightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightboxImage">
+    </div>
+
+    <div id="musicPlayerPopup" class="music-player-modal">
+        <div class="music-player-header">
+            <h4>Pemutar Musik</h4>
+            <i class="fas fa-times" id="closeMusicPlayer"></i>
+        </div>
+        <div class="music-player-body">
+            <p>Masukkan link YouTube untuk diputar sebagai latar belakang.</p>
+            <input type="text" id="mediaLinkInput" placeholder="https://www.youtube.com/watch?v=...">
+            <button id="loadMediaBtn">Putar</button>
+            <div id="mediaPlayerContainer" class="media-player-container"></div>
+        </div>
+    </div>
+    <div id="musicPlayerOverlay" class="overlay"></div>
+
+    <div id="apikey-popup" class="popup-overlay">
+        <div class="popup-content">
+            <img src="logo.jpg" alt="Logo" class="popup-logo">
+            <h2>Akses Layanan Subdomain</h2>
+            <p>Masukkan API Key Anda untuk melanjutkan.</p>
+            <div class="password-input-container">
+                <input type="text" id="apikey-input" placeholder="Masukkan API Key...">
+            </div>
+            <button type="button" id="apikey-submit-btn">Verifikasi</button>
+            <div class="apikey-actions">
+                <a href="#" id="buy-apikey-link">Belum punya API Key? Beli di sini</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="buy-apikey-popup" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-popup-btn">&times;</span>
+            <h2>Harga API Key</h2>
+            <div class="price-list">
+                <div class="price-item"><span>Premium 7 Hari</span> <strong>Rp 5.000</strong></div>
+                <div class="price-item"><span>Premium 30 Hari</span> <strong>Rp 15.000</strong></div>
+                <div class="price-item"><span>Reseller (Permanen)</span> <strong>Rp 35.000</strong></div>
+            </div>
+            <a href="#" id="purchase-link" class="button-primary" target="_blank">Beli Sekarang</a>
+        </div>
+    </div>
+
+    <div id="domain-select-popup" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-popup-btn">&times;</span>
+            <h2>Pilih Domain Utama</h2>
+            <div id="domain-options-list" class="options-list"></div>
+        </div>
+    </div>
+    
+    <div id="success-popup" class="popup-overlay">
+        <div class="popup-content">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h2>Berhasil Dibuat!</h2>
+            <div id="result-container" class="result-list-container"></div>
+            <div class="popup-actions">
+                <button id="view-history-btn">Lihat Riwayat</button>
+                <button id="close-popup-btn">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="rikishop.js"></script>
+</body>
+</html>
