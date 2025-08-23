@@ -2,10 +2,8 @@
   "name": "rikishopreal-project",
   "version": "1.0.0",
   "description": "Website toko digital Rikishopreal",
-  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -16,8 +14,6 @@
   "author": "Riki Shop Real",
   "license": "ISC",
   "dependencies": {
-    "@octokit/rest": "^20.0.2",
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "@octokit/rest": "^20.0.2"
   }
 }
