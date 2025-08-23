@@ -136,17 +136,12 @@
         {
             "id": 13,
             "nama": "VPS Ram:1GB Cpu:1",
-            "harga": 1200,
+            "harga": 20000,
             "hargaAsli": 20000,
             "deskripsiPanjang": "Bonus Buy Vps: Free Install Panel 1x ram 8/16 || Free Instal Wings/Node 1x ram 8/16 || Free Pasang Egg Bot/Mc || Free Install Thema Buy Ram 8/16 || Garansi 15 Hari Nego? = Nogar || Vps On 30 Hari || Garansi Hanya 1x Ambil",
             "nomorWA": "",
-            "discountPrice": 1200,
-            "discountEndDate": "2025-08-23T13:17:00.000Z",
-            "category": "VPS",
-            "newName": "VPS Ram:1GB Cpu:1",
-            "newDesc": "Bonus Buy Vps: Free Install Panel 1x ram 8/16 || Free Instal Wings/Node 1x ram 8/16 || Free Pasang Egg Bot/Mc || Free Install Thema Buy Ram 8/16 || Garansi 15 Hari Nego? = Nogar || Vps On 30 Hari || Garansi Hanya 1x Ambil",
-            "newImages": [],
-            "newMenuContent": ""
+            "discountPrice": null,
+            "discountEndDate": null
         },
         {
             "id": 14,
@@ -697,21 +692,6 @@
             "discountEndDate": null
         }
     ],
-    "Logo": [
-        {
-            "id": 69,
-            "nama": "Logo jb",
-            "harga": 12000,
-            "hargaAsli": 12000,
-            "deskripsiPanjang": "Ughb",
-            "createdAt": "2025-08-23T13:19:51.839Z",
-            "nomorWA": "",
-            "images": [
-                "https://f.top4top.io/p_352205sj60.jpg",
-                "https://f.top4top.io/p_352205sj60.jpg"
-            ],
-            "menuContent": ""
-        }
-    ],
+    "Logo": [],
     "Suntik Sosmed": []
 }
