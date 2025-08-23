@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 // --- Konfigurasi GitHub ---
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const owner = "web-payment";   // 🔧 ganti sesuai repo kamu
-const repo = "add-nomor";      // 🔧 ganti sesuai repo kamu
+const repo = "webwebweb";      // 🔧 ganti sesuai repo kamu
 const branch = "main";         // 🔧 ganti jika branch beda
 
 // --- Helper GitHub ---
