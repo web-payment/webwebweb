@@ -19,14 +19,12 @@ export default async function handler(request, response) {
     const { action, data, adminPassword } = request.body;
     if (!action) return response.status(400).json({ message: 'Aksi tidak ditemukan.' });
 
-    // --- Daftar Aksi Khusus Admin ---
     const adminActions = [
         'getApiKeys', 'createApiKey', 'deleteApiKey',
         'getRootDomainsAdmin', 'addRootDomain', 'deleteRootDomain'
     ];
 
     try {
-        // --- Validasi Password untuk Aksi Admin ---
         if (adminActions.includes(action)) {
             if (adminPassword !== process.env.ADMIN_PASSWORD) {
                 return response.status(403).json({ message: 'Password admin salah.' });
@@ -35,7 +33,6 @@ export default async function handler(request, response) {
 
         const apiKeys = await readJsonFile('apikeys.json');
 
-        // --- Aksi Publik (dengan validasi API Key Pengguna) ---
         if (action === 'validateApiKey') {
             const keyData = apiKeys[data.apikey];
             if (!keyData || (keyData.expires_at !== 'permanent' && new Date() > new Date(keyData.expires_at))) {
@@ -44,7 +41,6 @@ export default async function handler(request, response) {
             return response.status(200).json({ message: 'API Key valid.' });
         }
         
-        // --- Aksi yang memerlukan API Key pengguna yang valid ---
         const userActions = ['getRootDomains', 'createSubdomain'];
         if(userActions.includes(action)){
             const userApiKey = data.apikey;
@@ -61,8 +57,59 @@ export default async function handler(request, response) {
             case 'getRootDomains': {
                 return response.status(200).json({ domains: Object.keys(domains) });
             }
+
+            // --- FIXED: Logika yang hilang sudah ditambahkan di sini ---
             case 'createSubdomain': {
-                // ... (Logika ini tetap sama seperti sebelumnya) ...
+                const { subdomain, domain, type, content, proxied } = data;
+                const domainInfo = domains[domain];
+                if (!domainInfo) throw new Error('Domain utama tidak ditemukan.');
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${domainInfo.apitoken}`
+                };
+
+                const created_domains = [];
+
+                // 1. Buat record utama (misal: rikishop.domain.my.id)
+                const mainRecordData = {
+                    type,
+                    name: `${subdomain}.${domain}`,
+                    content,
+                    proxied,
+                    ttl: 1
+                };
+                
+                const mainRes = await fetch(`https://api.cloudflare.com/client/v4/zones/${domainInfo.zone}/dns_records`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(mainRecordData)
+                });
+                const mainResult = await mainRes.json();
+                if (!mainResult.success) {
+                    throw new Error(`Gagal membuat record utama: ${mainResult.errors[0].message}`);
+                }
+                created_domains.push(mainResult.result.name);
+
+                // 2. Buat record node jika tipenya A (untuk IP)
+                if (type === 'A') {
+                    const nodeName = `node${Math.floor(10 + Math.random() * 90)}.${subdomain}.${domain}`;
+                    const nodeRecordData = { type: 'A', name: nodeName, content, proxied, ttl: 1 };
+                    
+                    const nodeRes = await fetch(`https://api.cloudflare.com/client/v4/zones/${domainInfo.zone}/dns_records`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(nodeRecordData)
+                    });
+                    const nodeResult = await nodeRes.json();
+                     if (!nodeResult.success) {
+                         // Meskipun node gagal, record utama tetap berhasil
+                         throw new Error(`Record utama dibuat, tapi gagal membuat record node: ${nodeResult.errors[0].message}`);
+                     }
+                    created_domains.push(nodeResult.result.name);
+                }
+
+                return response.status(200).json({ message: 'Subdomain berhasil dibuat!', created_domains });
             }
 
             // == AKSI UNTUK ADMIN ==
@@ -71,15 +118,17 @@ export default async function handler(request, response) {
             }
             case 'createApiKey': {
                 const { key, duration, unit, isPermanent } = data;
+                if (!key) throw new Error('Nama API Key tidak boleh kosong.');
                 if (apiKeys[key]) throw new Error('API Key ini sudah ada.');
                 
                 let expires_at = 'permanent';
                 if (!isPermanent) {
                     const now = new Date();
-                    if (unit === 'days') now.setDate(now.getDate() + duration);
-                    if (unit === 'weeks') now.setDate(now.getDate() + (duration * 7));
-                    if (unit === 'months') now.setMonth(now.getMonth() + duration);
-                    if (unit === 'years') now.setFullYear(now.getFullYear() + duration);
+                    const d = parseInt(duration, 10);
+                    if (unit === 'days') now.setDate(now.getDate() + d);
+                    if (unit === 'weeks') now.setDate(now.getDate() + (d * 7));
+                    if (unit === 'months') now.setMonth(now.getMonth() + d);
+                    if (unit === 'years') now.setFullYear(now.getFullYear() + d);
                     expires_at = now.toISOString();
                 }
                 apiKeys[key] = { created_at: new Date().toISOString(), expires_at };
@@ -112,10 +161,6 @@ export default async function handler(request, response) {
             }
 
             default:
-                // Letakkan logika createSubdomain di sini jika belum ada di atas
-                if (action === 'createSubdomain') {
-                    // ... (Salin-tempel logika createSubdomain dari respons saya sebelumnya) ...
-                }
                 return response.status(400).json({ message: 'Aksi tidak valid.' });
         }
 
