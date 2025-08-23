@@ -7,6 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
+    
+    <style>
+        .duration-group { display: flex; gap: 10px; }
+        .duration-group input { flex-grow: 1; }
+        .duration-group select { width: auto; }
+        .permanent-key-toggle { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+        .permanent-key-toggle label { margin: 0; }
+    </style>
 </head>
 <body class="light-mode">
     <div id="toast-container"></div>
@@ -37,6 +45,7 @@
         <nav class="admin-tabs">
             <button type="button" class="tab-button active" data-tab="addProduct">Tambah Produk</button>
             <button type="button" class="tab-button" data-tab="manageProducts">Kelola Produk</button>
+            <button type="button" class="tab-button" data-tab="domainManager">Manajer Domain</button>
             <button type="button" class="tab-button" data-tab="settings">Pengaturan</button>
         </nav>
         
@@ -102,6 +111,49 @@
                     <button type="button" id="reset-prices-btn" class="secondary-button">Kembalikan Harga Awal</button>
                 </div>
             </form>
+        </div>
+
+        <div id="domainManager" class="admin-tab-content">
+            <div class="admin-form" style="margin-bottom: 30px;">
+                <h2><i class="fas fa-key"></i> Kelola API Key Pengguna</h2>
+                <div id="apiKeyListContainer">Memuat daftar API Key...</div>
+                
+                <h3 style="margin-top: 30px;"><i class="fas fa-plus-circle"></i> Buat API Key Baru</h3>
+                <label for="new-apikey-name">API Key (Nama atau Kode Unik):</label>
+                <input type="text" id="new-apikey-name" placeholder="Contoh: RIKI-PREMIUM-01">
+
+                <div id="duration-section">
+                    <label for="new-apikey-duration">Durasi Aktif:</label>
+                    <div class="duration-group">
+                        <input type="number" id="new-apikey-duration" placeholder="Contoh: 7" value="7">
+                        <select id="new-apikey-unit">
+                            <option value="days">Hari</option>
+                            <option value="weeks">Minggu</option>
+                            <option value="months">Bulan</option>
+                            <option value="years">Tahun</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="permanent-key-toggle">
+                    <label for="permanent-key">Permanen (Untuk Reseller)</label>
+                    <input type="checkbox" id="permanent-key">
+                </div>
+                <button type="button" id="create-apikey-btn">Buat API Key</button>
+            </div>
+
+            <div class="admin-form">
+                <h2><i class="fas fa-server"></i> Kelola Domain Utama</h2>
+                <div id="rootDomainListContainer">Memuat daftar domain...</div>
+
+                <h3 style="margin-top: 30px;"><i class="fas fa-plus-circle"></i> Tambah Domain Baru</h3>
+                <label for="new-domain-name">Nama Domain:</label>
+                <input type="text" id="new-domain-name" placeholder="contoh.com">
+                <label for="new-domain-zone">Zone ID Cloudflare:</label>
+                <input type="text" id="new-domain-zone" placeholder="Kode Zone ID dari Cloudflare">
+                <label for="new-domain-token">API Token Cloudflare:</label>
+                <input type="text" id="new-domain-token" placeholder="Token dengan izin DNS:Edit">
+                <button type="button" id="add-domain-btn">Tambah Domain</button>
+            </div>
         </div>
 
         <div id="settings" class="admin-tab-content">
