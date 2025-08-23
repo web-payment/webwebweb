@@ -14,6 +14,7 @@
   "author": "Riki Shop Real",
   "license": "ISC",
   "dependencies": {
-    "@octokit/rest": "^20.0.2"
-  }
+  "@octokit/rest": "^20.0.2",
+  "@vercel/kv": "^1.0.1"
+}
 }
