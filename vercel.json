@@ -1,12 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/((?!.*\\.).*|.*\\.(html|css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2))$",
-      "destination": "/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/404.html"
+      "source": "/:path*",
+      "destination": "/index.html"
     }
-  ]
+  ],
+  "error": {
+    "404": "/404.html"
+  }
 }
