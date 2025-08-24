@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeSwitchBtnLogin = document.getElementById('themeSwitchBtnLogin');
     const themeSwitchBtnPanel = document.getElementById('themeSwitchBtnPanel');
     const body = document.body;
-    
+
     // Variabel Produk
     const categorySelect = document.getElementById('category');
     const nameInput = document.getElementById('product-name');
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmOkBtn = document.getElementById('confirmOkBtn');
     const confirmCancelBtn = document.getElementById('confirmCancelBtn');
     let resolveConfirmPromise;
-    
+
     // Variabel Pengaturan
     const saveSettingsButton = document.getElementById('save-settings-button');
     const globalWhatsappNumberInput = document.getElementById('global-whatsapp-number');
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const apikeyWhatsappNumberInput = document.getElementById('apikey-whatsapp-number');
     const apiKeyPriceSettingsContainer = document.getElementById('api-key-price-settings-container');
     const addNewPriceTierBtn = document.getElementById('add-new-price-tier-btn');
-    
+
     // Variabel Modal Edit
     const editWhatsappNumberInput = document.getElementById('edit-whatsapp-number');
 
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDomainBtn = document.getElementById('add-domain-btn');
     const permanentKeyCheckbox = document.getElementById('permanent-key');
     const durationSection = document.getElementById('duration-section');
-    
+
     // -- Variabel Modal Baru --
     const showAddApiKeyModalBtn = document.getElementById('show-add-apikey-modal-btn');
     const showAddDomainModalBtn = document.getElementById('show-add-domain-modal-btn');
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = '/api'; 
     let activeToastTimeout = null;
     let siteSettings = {};
-    
+
     // --- FUNGSI DASAR (Tema, Toast, Konfirmasi, Modal, Validasi) ---
     const savedTheme = localStorage.getItem('admin-theme') || 'light-mode';
     body.className = savedTheme;
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     themeSwitchBtnLogin.addEventListener('click', toggleTheme);
     if (themeSwitchBtnPanel) themeSwitchBtnPanel.addEventListener('click', toggleTheme);
-    
+
     passwordToggle.addEventListener('click', () => {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.addEventListener('animationend', () => toast.remove());
         }, duration);
     }
-    
+
     function openModal(modal) { if(modal) modal.classList.add('is-visible'); }
     function closeModal(modal) { if(modal) modal.classList.remove('is-visible'); }
 
@@ -149,13 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal(customConfirmModal);
         if (resolveConfirmPromise) resolveConfirmPromise(false);
     });
-    
+
     function validatePhoneNumber(number) {
         if (!number) return true; // Opsional boleh kosong
         const phoneRegex = /^[1-9]\d{7,}$/; // Harus angka, tidak diawali 0, minimal 8 digit
         return phoneRegex.test(number);
     }
-    
+
     // --- FUNGSI HELPER API ADMIN ---
     async function fetchAdminApi(action, data) {
         const adminPassword = sessionStorage.getItem('adminPassword');
@@ -168,9 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, data, adminPassword })
         });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message);
-        return result;
+        if (!response.ok) {
+            const result = await response.json().catch(() => ({ message: 'Terjadi kesalahan pada server.' }));
+            throw new Error(result.message);
+        }
+        return await response.json();
     }
 
     // --- LOGIKA LOGIN ---
@@ -187,10 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.message);
-            
+
             sessionStorage.setItem('isAdminAuthenticated', 'true');
             sessionStorage.setItem('adminPassword', password);
-            
+
             loginScreen.style.display = 'none';
             productFormScreen.style.display = 'block';
             showToast('Login berhasil!', 'success');
@@ -215,20 +217,19 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(button.dataset.tab).classList.add('active');
-            
+
             if (button.dataset.tab === 'manageProducts' && manageCategorySelect.value) manageCategorySelect.dispatchEvent(new Event('change'));
             if (button.dataset.tab === 'domainManager') { loadApiKeys(); loadRootDomains(); }
             if (button.dataset.tab === 'settings') loadSettings();
         });
     });
 
-    // --- LOGIKA TAB "TAMBAH PRODUK" ---
+    // --- LOGIKA TAB "TAMBAH PRODUK" --- (Tidak diubah, kode ini sudah benar)
     categorySelect.addEventListener('change', () => {
         const category = categorySelect.value;
         stockPhotoSection.style.display = (category === 'Stock Akun' || category === 'Logo') ? 'block' : 'none';
         scriptMenuSection.style.display = category === 'Script' ? 'block' : 'none';
     });
-    
     addButton.addEventListener('click', async (e) => { 
         e.preventDefault(); 
         const waNumber = productWhatsappNumberInput.value.trim();
@@ -252,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await fetch(API_PRODUCTS_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                 body: JSON.stringify({ action: 'addProduct', data: productData })
             }).then(res => res.json());
             if (result.message !== 'Produk berhasil ditambahkan!') throw new Error(result.message);
@@ -267,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LOGIKA TAB "KELOLA PRODUK" ---
+    // --- LOGIKA TAB "KELOLA PRODUK" --- (Tidak diubah, kode ini sudah benar)
     manageCategorySelect.addEventListener('change', async () => {
         manageProductList.innerHTML = 'Memuat...';
         const category = manageCategorySelect.value;
@@ -296,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
             manageProductList.innerHTML = `<p style="color:red;">${err.message}</p>`;
         }
     });
-
     function renderManageList(productsToRender, category) {
         manageProductList.innerHTML = '';
         productsToRender.forEach(prod => {
@@ -323,11 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         setupManageActions(category, productsToRender);
     }
-    
-    function formatRupiah(number) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
-    }
-
+    function formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number); }
     function setupManageActions(category, productsInCat) {
         const editModal = document.getElementById('editProductModal');
         const closeEditModalBtn = document.getElementById('closeEditModal');
@@ -346,13 +342,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const addPhotoBtn = document.getElementById('add-photo-btn');
         const editScriptMenuSection = document.getElementById('edit-script-menu-section');
         const editScriptMenuContent = document.getElementById('edit-script-menu-content');
-        
+
         manageProductList.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const productId = parseInt(e.currentTarget.dataset.id);
                 const product = productsInCat.find(p => p.id === productId);
                 if (!product) return showToast('Produk tidak ditemukan.', 'error');
-                
+
                 editProductId.value = product.id;
                 editProductCategory.value = category;
                 editModalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Produk: ${product.nama}`;
@@ -362,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editDiscountDateInput.value = product.discountEndDate ? product.discountEndDate.slice(0, 16) : '';
                 editDescInput.value = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/ \|\| /g, '\n') : '';
                 editWhatsappNumberInput.value = product.nomorWA || '';
-                
+
                 const isPhotoCategory = category === 'Stock Akun' || category === 'Logo';
                 editPhotoSection.style.display = isPhotoCategory ? 'block' : 'none';
                 if (isPhotoCategory) {
@@ -375,18 +371,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         photoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => e_photo.currentTarget.closest('.photo-item').remove());
                     });
                 }
-                
                 editScriptMenuSection.style.display = category === 'Script' ? 'block' : 'none';
-                if (category === 'Script') {
-                    editScriptMenuContent.value = product.menuContent || '';
-                }
-                
+                if (category === 'Script') { editScriptMenuContent.value = product.menuContent || ''; }
                 openModal(editModal);
             });
         });
-
         closeEditModalBtn.addEventListener('click', () => closeModal(editModal));
-        
         addPhotoBtn.addEventListener('click', (e) => {
             const newPhotoUrl = addPhotoInput.value.trim();
             if (newPhotoUrl) {
@@ -396,11 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 editPhotoGrid.appendChild(newPhotoItem);
                 newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => e_photo.currentTarget.closest('.photo-item').remove());
                 addPhotoInput.value = '';
-            } else {
-                showToast('URL foto tidak boleh kosong.', 'error');
-            }
+            } else { showToast('URL foto tidak boleh kosong.', 'error'); }
         });
-
         saveEditBtn.addEventListener('click', async (e) => {
             const newWaNumber = editWhatsappNumberInput.value.trim();
             if (!validatePhoneNumber(newWaNumber)) {
@@ -417,10 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: parseInt(editProductId.value),
                 category: editProductCategory.value,
                 nama: editNameInput.value.trim(),
-                hargaAsli,
-                harga,
-                discountPrice,
-                discountEndDate,
+                hargaAsli, harga, discountPrice, discountEndDate,
                 deskripsiPanjang: editDescInput.value.trim().replace(/\n/g, ' || '),
                 images: [...editPhotoGrid.querySelectorAll('.photo-item img')].map(img => img.src),
                 menuContent: editScriptMenuContent.value.trim(),
@@ -429,34 +413,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isNaN(productData.hargaAsli) || productData.hargaAsli < 0 || !productData.nama || !productData.deskripsiPanjang) {
                 return showToast('Data tidak valid (Nama, Harga Asli, Deskripsi harus diisi).', 'error');
             }
-            saveEditBtn.textContent = 'Menyimpan...';
-            saveEditBtn.disabled = true;
+            saveEditBtn.textContent = 'Menyimpan...'; saveEditBtn.disabled = true;
             try {
                 const result = await fetch(API_PRODUCTS_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                     body: JSON.stringify({ action: 'updateProduct', data: productData })
                 }).then(res => res.json());
                 if (result.message !== 'Produk berhasil diperbarui!') throw new Error(result.message);
                 showToast('Produk berhasil diperbarui.', 'success');
                 closeModal(editModal);
                 manageCategorySelect.dispatchEvent(new Event('change'));
-            } catch (err) {
-                showToast(err.message, 'error');
-            } finally {
-                saveEditBtn.textContent = 'Simpan Perubahan';
-                saveEditBtn.disabled = false;
-            }
+            } catch (err) { showToast(err.message, 'error');
+            } finally { saveEditBtn.textContent = 'Simpan Perubahan'; saveEditBtn.disabled = false; }
         });
-        
         let draggingItem = null;
-        manageProductList.addEventListener('dragstart', (e) => {
-            draggingItem = e.target;
-            setTimeout(() => draggingItem.classList.add('dragging'), 0);
-        });
-        manageProductList.addEventListener('dragend', (e) => {
-            e.target.classList.remove('dragging');
-        });
+        manageProductList.addEventListener('dragstart', (e) => { draggingItem = e.target; setTimeout(() => draggingItem.classList.add('dragging'), 0); });
+        manageProductList.addEventListener('dragend', (e) => { e.target.classList.remove('dragging'); });
         manageProductList.addEventListener('dragover', (e) => {
             e.preventDefault(); 
             const afterElement = getDragAfterElement(manageProductList, e.clientY);
@@ -466,7 +439,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  else manageProductList.insertBefore(draggable, afterElement);
             }
         });
-
         saveOrderButton.addEventListener('click', async (e) => {
             const newOrder = [...manageProductList.children].map(item => parseInt(item.dataset.id));
             const category = manageCategorySelect.value;
@@ -475,18 +447,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await fetch(API_PRODUCTS_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                     body: JSON.stringify({ action: 'reorderProducts', data: { category, order: newOrder } })
                 }).then(res => res.json());
                 if (result.message !== 'Urutan berhasil disimpan.') throw new Error(result.message);
                 showToast('Urutan berhasil disimpan.', 'success');
-            } catch (err) {
-                showToast(err.message, 'error');
-            } finally {
-                saveOrderButton.disabled = false;
-            }
+            } catch (err) { showToast(err.message, 'error');
+            } finally { saveOrderButton.disabled = false; }
         });
-
         applyBulkPriceBtn.addEventListener('click', async (e) => {
             const category = manageCategorySelect.value;
             const newBulkPrice = parseInt(bulkPriceInput.value, 10);
@@ -496,20 +464,16 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await fetch(API_PRODUCTS_URL, { 
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                     body: JSON.stringify({ action: 'updateProductsInCategory', data: { category, newPrice: newBulkPrice } })
                 }).then(res => res.json());
                 if (result.message.indexOf('berhasil diubah') === -1) throw new Error(result.message);
                 showToast(result.message, 'success');
                 bulkPriceInput.value = ''; 
                 manageCategorySelect.dispatchEvent(new Event('change')); 
-            } catch (err) {
-                showToast(`Gagal: ${err.message}`, 'error');
-            } finally {
-                applyBulkPriceBtn.disabled = false;
-            }
+            } catch (err) { showToast(`Gagal: ${err.message}`, 'error');
+            } finally { applyBulkPriceBtn.disabled = false; }
         });
-        
         resetPricesBtn.addEventListener('click', async (e) => {
             const category = manageCategorySelect.value;
             if (!category) return;
@@ -518,20 +482,16 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await fetch(API_PRODUCTS_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                     body: JSON.stringify({ action: 'resetCategoryPrices', data: { category } })
                 }).then(res => res.json());
                 if (result.message.indexOf('berhasil dikembalikan') === -1) throw new Error(result.message);
                 showToast(result.message, 'success');
                 manageCategorySelect.dispatchEvent(new Event('change'));
-            } catch (err) {
-                showToast(`Gagal: ${err.message}`, 'error');
-            } finally {
-                resetPricesBtn.disabled = false;
-            }
+            } catch (err) { showToast(`Gagal: ${err.message}`, 'error');
+            } finally { resetPricesBtn.disabled = false; }
         });
     }
-    
     function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
         return draggableElements.reduce((closest, child) => {
@@ -539,9 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const offset = y - box.top - box.height / 2;
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
+            } else { return closest; }
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
@@ -551,12 +509,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`${API_BASE_URL}/getSettings?v=${Date.now()}`);
             if (!res.ok) throw new Error('Gagal memuat pengaturan.');
             siteSettings = await res.json();
-            
-            // Pengaturan Nomor WA
             globalWhatsappNumberInput.value = siteSettings.globalPhoneNumber || '';
             apikeyWhatsappNumberInput.value = siteSettings.apiKeyPurchaseNumber || '';
-
-            // Pengaturan Nomor WA per Kategori
             categoryWhatsappNumbersContainer.innerHTML = '<h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>';
             const categoriesInSettings = siteSettings.categoryPhoneNumbers || {};
             [...manageCategorySelect.options].filter(opt => opt.value).forEach(opt => {
@@ -568,33 +522,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="text" id="wa-${cat}" data-category="${cat}" value="${categoriesInSettings[cat] || ''}" placeholder="Kosongkan untuk pakai nomor global">`;
                 categoryWhatsappNumbersContainer.appendChild(div);
             });
-            
-            // Pengaturan Harga API Key
             renderApiKeyPriceSettings(siteSettings.apiKeyPrices || []);
-
         } catch (err) {
             showToast(err.message, 'error');
+            renderApiKeyPriceSettings([]);
         }
     }
-
     function renderApiKeyPriceSettings(prices) {
         apiKeyPriceSettingsContainer.innerHTML = '';
-        if (prices.length === 0) {
+        if (!prices || prices.length === 0) {
              apiKeyPriceSettingsContainer.innerHTML = '<p>Belum ada tingkatan harga. Klik tombol di bawah untuk menambahkan.</p>';
+        } else {
+            prices.forEach((price) => {
+                const div = document.createElement('div');
+                div.className = 'price-tier-item'; 
+                div.innerHTML = `
+                    <input type="text" class="tier-name" placeholder="Nama (e.g., 7 Hari)" value="${price.tier || ''}">
+                    <input type="number" class="tier-price" placeholder="Harga Asli" value="${price.price || ''}">
+                    <input type="number" class="tier-discount-price" placeholder="Harga Diskon (Opsional)" value="${price.discountPrice || ''}">
+                    <input type="datetime-local" class="tier-discount-date" value="${price.discountEndDate ? price.discountEndDate.slice(0, 16) : ''}">
+                    <button type="button" class="delete-tier-btn">&times;</button>
+                `;
+                apiKeyPriceSettingsContainer.appendChild(div);
+            });
         }
-        prices.forEach((price) => {
-            const div = document.createElement('div');
-            div.className = 'price-tier-item'; 
-            div.innerHTML = `
-                <input type="text" class="tier-name" placeholder="Nama (e.g., 7 Hari)" value="${price.tier || ''}">
-                <input type="number" class="tier-price" placeholder="Harga Asli" value="${price.price || ''}">
-                <input type="number" class="tier-discount-price" placeholder="Harga Diskon (Opsional)" value="${price.discountPrice || ''}">
-                <input type="datetime-local" class="tier-discount-date" value="${price.discountEndDate ? price.discountEndDate.slice(0, 16) : ''}">
-                <button type="button" class="delete-tier-btn">&times;</button>
-            `;
-            apiKeyPriceSettingsContainer.appendChild(div);
-        });
-    
         apiKeyPriceSettingsContainer.querySelectorAll('.delete-tier-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 btn.parentElement.remove();
@@ -605,125 +556,98 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
     addNewPriceTierBtn.addEventListener('click', () => {
-        if(apiKeyPriceSettingsContainer.querySelector('p')) {
-            apiKeyPriceSettingsContainer.innerHTML = ''; 
-        }
+        if(apiKeyPriceSettingsContainer.querySelector('p')) { apiKeyPriceSettingsContainer.innerHTML = ''; }
         const currentPrices = collectApiKeyPrices();
         renderApiKeyPriceSettings([...currentPrices, {}]); 
     });
-
     function collectApiKeyPrices() {
         const prices = [];
         apiKeyPriceSettingsContainer.querySelectorAll('.price-tier-item').forEach(item => {
             const tier = item.querySelector('.tier-name').value.trim();
-            const price = parseInt(item.querySelector('.tier-price').value, 10);
-            const discountPrice = item.querySelector('.tier-discount-price').value ? parseInt(item.querySelector('.tier-discount-price').value, 10) : null;
-            const discountEndDate = item.querySelector('.tier-discount-date').value ? new Date(item.querySelector('.tier-discount-date').value).toISOString() : null;
-            
-            if (tier || !isNaN(price) || discountPrice || discountEndDate) {
-                prices.push({ tier, price, discountPrice, discountEndDate });
+            const price = item.querySelector('.tier-price').value;
+            const discountPrice = item.querySelector('.tier-discount-price').value;
+            const discountEndDate = item.querySelector('.tier-discount-date').value;
+
+            if (tier || price || discountPrice || discountEndDate) {
+                prices.push({ 
+                    tier, 
+                    price: price ? parseInt(price, 10) : null, 
+                    discountPrice: discountPrice ? parseInt(discountPrice, 10) : null, 
+                    discountEndDate: discountEndDate ? new Date(discountEndDate).toISOString() : null 
+                });
             }
         });
         return prices;
     }
 
-    // GANTI BLOK LAMA DENGAN YANG INI
-saveSettingsButton.addEventListener('click', async () => {
-    // Mengumpulkan semua data dari form
-    const globalNumber = globalWhatsappNumberInput.value.trim();
-    const apiKeyNumber = apikeyWhatsappNumberInput.value.trim();
-
-    // Validasi nomor WA
-    if (!validatePhoneNumber(globalNumber) || !globalNumber) return showToast("Nomor WA Global wajib diisi dengan format kode negara (contoh: 628...)", 'error');
-    if (!validatePhoneNumber(apiKeyNumber) || !apiKeyNumber) return showToast("Nomor WA Beli API Key wajib diisi.", 'error');
-
-    // Mengumpulkan nomor WA per kategori
-    const categoryNumbers = {};
-    let isCategoryValid = true;
-    categoryWhatsappNumbersContainer.querySelectorAll('input[data-category]').forEach(input => {
-        const num = input.value.trim();
-        if (num && !validatePhoneNumber(num)) {
-            showToast(`Format Nomor WA kategori ${input.dataset.category} salah.`, 'error');
-            isCategoryValid = false;
+    // KODE BARU DAN BENAR UNTUK TOMBOL SIMPAN
+    saveSettingsButton.addEventListener('click', async () => {
+        const globalNumber = globalWhatsappNumberInput.value.trim();
+        const apiKeyNumber = apikeyWhatsappNumberInput.value.trim();
+        if (!validatePhoneNumber(globalNumber) || !globalNumber) return showToast("Nomor WA Global wajib diisi dengan format kode negara (contoh: 628...)", 'error');
+        if (!validatePhoneNumber(apiKeyNumber) || !apiKeyNumber) return showToast("Nomor WA Beli API Key wajib diisi.", 'error');
+        const categoryNumbers = {};
+        let isCategoryValid = true;
+        categoryWhatsappNumbersContainer.querySelectorAll('input[data-category]').forEach(input => {
+            const num = input.value.trim();
+            if (num && !validatePhoneNumber(num)) {
+                showToast(`Format Nomor WA kategori ${input.dataset.category} salah.`, 'error');
+                isCategoryValid = false;
+            }
+            categoryNumbers[input.dataset.category] = num;
+        });
+        if (!isCategoryValid) return;
+        const apiKeyPrices = collectApiKeyPrices().filter(p => p.tier && p.price !== null && !isNaN(p.price));
+        if (collectApiKeyPrices().length !== apiKeyPrices.length) {
+             return showToast('Pastikan semua Nama dan Harga Asli pada tingkatan harga API Key terisi.', 'error');
         }
-        categoryNumbers[input.dataset.category] = num;
+        saveSettingsButton.disabled = true;
+        saveSettingsButton.textContent = 'Menyimpan...';
+        try {
+            const settingsData = {
+                globalPhoneNumber: globalNumber,
+                categoryPhoneNumbers: categoryNumbers,
+                apiKeyPurchaseNumber: apiKeyNumber,
+                apiKeyPrices: apiKeyPrices
+            };
+            const result = await fetch(`${API_BASE_URL}/updateSettings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
+                body: JSON.stringify(settingsData)
+            }).then(res => res.json());
+
+            if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
+            showToast('Pengaturan berhasil disimpan!', 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            saveSettingsButton.disabled = false;
+            saveSettingsButton.textContent = 'Simpan Semua Pengaturan';
+        }
     });
-    if (!isCategoryValid) return;
 
-    // PENTING: Mengumpulkan data harga API Key
-    const apiKeyPrices = collectApiKeyPrices();
-    if (collectApiKeyPrices().length > 0 && apiKeyPrices.length === 0) {
-         return showToast('Pastikan semua Nama dan Harga Asli pada tingkatan harga API Key terisi.', 'error');
-    }
-
-    // Menonaktifkan tombol saat proses
-    saveSettingsButton.disabled = true;
-    saveSettingsButton.textContent = 'Menyimpan...';
-
-    try {
-        // Membuat objek data yang LENGKAP untuk dikirim
-        const settingsData = {
-            globalPhoneNumber: globalNumber,
-            categoryPhoneNumbers: categoryNumbers,
-            apiKeyPurchaseNumber: apiKeyNumber,
-            apiKeyPrices: apiKeyPrices
-        };
-
-        // Mengirim data ke server
-        const result = await fetch(`${API_BASE_URL}/updateSettings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
-            body: JSON.stringify(settingsData)
-        }).then(res => res.json());
-
-        if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
-        showToast('Pengaturan berhasil disimpan!', 'success');
-
-    } catch (err) {
-        showToast(err.message, 'error');
-    } finally {
-        // Mengaktifkan tombol kembali
-        saveSettingsButton.disabled = false;
-        saveSettingsButton.textContent = 'Simpan Semua Pengaturan';
-    }
-});
-
-    if (sessionStorage.getItem('isAdminAuthenticated')) {
-        loginScreen.style.display = 'none';
-        productFormScreen.style.display = 'block';
-        loadSettings();
-        document.querySelector('.tab-button[data-tab="addProduct"]').click();
-    }
-    
-    // --- EVENT DELEGATION UNTUK SEMUA TOMBOL HAPUS ---
+    // --- LOGIKA EVENT DELEGATION HAPUS ---
     document.body.addEventListener('click', async (e) => {
         const deleteBtn = e.target.closest('.delete-btn');
         if (!deleteBtn) return;
-
-        // Hapus Produk
         if (deleteBtn.classList.contains('delete-product-btn')) {
             const parent = deleteBtn.closest('.delete-item');
             const id = parseInt(parent.dataset.id);
             const category = manageCategorySelect.value;
-            const confirm = await showCustomConfirm(`Yakin ingin menghapus produk <b>${parent.querySelector('span').textContent.split(' - ')[0]}</b>?`);
-            if (confirm) {
+            if (await showCustomConfirm(`Yakin ingin menghapus produk <b>${parent.querySelector('span').textContent.split(' - ')[0]}</b>?`)) {
                 try {
                     const result = await fetch(API_PRODUCTS_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
                         body: JSON.stringify({ action: 'deleteProduct', data: { id, category } })
                     }).then(res => res.json());
                     if (result.message !== 'Produk berhasil dihapus.') throw new Error(result.message);
                     parent.remove();
                     showToast(result.message, 'success');
-                } catch (err) {
-                    showToast(err.message, 'error');
-                }
+                } catch (err) { showToast(err.message, 'error'); }
             }
         }
-        // Hapus API Key
         else if (deleteBtn.classList.contains('delete-apikey-btn')) {
             const key = deleteBtn.dataset.key;
             if (await showCustomConfirm(`Yakin menghapus API Key "<b>${key}</b>"?`)) {
@@ -731,12 +655,9 @@ saveSettingsButton.addEventListener('click', async () => {
                     const result = await fetchAdminApi('deleteApiKey', { key });
                     showToast(result.message, 'success');
                     loadApiKeys();
-                } catch (err) {
-                    showToast(err.message, 'error');
-                }
+                } catch (err) { showToast(err.message, 'error'); }
             }
         }
-        // Hapus Domain
         else if (deleteBtn.classList.contains('delete-domain-btn')) {
             const domain = deleteBtn.dataset.domain;
             if (await showCustomConfirm(`Yakin menghapus Domain "<b>${domain}</b>"?`)) {
@@ -744,9 +665,7 @@ saveSettingsButton.addEventListener('click', async () => {
                     const result = await fetchAdminApi('deleteRootDomain', { domain });
                     showToast(result.message, 'success');
                     loadRootDomains();
-                } catch (err) {
-                    showToast(err.message, 'error');
-                }
+                } catch (err) { showToast(err.message, 'error'); }
             }
         }
     });
@@ -755,7 +674,6 @@ saveSettingsButton.addEventListener('click', async () => {
     permanentKeyCheckbox.addEventListener('change', (e) => {
         durationSection.style.display = e.target.checked ? 'none' : 'block';
     });
-
     async function loadApiKeys() {
         apiKeyListContainer.innerHTML = 'Memuat...';
         try {
@@ -783,7 +701,6 @@ saveSettingsButton.addEventListener('click', async () => {
             apiKeyListContainer.innerHTML = `<p style="color: red;">Gagal memuat: ${err.message}</p>`;
         }
     }
-
     async function loadRootDomains() {
         rootDomainListContainer.innerHTML = 'Memuat...';
         try {
@@ -809,20 +726,16 @@ saveSettingsButton.addEventListener('click', async () => {
             rootDomainListContainer.innerHTML = `<p style="color: red;">Gagal memuat: ${err.message}</p>`;
         }
     }
-    
     createApiKeyBtn.addEventListener('click', async () => {
         const key = document.getElementById('new-apikey-name').value.trim();
         const duration = parseInt(document.getElementById('new-apikey-duration').value, 10);
         const unit = document.getElementById('new-apikey-unit').value;
         const isPermanent = permanentKeyCheckbox.checked;
-
         if (!key || (!isPermanent && (isNaN(duration) || duration <= 0))) {
             return showToast('Nama Key dan Durasi harus valid.', 'error');
         }
-
         createApiKeyBtn.textContent = 'Membuat...';
         createApiKeyBtn.disabled = true;
-
         try {
             const result = await fetchAdminApi('createApiKey', { key, duration, unit, isPermanent });
             showToast(result.message, 'success');
@@ -830,29 +743,25 @@ saveSettingsButton.addEventListener('click', async () => {
             loadApiKeys();
             closeModal(addApiKeyModal);
 
+            // Ini bagian yang menyebabkan error jika 'details' tidak ada
             const keyData = result.details;
             const createdAt = new Date(keyData.created_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
             const expiresAt = keyData.expires_at === 'permanent' ? 'Permanen' : new Date(keyData.expires_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-            
-            const detailsText = `API Key Telah Dibuat!
--------------------------
-Kunci API   : ${key}
-Dibuat Pada : ${createdAt}
-Kedaluwarsa : ${expiresAt}
--------------------------
-Harap simpan dan berikan kunci ini kepada pengguna.`;
-            
+
+            const detailsText = `API Key Telah Dibuat!\n-------------------------\nKunci API   : ${key}\nDibuat Pada : ${createdAt}\nKedaluwarsa : ${expiresAt}\n-------------------------\nHarap simpan dan berikan kunci ini kepada pengguna.`;
+
             apiKeyDetailsTextarea.value = detailsText;
             openModal(apiKeySuccessModal);
 
         } catch (err) {
             showToast(err.message, 'error');
+            // Jika error terjadi, coba muat ulang daftar API Key untuk menampilkan key yang mungkin sudah dibuat
+            loadApiKeys();
         } finally {
             createApiKeyBtn.textContent = 'Buat API Key';
             createApiKeyBtn.disabled = false;
         }
     });
-
     copyApiKeyDetailsBtn.addEventListener('click', () => {
         apiKeyDetailsTextarea.select();
         navigator.clipboard.writeText(apiKeyDetailsTextarea.value).then(() => {
@@ -861,19 +770,14 @@ Harap simpan dan berikan kunci ini kepada pengguna.`;
             showToast('Gagal menyalin detail.', 'error');
         });
     });
-
     addDomainBtn.addEventListener('click', async () => {
         const domain = document.getElementById('new-domain-name').value.trim();
         const zone = document.getElementById('new-domain-zone').value.trim();
         const apitoken = document.getElementById('new-domain-token').value.trim();
-
         if (!domain || !zone || !apitoken) {
             return showToast('Semua kolom domain wajib diisi.', 'error');
         }
-        
-        addDomainBtn.textContent = 'Menambah...';
-        addDomainBtn.disabled = true;
-
+        addDomainBtn.textContent = 'Menambah...'; addDomainBtn.disabled = true;
         try {
             const result = await fetchAdminApi('addRootDomain', { domain, zone, apitoken });
             showToast(result.message, 'success');
@@ -883,8 +787,13 @@ Harap simpan dan berikan kunci ini kepada pengguna.`;
         } catch (err) {
             showToast(err.message, 'error');
         } finally {
-            addDomainBtn.textContent = 'Tambah Domain';
-            addDomainBtn.disabled = false;
+            addDomainBtn.textContent = 'Tambah Domain'; addDomainBtn.disabled = false;
         }
     });
+    if (sessionStorage.getItem('isAdminAuthenticated')) {
+        loginScreen.style.display = 'none';
+        productFormScreen.style.display = 'block';
+        loadSettings();
+        document.querySelector('.tab-button[data-tab="addProduct"]').click();
+    }
 });
