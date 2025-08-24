@@ -1,14 +1,35 @@
 {
-    "globalPhoneNumber": "6285771555374",
-    "categoryPhoneNumbers": {
-        "Panel": "",
-        "VPS": "",
-        "Script": "",
-        "Jasa": "",
-        "murid": "",
-        "Sewa Bot": "",
-        "Stock Akun": "",
-        "Logo": "",
-        "Suntik Sosmed": ""
+  "globalPhoneNumber": "6285771555374",
+  "categoryPhoneNumbers": {
+    "Panel": "",
+    "VPS": "",
+    "Script": "",
+    "Jasa": "",
+    "murid": "",
+    "Sewa Bot": "",
+    "Stock Akun": "",
+    "Logo": "",
+    "Suntik Sosmed": ""
+  },
+  "apiKeyPurchaseNumber": "6285771555374",
+  "apiKeyPrices": [
+    {
+      "tier": "Percobaan 3 Hari",
+      "price": 5000,
+      "discountPrice": null,
+      "discountEndDate": null
+    },
+    {
+      "tier": "Paket 30 Hari",
+      "price": 25000,
+      "discountPrice": 20000,
+      "discountEndDate": "2025-09-30T23:59:00.000Z"
+    },
+    {
+      "tier": "Permanen",
+      "price": 75000,
+      "discountPrice": null,
+      "discountEndDate": null
     }
+  ]
 }
