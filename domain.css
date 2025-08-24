@@ -34,12 +34,15 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
+    display: flex; /* Tambahkan ini */
+    justify-content: center; /* Tambahkan ini */
+    align-items: center; /* Tambahkan ini */
+    min-height: 100vh; /* Tambahkan ini */
 }
+
 .page-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    width: 100%; /* Ubah ini */
+    max-width: 600px; /* Atur lebar maksimum */
     padding: 20px;
     box-sizing: border-box;
 }
@@ -107,7 +110,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     margin-bottom: 15px;
 }
 .password-input-container { position: relative; }
-#domain-creator-screen { width: 100%; max-width: 600px; animation: fadeIn 0.5s ease-out forwards; }
+#apikey-screen, #domain-creator-screen {
+    width: 100%;
+    animation: fadeIn 0.5s ease-out forwards;
+}
 .admin-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 10px 15px; margin-bottom: 20px; background-color: var(--white-color);
@@ -154,9 +160,16 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .modal.is-visible { visibility: visible; opacity: 1; }
 .modal-content {
-    background-color: var(--white-color); border-radius: 20px; width: 100%; max-width: 400px;
-    box-shadow: 0 10px 30px var(--shadow-color); padding: 30px 25px; position: relative;
-    transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    background-color: var(--white-color);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 450px; /* Sedikit lebih lebar untuk daftar harga */
+    box-shadow: 0 10px 30px var(--shadow-color);
+    padding: 30px 25px;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    text-align: center; /* Pastikan konten modal di tengah */
 }
 .modal.is-visible .modal-content { transform: scale(1); }
 .modal .close-button { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--light-text-color); }

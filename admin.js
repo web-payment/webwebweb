@@ -1,10 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Variabel Elemen ---
-    const loginScreen = document.getElementById('login-screen');
-    const productFormScreen = document.getElementById('product-form-screen');
-    const toastContainer = document.getElementById('toast-container');
-    const passwordInput = document.getElementById('password');
-    const loginButton = document.getElementById('login-button');
+;
     const passwordToggle = document.getElementById('passwordToggle');
     const themeSwitchBtnLogin = document.getElementById('themeSwitchBtnLogin');
     const themeSwitchBtnPanel = document.getElementById('themeSwitchBtnPanel');
@@ -52,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDomainBtn = document.getElementById('add-domain-btn');
     const permanentKeyCheckbox = document.getElementById('permanent-key');
     const durationSection = document.getElementById('duration-section');
-
+    const apiKeyPriceSettingsContainer = document.getElementById('api-key-price-settings-container');
+    const addNewPriceTierBtn = document.getElementById('add-new-price-tier-btn');
     // --- Alamat API ---
     const API_PRODUCTS_URL = '/api/products';
     const API_CLOUDFLARE_URL = '/api/cloudflare';
@@ -92,6 +87,48 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.setAttribute('type', type);
         passwordToggle.querySelector('i').className = `fas ${type === 'password' ? 'fa-eye-slash' : 'fa-eye'}`;
     });
+    
+    function showApiKeySuccessPopup(keyDetails) {
+        const modal = document.getElementById('apiKeySuccessModal');
+        const detailsTextarea = document.getElementById('apiKeyDetails');
+        const copyBtn = document.getElementById('copyApiKeyDetailsBtn');
+
+        // Format tanggal agar mudah dibaca
+        const createdAt = new Date(keyDetails.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'long' });
+        const expiresAt = keyDetails.expires_at === 'permanent' ? 'Permanen' : new Date(keyDetails.expires_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'long' });
+
+        const detailsText = `
+DETAIL API KEY
+-------------------------
+Key         : ${keyDetails.key}
+Dibuat pada : ${createdAt}
+Kadaluwarsa : ${expiresAt}
+-------------------------
+Harap simpan baik-baik.
+        `;
+
+        detailsTextarea.value = detailsText.trim();
+        openModal(modal);
+
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(detailsTextarea.value).then(() => {
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Salin Detail';
+                }, 2000);
+            });
+        };
+        
+        // Tambahkan event listener untuk tombol close
+        modal.querySelector('.close-button').addEventListener('click', () => closeModal(modal));
+    }
+    
+    function openModal(modal) {
+        if(modal) modal.classList.add('is-visible');
+    }
+    function closeModal(modal) {
+        if(modal) modal.classList.remove('is-visible');
+    }
 
     function showToast(message, type = 'info', duration = 3000) {
         if (toastContainer.firstChild) {
@@ -545,12 +582,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
+function renderApiKeyPriceSettings() {
+    apiKeyPriceSettingsContainer.innerHTML = '';
+    if (siteSettings.apiKeyPrices.length === 0) {
+        // Tambahkan satu baris default jika kosong
+        siteSettings.apiKeyPrices.push({ tier: '7 Hari', price: 5000, discountPrice: '', discountEndDate: '' });
+    }
+
+    siteSettings.apiKeyPrices.forEach((tier, index) => {
+        const div = document.createElement('div');
+        div.className = 'delete-item'; // Memakai style yang sudah ada
+        div.innerHTML = `
+            <div class="item-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <div style="width: 100%; display: flex; gap: 10px;">
+                    <input type="text" class="price-tier-name" placeholder="Nama Durasi (e.g., 7 Hari)" value="${tier.tier || ''}">
+                    <button type="button" class="delete-btn delete-price-tier-btn" data-index="${index}" style="width: auto; padding: 10px 12px;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+                <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" class="price-tier-price" placeholder="Harga Asli (e.g., 5000)" value="${tier.price || ''}">
+                    <input type="number" class="price-tier-discount-price" placeholder="Harga Diskon (Opsional)" value="${tier.discountPrice || ''}">
+                </div>
+                <label style="margin-top: 5px; margin-bottom: 5px; font-size: 0.85em;">Tanggal Berakhir Diskon (Opsional):</label>
+                <input type="datetime-local" class="price-tier-discount-date" value="${tier.discountEndDate ? tier.discountEndDate.slice(0, 16) : ''}">
+            </div>
+        `;
+        apiKeyPriceSettingsContainer.appendChild(div);
+    });
+
+    // Setup event listener untuk tombol hapus
+    apiKeyPriceSettingsContainer.querySelectorAll('.delete-price-tier-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const indexToRemove = parseInt(e.currentTarget.dataset.index, 10);
+            siteSettings.apiKeyPrices.splice(indexToRemove, 1);
+            renderApiKeyPriceSettings(); // Re-render
+        });
+    });
+}
+
+addNewPriceTierBtn.addEventListener('click', () => {
+    siteSettings.apiKeyPrices.push({ tier: '', price: '', discountPrice: '', discountEndDate: '' });
+    renderApiKeyPriceSettings();
+});
+
     // --- LOGIKA TAB "PENGATURAN" ---
     async function loadSettings() {
         try {
             const res = await fetch(`${API_BASE_URL}/getSettings`);
             if (!res.ok) throw new Error('Gagal memuat pengaturan.');
             siteSettings = await res.json();
+            siteSettings.apiKeyPrices = siteSettings.apiKeyPrices || [];
             globalWhatsappNumberInput.value = siteSettings.globalPhoneNumber || '';
             categoryWhatsappNumbersContainer.innerHTML = '<h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>';
             const categoriesInSettings = siteSettings.categoryPhoneNumbers || {};
@@ -563,6 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="text" id="wa-${cat}" data-category="${cat}" value="${categoriesInSettings[cat] || ''}" placeholder="Kosongkan untuk pakai nomor global">`;
                 categoryWhatsappNumbersContainer.appendChild(div);
             });
+         renderApiKeyPriceSettings();
         } catch (err) {
             showToast(err.message, 'error');
         }
@@ -585,22 +666,54 @@ document.addEventListener('DOMContentLoaded', () => {
             categoryNumbers[cat] = num;
         });
         if (!isCategoryValid) return;
+        
+        const newApiKeyPrices = [];
+    const priceTiers = apiKeyPriceSettingsContainer.querySelectorAll('.delete-item');
+    let isPriceValid = true;
+    priceTiers.forEach(tierElement => {
+        const tierName = tierElement.querySelector('.price-tier-name').value.trim();
+        const price = tierElement.querySelector('.price-tier-price').value;
+        const discountPrice = tierElement.querySelector('.price-tier-discount-price').value;
+        const discountEndDate = tierElement.querySelector('.price-tier-discount-date').value;
 
-        saveSettingsButton.disabled = true;
-        try {
-            const result = await fetch(`${API_BASE_URL}/updateSettings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ globalPhoneNumber: globalNumber, categoryPhoneNumbers: categoryNumbers })
-            }).then(res => res.json());
-            if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
-            showToast('Pengaturan berhasil disimpan!', 'success');
-        } catch (err) {
-            showToast(err.message, 'error');
-        } finally {
-            saveSettingsButton.disabled = false;
+        if (!tierName || !price) {
+            isPriceValid = false;
         }
+        newApiKeyPrices.push({
+            tier: tierName,
+            price: parseInt(price, 10),
+            discountPrice: discountPrice ? parseInt(discountPrice, 10) : '',
+            discountEndDate: discountEndDate ? new Date(discountEndDate).toISOString() : ''
+        });
     });
+
+    if (!isPriceValid) {
+        return showToast('Nama Durasi dan Harga Asli pada setiap tingkatan harga API Key wajib diisi.', 'error');
+    }
+
+            saveSettingsButton.disabled = true;
+    try {
+        const settingsToUpdate = {
+            globalPhoneNumber: globalNumber,
+            apiKeyPurchaseNumber: apiKeyWaNumber, // tambahkan ini
+            categoryPhoneNumbers: categoryNumbers,
+            apiKeyPrices: newApiKeyPrices // tambahkan ini
+        };
+
+        const result = await fetch(`${API_BASE_URL}/updateSettings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settingsToUpdate)
+        }).then(res => res.json());
+
+        if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
+        showToast('Pengaturan berhasil disimpan!', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        saveSettingsButton.disabled = false;
+    }
+});
 
     if (sessionStorage.getItem('isAdminAuthenticated')) {
         loginScreen.style.display = 'none';
@@ -736,10 +849,17 @@ document.addEventListener('DOMContentLoaded', () => {
         createApiKeyBtn.disabled = true;
 
         try {
+            // Asumsi API mengembalikan detail lengkap
             const result = await fetchAdminApi('createApiKey', { key, duration, unit, isPermanent });
-            showToast(result.message, 'success');
-            document.getElementById('new-apikey-name').value = '';
+            
+            // Tampilkan popup sukses dengan detail
+            showApiKeySuccessPopup(result.keyDetails); 
+
+            document.getElementById('addApiKeyForm').reset();
+            permanentKeyCheckbox.dispatchEvent(new Event('change')); // Reset tampilan durasi
             loadApiKeys();
+            closeModal(document.getElementById('addApiKeyModal'));
+
         } catch (err) {
             showToast(err.message, 'error');
         } finally {

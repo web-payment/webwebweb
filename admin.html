@@ -134,6 +134,14 @@
                 <input type="text" id="apikey-whatsapp-number" placeholder="Contoh: 6285771555374">
                 <small>Nomor ini akan dihubungi saat pengguna mengklik "Beli API Key".</small>
                 
+                <h3><i class="fas fa-dollar-sign"></i> Pengaturan Harga API Key</h3>
+<small>Atur harga dan diskon untuk penjualan API Key. Biarkan harga diskon kosong jika tidak ada diskon.</small>
+<div id="api-key-price-settings-container">
+    </div>
+<button type="button" id="add-new-price-tier-btn" style="width: auto; margin-top: 15px; font-size: 0.9em; padding: 10px 15px;"><i class="fas fa-plus"></i> Tambah Tingkatan Harga</button>
+
+<hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
+
                 <div id="category-whatsapp-numbers-container">
                     <h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>
                 </div>
@@ -229,6 +237,16 @@
                 <input type="text" id="new-domain-token" placeholder="Token dengan izin DNS:Edit">
                 <button type="button" id="add-domain-btn">Tambah Domain</button>
             </form>
+        </div>
+    </div>
+    
+        <div id="apiKeySuccessModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2><i class="fas fa-check-circle" style="color: var(--success-color);"></i> API Key Berhasil Dibuat!</h2>
+            <p>Berikut adalah detail API Key yang baru saja Anda buat. Salin dan kirimkan kepada pengguna.</p>
+            <textarea id="apiKeyDetails" readonly rows="6" style="background-color: var(--secondary-color); font-family: monospace; resize: none;"></textarea>
+            <button type="button" id="copyApiKeyDetailsBtn"><i class="fas fa-copy"></i> Salin Detail</button>
         </div>
     </div>
     
