@@ -7,13 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
-    <style>
-        .duration-group { display: flex; gap: 10px; }
-        .duration-group input { flex-grow: 1; }
-        .duration-group select { width: auto; }
-        .permanent-key-toggle { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
-        .permanent-key-toggle label { margin: 0; }
-    </style>
 </head>
 <body class="light-mode">
     <div id="toast-container"></div>
@@ -33,7 +26,7 @@
             <div class="theme-switch" id="themeSwitchBtnLogin"><i class="fas fa-moon"></i></div>
         </div>
     </div>
-
+    
     <div id="product-form-screen" class="main-container" style="display: none;">
         <header class="admin-header">
             <img src="logo.jpg" alt="Rikishopreal" class="profile-pic">
@@ -44,94 +37,92 @@
         <nav class="admin-tabs">
             <button type="button" class="tab-button active" data-tab="addProduct">Tambah Produk</button>
             <button type="button" class="tab-button" data-tab="manageProducts">Kelola Produk</button>
+            <button type="button" class="tab-button" data-tab="createSubdomain">Buat Subdomain</button>
             <button type="button" class="tab-button" data-tab="domainManager">Manajer Domain</button>
             <button type="button" class="tab-button" data-tab="settings">Pengaturan</button>
         </nav>
         
-        <div id="addProduct" class="admin-tab-content active">
-            <form class="admin-form" id="addProductForm">
-                <h2><i class="fas fa-plus-circle"></i> Tambah Produk</h2>
-                <label for="category">Kategori Produk:</label>
-                <select id="category">
-                    <option value="Panel">Panel</option>
-                    <option value="VPS">VPS</option>
-                    <option value="Script">Script</option>
-                    <option value="Jasa">Jasa</option>
-                    <option value="murid">Join Murid</option>
-                    <option value="Sewa Bot">Sewa Bot</option>
-                    <option value="Stock Akun">Stock Akun</option>
-                    <option value="Logo">Logo</option>
-                    <option value="Suntik Sosmed">Suntik Sosmed</option>
-                </select>
-                <label for="product-name">Nama Produk:</label>
-                <input type="text" id="product-name" placeholder="Contoh: Panel Ram 1GB">
-                <label for="product-price">Harga Produk (hanya angka):</label>
-                <input type="number" id="product-price" placeholder="Contoh: 10000">
-                <label for="product-description">Deskripsi Produk:</label>
-                <textarea id="product-description" rows="5" placeholder="Tulis deskripsi di sini..."></textarea>
-                <label for="product-whatsapp-number">Nomor WA Spesifik (Opsional):</label>
-                <input type="text" id="product-whatsapp-number" placeholder="Contoh: 628123456789">
-                <div id="scriptMenuSection" style="display: none;">
-                    <label for="script-menu-content">Konten Menu Script:</label>
-                    <textarea id="script-menu-content" rows="10" placeholder="Tulis menu script di sini..."></textarea>
+        <div id="addProduct" class="admin-tab-content active"></div>
+        <div id="manageProducts" class="admin-tab-content"></div>
+
+        <div id="createSubdomain" class="admin-tab-content">
+            <div id="apikey-screen-container">
+                <div class="form-card login-card" style="margin: 20px auto;">
+                    <div class="login-header">
+                        <img src="logo.jpg" alt="Rikishopreal" class="profile-pic">
+                        <h2>Akses Layanan Subdomain</h2>
+                        <p>Masukkan API Key Anda untuk melanjutkan.</p>
+                    </div>
+                    <div class="password-input-container">
+                        <input type="text" id="apikey-input" placeholder="Masukkan API Key...">
+                    </div>
+                    <button type="button" id="apikey-submit-btn">Verifikasi</button>
+                    <div class="apikey-actions" style="margin-top: 20px; font-size: 0.9em; text-align: center;">
+                        <a href="#" id="buy-apikey-link">Belum punya API Key? Beli di sini</a>
+                    </div>
                 </div>
-                <div id="stock-photo-section" style="display: none;">
-                    <label for="product-photos">Link Foto (pisahkan dengan koma):</label>
-                    <input type="text" id="product-photos" placeholder="https://url.com/foto1.jpg, https://url.com/foto2.jpg">
+            </div>
+
+            <div id="domain-creator-container" style="display: none;">
+                <form class="admin-form" id="createDomainForm">
+                     <h2><i class="fas fa-globe-plus"></i> Buat Subdomain Baru</h2>
+                    <label for="subdomain-name">Nama Subdomain:</label>
+                    <input type="text" id="subdomain-name" placeholder="contoh: tokosaya">
+                    
+                    <label for="root-domain">Pilih Domain Utama:</label>
+                    <select id="root-domain"></select>
+
+                    <label for="record-type">Tipe Record:</label>
+                    <select id="record-type">
+                        <option value="A">IP Address (Untuk VPS/Panel)</option>
+                        <option value="CNAME">CNAME (Untuk Vercel/Lainnya)</option>
+                    </select>
+
+                    <div id="ip-input-section">
+                        <label for="ip-address">IP Address VPS/Panel:</label>
+                        <input type="text" id="ip-address" placeholder="contoh: 103.123.45.67">
+                    </div>
+
+                    <div id="cname-input-section" style="display: none;">
+                        <label for="cname-target">Target CNAME:</label>
+                        <input type="text" id="cname-target" placeholder="contoh: cname.vercel-dns.com">
+                    </div>
+
+                    <div class="proxy-toggle">
+                        <label for="proxy-status">Status Proxy (Orange Cloud):</label>
+                        <label class="switch">
+                            <input type="checkbox" id="proxy-status" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    
+                    <button type="button" id="create-domain-btn">Buat Domain</button>
+                </form>
+                
+                <div class="admin-form" style="margin-top: 30px;">
+                    <h3><i class="fas fa-history"></i> Riwayat Subdomain Anda</h3>
+                    <div id="subdomain-history-container">
+                        <p>Belum ada subdomain yang dibuat.</p>
+                    </div>
                 </div>
-                <button type="button" id="add-product-button">Tambah Produk</button>
-            </form>
+            </div>
         </div>
         
-        <div id="manageProducts" class="admin-tab-content">
-            <form class="admin-form">
-                <h2><i class="fas fa-cogs"></i> Kelola Produk</h2>
-                <label for="manage-category">Pilih Kategori:</label>
-                <select id="manage-category">
-                    <option value="">-- Pilih Kategori --</option>
-                    <option value="Panel">Panel</option>
-                    <option value="VPS">VPS</option>
-                    <option value="Script">Script</option>
-                    <option value="Jasa">Jasa</option>
-                    <option value="murid">Join Murid</option>
-                    <option value="Sewa Bot">Sewa Bot</option>
-                    <option value="Stock Akun">Stock Akun</option>
-                    <option value="Logo">Logo</option>
-                    <option value="Suntik Sosmed">Suntik Sosmed</option>
-                </select>
-                <div id="manage-product-list"></div>
-                <button type="button" id="save-order-button" style="display:none;">Simpan Urutan</button>
-                <div id="bulk-price-edit-container" class="bulk-price-edit-container" style="display: none;">
-                    <label>Manajemen Harga Kategori</label>
-                    <div class="bulk-price-input-group">
-                        <input type="number" id="bulk-price-input" placeholder="Harga baru untuk semua">
-                        <button type="button" id="apply-bulk-price-btn">Terapkan</button>
-                    </div>
-                    <button type="button" id="reset-prices-btn" class="secondary-button">Kembalikan Harga Awal</button>
-                </div>
-            </form>
-        </div>
-
         <div id="domainManager" class="admin-tab-content">
-             <div class="admin-form">
-                <nav class="sub-tabs">
-                    <button type="button" class="sub-tab-button active" data-subtab="apiKeyManager"><i class="fas fa-key"></i> Kelola API Key</button>
-                    <button type="button" class="sub-tab-button" data-subtab="domainListManager"><i class="fas fa-server"></i> Kelola Domain</button>
-                </nav>
-
-                <div id="apiKeyManager" class="sub-tab-content active">
-                    <div id="apiKeyListContainer">Memuat daftar API Key...</div>
-                    <button type="button" id="open-add-apikey-modal-btn" class="secondary-button" style="margin-top: 20px;">
-                        <i class="fas fa-plus-circle"></i> Buat API Key Baru
-                    </button>
+            <div class="admin-form" style="margin-bottom: 30px;">
+                <div class="section-header">
+                    <h2><i class="fas fa-key"></i> Kelola API Key</h2>
+                    <button type="button" id="show-add-apikey-modal-btn" class="add-new-btn"><i class="fas fa-plus"></i> Buat API Key</button>
                 </div>
+                <div id="apiKeyListContainer">Memuat daftar API Key...</div>
+            </div>
 
-                <div id="domainListManager" class="sub-tab-content">
-                    <div id="rootDomainListContainer">Memuat daftar domain...</div>
-                    <button type="button" id="open-add-domain-modal-btn" class="secondary-button" style="margin-top: 20px;">
-                        <i class="fas fa-plus-circle"></i> Tambah Domain Baru
-                    </button>
+            <div class="admin-form">
+                <div class="section-header">
+                    <h2><i class="fas fa-server"></i> Kelola Domain Utama</h2>
+                    <button type="button" id="show-add-domain-modal-btn" class="add-new-btn"><i class="fas fa-plus"></i> Tambah Domain</button>
                 </div>
+                <div id="rootDomainListContainer">Memuat daftar domain...</div>
             </div>
         </div>
 
@@ -141,6 +132,11 @@
                 <label for="global-whatsapp-number">Nomor WA Global (Wajib diisi):</label>
                 <input type="text" id="global-whatsapp-number" placeholder="Contoh: 628123456789">
                 <small>Nomor ini akan digunakan jika nomor lain tidak diatur.</small>
+
+                <label for="apikey-whatsapp-number">Nomor WA untuk Beli API Key (Wajib):</label>
+                <input type="text" id="apikey-whatsapp-number" placeholder="Contoh: 6285771555374">
+                <small>Nomor ini akan dihubungi saat pengguna mengklik "Beli API Key".</small>
+                
                 <div id="category-whatsapp-numbers-container">
                     <h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>
                 </div>
@@ -149,57 +145,14 @@
         </div>
     </div>
     
-    <div id="editProductModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <form class="admin-form" id="editProductForm">
-                <h2 id="editModalTitle">Edit Produk</h2>
-                <input type="hidden" id="edit-product-id">
-                <input type="hidden" id="edit-product-category">
-                <label for="edit-name">Nama Produk:</label>
-                <input type="text" id="edit-name">
-                <label for="edit-price">Harga Asli:</label>
-                <input type="number" id="edit-price">
-                <label for="edit-discount-price">Harga Diskon (Opsional):</label>
-                <input type="number" id="edit-discount-price" placeholder="Kosongkan jika tidak ada diskon">
-                <label for="edit-discount-date">Tanggal Berakhir Diskon (Opsional):</label>
-                <input type="datetime-local" id="edit-discount-date">
-                <label for="edit-desc">Deskripsi Produk:</label>
-                <textarea id="edit-desc" rows="5"></textarea>
-                <label for="edit-whatsapp-number">Nomor WA Spesifik (Opsional):</label>
-                <input type="text" id="edit-whatsapp-number" placeholder="Contoh: 628123456789">
-                <div id="edit-photo-section" style="display: none;">
-                    <label>Kelola Foto:</label>
-                    <div class="photo-grid" id="edit-photo-grid"></div>
-                    <div class="add-photo-container">
-                        <input type="text" id="add-photo-input" placeholder="URL foto baru">
-                        <button type="button" id="add-photo-btn">Tambah</button>
-                    </div>
-                </div>
-                <div id="edit-script-menu-section" style="display: none;">
-                    <label for="edit-script-menu-content">Konten Menu Script:</label>
-                    <textarea id="edit-script-menu-content" rows="10"></textarea>
-                </div>
-                <button type="button" id="save-edit-btn">Simpan Perubahan</button>
-            </form>
-        </div>
-    </div>
+    <div id="editProductModal" class="modal"></div>
+    <div id="customConfirmModal" class="modal"></div>
 
-    <div id="customConfirmModal" class="modal">
-        <div class="modal-content confirm-modal-content">
-            <div class="confirm-message" id="confirmMessage"></div>
-            <div class="confirm-actions">
-                <button type="button" id="confirmCancelBtn" class="confirm-cancel-btn">Batal</button>
-                <button type="button" id="confirmOkBtn" class="confirm-ok-btn">Oke</button>
-            </div>
-        </div>
-    </div>
-    
     <div id="addApiKeyModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <form class="admin-form" style="box-shadow: none; padding: 0;">
-                <h3><i class="fas fa-plus-circle"></i> Buat API Key Baru</h3>
+            <form class="admin-form" id="addApiKeyForm">
+                <span class="close-button">&times;</span>
+                <h2><i class="fas fa-plus-circle"></i> Buat API Key Baru</h2>
                 <label for="new-apikey-name">API Key (Nama atau Kode Unik):</label>
                 <input type="text" id="new-apikey-name" placeholder="Contoh: RIKI-PREMIUM-01">
                 <div id="duration-section">
@@ -215,8 +168,8 @@
                     </div>
                 </div>
                 <div class="permanent-key-toggle">
-                    <label for="permanent-key">Permanen (Untuk Reseller)</label>
                     <input type="checkbox" id="permanent-key">
+                    <label for="permanent-key">Permanen (Untuk Reseller)</label>
                 </div>
                 <button type="button" id="create-apikey-btn">Buat API Key</button>
             </form>
@@ -225,9 +178,9 @@
 
     <div id="addDomainModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <form class="admin-form" style="box-shadow: none; padding: 0;">
-                <h3><i class="fas fa-plus-circle"></i> Tambah Domain Baru</h3>
+            <form class="admin-form" id="addDomainForm">
+                <span class="close-button">&times;</span>
+                <h2><i class="fas fa-plus-circle"></i> Tambah Domain Baru</h2>
                 <label for="new-domain-name">Nama Domain:</label>
                 <input type="text" id="new-domain-name" placeholder="contoh.com">
                 <label for="new-domain-zone">Zone ID Cloudflare:</label>
@@ -239,32 +192,29 @@
         </div>
     </div>
 
-    <div id="apiKeyDetailsModal" class="modal">
-        <div class="modal-content receipt-card">
-            <span class="close-button">&times;</span>
-            <div class="receipt-header">
-                <i class="fas fa-check-circle"></i>
-                <h2>API Key Berhasil Dibuat!</h2>
-                <p>Berikut adalah detailnya. Silakan salin dan berikan kepada pelanggan Anda.</p>
-            </div>
-            <div class="receipt-body">
-                <div class="receipt-item">
-                    <span>API Key:</span>
-                    <strong id="receipt-api-key"></strong>
-                </div>
-                <div class="receipt-item">
-                    <span>Dibuat Pada:</span>
-                    <strong id="receipt-created-on"></strong>
-                </div>
-                <div class="receipt-item">
-                    <span>Kadaluwarsa Pada:</span>
-                    <strong id="receipt-expires-on"></strong>
-                </div>
-            </div>
-            <button type="button" id="copy-receipt-btn" class="receipt-button"><i class="fas fa-copy"></i> Salin Detail</button>
+    <div id="success-popup" class="modal">
+        <div class="modal-content confirm-modal-content">
+            <i class="fas fa-check-circle" style="font-size: 4em; color: var(--success-color); margin-bottom: 15px;"></i>
+            <h2 style="margin-bottom: 20px;">Berhasil Dibuat!</h2>
+            <div id="result-container" style="text-align: left;"></div>
+            <button id="close-popup-btn" style="margin-top: 25px;">Selesai</button>
         </div>
     </div>
 
+    <div id="buyApiKeyModal" class="modal">
+        <div class="modal-content confirm-modal-content">
+             <span class="close-button">&times;</span>
+            <h2>Harga API Key</h2>
+            <p>Silakan pilih durasi yang Anda inginkan dan hubungi admin.</p>
+            <div id="api-key-price-list" style="text-align: left; margin: 20px 0; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <p><strong>• 7 Hari:</strong> Rp 5.000</p>
+                <p><strong>• 30 Hari:</strong> Rp 15.000</p>
+                <p><strong>• Permanen (Reseller):</strong> Hubungi Admin</p>
+            </div>
+            <button id="buy-now-btn">Beli Sekarang</button>
+        </div>
+    </div>
+    
     <script src="admin.js"></script>
 </body>
 </html>

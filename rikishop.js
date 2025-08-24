@@ -4,7 +4,8 @@ function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
 (function() { const tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; const firstScriptTag = document.getElementsByTagName('script')[0]; firstScriptTag.parentNode.insertBefore(tag, firstScriptTag); })();
 
 // --- Konfigurasi ---
-const WA_ADMIN_NUMBER = "6285771555374";
+const WA_ADMIN_NUMBER = "6285771555374"; // Fallback jika settings.json gagal dimuat
+const WA_SELLER_NUMBER = "6285771555374";
 const CREATOR_USERNAME = "Riki Shop Real";
 const SOSMED_LINK = "https://rikishopreal.vercel.app";
 const TESTIMONI_LINK = "https://rikishopreal.vercel.app/testimoni";
@@ -39,8 +40,12 @@ const visitorCountDisplay = document.getElementById('visitorCountDisplay');
 const visitorCountSpan = visitorCountDisplay ? visitorCountDisplay.querySelector('.count') : null;
 let currentBannerIndex = 0;
 let bannerInterval;
+
+// Elemen Countdown Timer
 const countdownTimerDiv = document.getElementById('countdownTimer');
 let countdownInterval = null;
+
+// --- Elemen untuk Fitur Stock Akun ---
 const stockImageSliderContainer = document.getElementById('stockImageSliderContainer');
 const stockImageSlider = document.getElementById('stockImageSlider');
 const sliderPrevBtn = document.getElementById('sliderPrevBtn');
@@ -50,6 +55,8 @@ const lightboxImage = document.getElementById('lightboxImage');
 const lightboxClose = document.querySelector('.lightbox-close');
 let currentStockImageIndex = 0;
 let totalStockImages = 0;
+
+// Elemen Modal
 const aboutUsModal = document.getElementById('aboutUsModal');
 const openAboutUsModalBtn = document.getElementById('openAboutUsModal');
 const closeAboutUsModalBtn = document.getElementById('closeAboutUsModal');
@@ -57,19 +64,25 @@ const genericScriptMenuModal = document.getElementById('genericScriptMenuModal')
 const closeGenericScriptMenuModalBtn = document.getElementById('closeGenericScriptMenuModal');
 const genericScriptMenuTitle = document.getElementById('genericScriptMenuTitle');
 const genericScriptMenuContent = document.getElementById('genericScriptMenuContent');
+
+// Elemen AI Modal
 const chatAiModal = document.getElementById('chatAiModal');
 const openChatAiModalBtn = document.getElementById('openChatAiModal');
-const closeChatAiModalBtn = document.getElementById('closeChatAiModalBtn');
+const closeChatAiModalBtn = document.getElementById('closeChatAiModal');
 const chatAiMessagesPage = document.getElementById('chatAiMessagesPage');
 const chatAiInputPage = document.getElementById('chatAiInputPage');
 const sendChatAiBtnPage = document.getElementById('sendChatAiBtnPage');
 const chatAiLoadingPage = document.getElementById('chatAiLoadingPage');
+
+// Elemen Tombol Multifungsi (FAB)
 const multifunctionFab = document.getElementById('multifunctionFab');
 const themeSwitchBtn = document.getElementById('themeSwitchBtn');
 const openMusicPopupBtn = document.getElementById('openMusicPopupBtn');
 const linktreeBtn = document.getElementById('linktreeBtn');
 const muteAudioBtn = document.getElementById('muteAudioBtn');
 let isFabFirstClick = true;
+
+// Elemen Music Player
 const musicPlayerOverlay = document.getElementById('musicPlayerOverlay');
 const musicPlayerPopup = document.getElementById('musicPlayerPopup');
 const closeMusicPlayer = document.getElementById('closeMusicPlayer');
@@ -80,31 +93,105 @@ const backgroundAudio = document.getElementById('background-audio');
 let toastTimeout;
 let customMusicMuted = false;
 
-// --- ELEMEN DOM BARU UNTUK FITUR DOMAIN ---
-const domainCreatorPage = document.getElementById('domain-creator-page');
-const domainHistoryPage = document.getElementById('domain-history-page');
-const apikeyPopup = document.getElementById('apikey-popup');
-const buyApikeyPopup = document.getElementById('buy-apikey-popup');
-const domainSelectPopup = document.getElementById('domain-select-popup');
-const successPopup = document.getElementById('success-popup');
-const apikeyInput = document.getElementById('apikey-input');
-const apikeySubmitBtn = document.getElementById('apikey-submit-btn');
-const buyApikeyLink = document.getElementById('buy-apikey-link');
-const openDomainSelectPopupBtn = document.getElementById('open-domain-select-popup-btn');
-const createDomainBtn = document.getElementById('create-domain-btn');
-const recordTypeSelect = document.getElementById('record-type');
-const ipInputSection = document.getElementById('ip-input-section');
-const cnameInputSection = document.getElementById('cname-input-section');
-
-let validatedApiKey = localStorage.getItem('validatedApiKey_rikishop');
-const API_CLOUDFLARE_URL = '/api/cloudflare';
-
 // Variabel Global
 let products = {};
-let siteSettings = {};
+let siteSettings = {}; // Menyimpan data dari settings.json
 let cart = JSON.parse(localStorage.getItem('rikishop_cart')) || [];
 let currentPage = 'home-page';
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rikishop';
+
+// --- Logika Firebase untuk Pengunjung & Hitungan Masuk ---
+async function setupFirebaseVisitorCounter() {
+    if (!visitorCountSpan) return;
+    visitorCountSpan.textContent = '-';
+    if (!window.firebaseServices) {
+        console.warn("Layanan Firebase tidak tersedia.");
+        visitorCountSpan.textContent = 'R/S';
+        return;
+    }
+    const { auth, db, doc, runTransaction, onSnapshot, signInAnonymously, signInWithCustomToken, initialAuthToken } = window.firebaseServices;
+    try {
+        if (!auth.currentUser) {
+            if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); } 
+            else { await signInAnonymously(auth); }
+        }
+        
+        const visitorDocRef = doc(db, "artifacts", appId, "public/data/site_stats/visitors");
+
+        onSnapshot(visitorDocRef, (doc) => {
+            const oldCount = visitorCountSpan.textContent;
+            let newCountText = '0';
+            if (doc.exists() && typeof doc.data().count === 'number' && !isNaN(doc.data().count)) {
+                newCountText = doc.data().count.toString();
+            }
+            
+            visitorCountSpan.textContent = newCountText;
+
+            if (oldCount !== '-' && oldCount !== newCountText) {
+                visitorCountDisplay.classList.add('updated');
+                setTimeout(() => {
+                    visitorCountDisplay.classList.remove('updated');
+                }, 500);
+            }
+        });
+        
+        await runTransaction(db, async (transaction) => {
+            const visitorDoc = await transaction.get(visitorDocRef);
+            let currentCount = 0;
+            if (visitorDoc.exists() && typeof visitorDoc.data().count === 'number') {
+                currentCount = visitorDoc.data().count;
+            }
+            const newCount = currentCount + 1;
+            transaction.set(visitorDocRef, { count: newCount }, { merge: true });
+        });
+
+    } catch (error) {
+        console.error("Error pada Firebase Visitor Counter:", error);
+        visitorCountSpan.textContent = 'Error';
+    }
+}
+
+// --- Logika Tombol Multifungsi (FAB) ---
+multifunctionFab.addEventListener('click', (e) => {
+    if (e.target.classList.contains('main-fab-icon')) {
+        multifunctionFab.classList.toggle('active');
+        if (isFabFirstClick) {
+            playBackgroundMusic();
+            isFabFirstClick = false;
+        }
+    }
+});
+themeSwitchBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.body.classList.toggle('dark-mode');
+    const icon = themeSwitchBtn.querySelector('i');
+    icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-moon' : 'fas fa-sun';
+});
+linktreeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    window.open(SOSMED_LINK, '_blank');
+});
+muteAudioBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const icon = muteAudioBtn.querySelector('i');
+    
+    if (youtubePlayer && typeof youtubePlayer.isMuted === 'function') {
+        if (youtubePlayer.isMuted()) {
+            youtubePlayer.unMute();
+            customMusicMuted = false;
+            icon.className = 'fas fa-volume-up';
+            showToastNotification("Suara diaktifkan", "fa-volume-up");
+        } else {
+            youtubePlayer.mute();
+            customMusicMuted = true;
+            icon.className = 'fas fa-volume-mute';
+            showToastNotification("Suara dimatikan", "fa-volume-mute");
+        }
+    } else {
+        backgroundAudio.muted = !backgroundAudio.muted;
+        icon.className = backgroundAudio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    }
+});
 
 // --- Fungsi Pembantu ---
 function showPage(pageId) {
@@ -113,30 +200,31 @@ function showPage(pageId) {
     currentPage = pageId;
     mainContainer.scrollTop = 0;
 }
-
 function updateDateTime() {
     const now = new Date();
     const formattedDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const formattedTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    if(currentDateTimeSpan) currentDateTimeSpan.innerHTML = `<span class="date">${formattedDate}</span><br><span class="time">${formattedTime}</span>`;
+    currentDateTimeSpan.innerHTML = `<span class="date">${formattedDate}</span><br><span class="time">${formattedTime}</span>`;
 }
-
 function formatRupiah(number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 }
-
 function getPhoneNumberForProduct(product, serviceType) {
-    if (product && product.nomorWA) return product.nomorWA;
+    // Hierarki: Produk -> Kategori -> Global -> Default
+    if (product && product.nomorWA) {
+        return product.nomorWA;
+    }
     if (siteSettings.categoryPhoneNumbers && siteSettings.categoryPhoneNumbers[serviceType] && siteSettings.categoryPhoneNumbers[serviceType] !== "") {
         return siteSettings.categoryPhoneNumbers[serviceType];
     }
-    if (siteSettings.globalPhoneNumber) return siteSettings.globalPhoneNumber;
-    return WA_ADMIN_NUMBER;
+    if (siteSettings.globalPhoneNumber) {
+        return siteSettings.globalPhoneNumber;
+    }
+    return WA_ADMIN_NUMBER; // Fallback ke nomor default
 }
 
 // --- Logika Carousel ---
 function setupBannerCarousel() {
-    if (!bannerCarousel) return;
     const bannerItems = bannerCarousel.querySelectorAll(".banner-item");
     if (bannerItems.length === 0) return;
     bannerPagination.innerHTML = '';
@@ -162,12 +250,11 @@ function setupBannerCarousel() {
     bannerInterval = setInterval(nextBanner, 4000);
 }
 
-// --- Menu, Modal & Navigasi ---
+// --- Logika Menu & Modal ---
 openMenuBtn.addEventListener('click', () => {
     offcanvasMenu.classList.add('active');
     overlay.classList.add('active');
 });
-
 function closeOffcanvas() {
     offcanvasMenu.classList.remove('active');
     overlay.classList.remove('active');
@@ -180,19 +267,8 @@ document.querySelectorAll('#offcanvasMenu a').forEach(link => {
     if (pageTarget) {
         link.addEventListener('click', function(e) {
             e.preventDefault();
+            showPage(pageTarget);
             closeOffcanvas();
-            // Pengecekan khusus untuk halaman domain
-            if (pageTarget === 'domain-creator-page') {
-                 requireApiKey(() => {
-                    showPage('domain-creator-page');
-                    loadRootDomains();
-                });
-            } else if (pageTarget === 'domain-history-page') {
-                showPage('domain-history-page');
-                renderDomainHistory();
-            } else {
-                 showPage(pageTarget);
-            }
         });
     }
 });
@@ -207,17 +283,6 @@ window.addEventListener('click', (event) => {
         event.target.style.display = 'none';
     }
 });
-backArrows.forEach(arrow => {
-    arrow.addEventListener('click', () => {
-        const backToPageId = arrow.dataset.backTo;
-        if (currentPage === 'service-detail-page' && productDetailViewDiv.style.display === 'block') {
-            productListDiv.style.display = 'block';
-            productDetailViewDiv.style.display = 'none';
-        } else {
-            showPage(backToPageId || 'home-page');
-        }
-    });
-});
 
 // --- Logika Produk ---
 serviceItems.forEach(item => {
@@ -228,7 +293,6 @@ serviceItems.forEach(item => {
         showPage('service-detail-page');
     });
 });
-
 function loadServiceProducts(serviceType) {
     serviceDetailPageTitle.textContent = serviceType;
     productListDiv.innerHTML = '';
@@ -239,23 +303,46 @@ function loadServiceProducts(serviceType) {
         productData.forEach(product => {
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
-            let isNew = product.createdAt && (Date.now() - new Date(product.createdAt).getTime() < 24 * 60 * 60 * 1000);
+
+            let isNew = false;
+            if (product.createdAt) {
+                const createdTime = new Date(product.createdAt).getTime();
+                const now = Date.now();
+                const oneDayInMs = 24 * 60 * 60 * 1000;
+                if (now - createdTime < oneDayInMs) {
+                    isNew = true;
+                }
+            }
+
+            // --- CHANGED: Logika harga dipindahkan ke sini ---
             let finalPrice = product.harga;
             const originalPrice = product.hargaAsli;
+
+            // Cek apakah diskon sudah berakhir
             if (product.discountEndDate && new Date(product.discountEndDate) < new Date()) {
-                finalPrice = originalPrice;
+                finalPrice = originalPrice; // Kembalikan ke harga asli jika sudah berakhir
             }
+
             let priceDisplay = `<span class="product-price-list">${formatRupiah(finalPrice)}</span>`;
             if (originalPrice && originalPrice > finalPrice) {
                 priceDisplay = `<span class="original-price"><del>${formatRupiah(originalPrice)}</del></span> <span class="discounted-price">${formatRupiah(finalPrice)}</span>`;
             }
+            // --- END CHANGED ---
+            
             productItem.innerHTML = `
                 <div>
-                    <span class="product-name">${product.nama} ${isNew ? '<span class="new-badge">NEW</span>' : ''}</span>
-                    <p class="product-short-desc">${product.deskripsiPanjang ? product.deskripsiPanjang.split('||')[0].trim() + '...' : ''}</p>
+                    <span class="product-name">
+                        ${product.nama} 
+                        ${isNew ? '<span class="new-badge">NEW</span>' : ''}
+                    </span>
+                    <p class="product-short-desc">
+                        ${product.deskripsiPanjang ? product.deskripsiPanjang.split('||')[0].trim() + '...' : ''}
+                    </p>
                     ${priceDisplay}
                 </div>
-                <i class="fas fa-chevron-right"></i>`;
+                <i class="fas fa-chevron-right"></i>
+            `;
+
             productItem.addEventListener('click', () => showProductDetail(product, serviceType));
             productListDiv.appendChild(productItem);
         });
@@ -269,35 +356,48 @@ function showProductDetail(product, serviceType) {
     productListDiv.style.display = 'none';
     productDetailViewDiv.style.display = 'block';
     detailProductName.textContent = product.nama;
+    
     let finalPrice = product.harga;
     let originalPrice = product.hargaAsli;
+    
+    // Cek apakah diskon sudah berakhir
     if (product.discountEndDate && new Date(product.discountEndDate) < new Date()) {
         finalPrice = originalPrice; 
     }
+
     const priceHtml = (originalPrice && originalPrice > finalPrice)
         ? `<span class="original-price"><del>${formatRupiah(originalPrice)}</del></span> <span class="discounted-price">${formatRupiah(finalPrice)}</span>`
         : `${formatRupiah(finalPrice)}`;
+
     detailProductPrice.innerHTML = priceHtml;
     detailProductActions.innerHTML = '';
     
+    // Logika Countdown Timer
     if (countdownInterval) clearInterval(countdownInterval);
     if (product.discountEndDate && new Date(product.discountEndDate) > new Date()) {
         countdownTimerDiv.style.display = 'block';
         const endTime = new Date(product.discountEndDate).getTime();
+
         const updateTimer = () => {
-            const distance = endTime - new Date().getTime();
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
             if (distance < 0) {
                 clearInterval(countdownInterval);
                 countdownTimerDiv.innerHTML = '<div class="timer-title">Diskon Berakhir</div>';
                 detailProductPrice.innerHTML = `${formatRupiah(originalPrice)}`;
                 return;
             }
+
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById('countdown-display').textContent = `${days}h ${hours}j ${minutes}m ${seconds}d`;
+
+            document.getElementById('countdown-display').textContent = 
+                `${days}h ${hours}j ${minutes}m ${seconds}d`;
         };
+
         updateTimer();
         countdownInterval = setInterval(updateTimer, 1000);
     } else {
@@ -306,6 +406,8 @@ function showProductDetail(product, serviceType) {
 
     if ((serviceType === 'Stock Akun' || serviceType === 'Logo') && product.images && product.images.length > 0) {
         stockImageSliderContainer.style.display = 'block';
+        detailProductDescriptionContent.innerHTML = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/\|\|/g, '<br>') : 'Tidak ada deskripsi.';
+        
         stockImageSlider.innerHTML = '';
         product.images.forEach((imgUrl) => {
             const slide = document.createElement('div');
@@ -314,26 +416,43 @@ function showProductDetail(product, serviceType) {
             slide.addEventListener('click', () => openLightbox(imgUrl));
             stockImageSlider.appendChild(slide);
         });
+        
         totalStockImages = product.images.length;
         currentStockImageIndex = 0;
         updateSliderPosition();
+
     } else {
         stockImageSliderContainer.style.display = 'none';
+        detailProductDescriptionContent.innerHTML = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/\|\|/g, '<br>').replace(/â–ªï¸Ž/g, 'â€¢') : 'Tidak ada deskripsi.';
     }
-    detailProductDescriptionContent.innerHTML = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/\|\|/g, '<br>') : 'Tidak ada deskripsi.';
 
     const addToCartBtn = document.createElement('button');
     addToCartBtn.className = 'add-to-cart';
     addToCartBtn.textContent = 'Tambah ke Keranjang';
-    Object.assign(addToCartBtn.dataset, { productId: product.id, productName: product.nama, productPrice: finalPrice, serviceType: serviceType });
+    Object.assign(addToCartBtn.dataset, {
+        productId: product.id,
+        productName: product.nama,
+        productPrice: finalPrice, // Gunakan harga final untuk keranjang
+        serviceType: serviceType
+    });
     addToCartBtn.addEventListener('click', addToCart);
     detailProductActions.appendChild(addToCartBtn);
 
     const buyNowLink = document.createElement('a');
     buyNowLink.className = 'buy-now';
     buyNowLink.textContent = 'Beli Sekarang';
+
     const targetPhoneNumber = getPhoneNumberForProduct(product, serviceType);
-    let buyNowMessage = `Halo Kak, saya tertarik memesan produk:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nMohon info selanjutnya. Terima kasih! 🙏`;
+
+    let buyNowMessage = '';
+    if (serviceType === 'Stock Akun' && product.images && product.images.length > 0) {
+        buyNowMessage = `Halo Kak, saya tertarik memesan Akun:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nReferensi gambar:\n${product.images[0]}\n\nMohon info ketersediaannya. Terima kasih! ðŸ™ `;
+    } else if (serviceType === 'Logo' && product.images && product.images.length > 0) {
+        buyNowMessage = `Halo Kak, saya tertarik memesan Logo:\n\nNama Logo: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nReferensi gambar:\n${product.images[0]}\n\nMohon info ketersediaannya. Terima kasih! ðŸ™ `;
+    } else {
+        buyNowMessage = `Halo Kak, saya tertarik memesan produk:\n\nProduk: *${product.nama}*\nHarga: *${formatRupiah(finalPrice)}*\n\nMohon info selanjutnya. Terima kasih! ðŸ™ `;
+    }
+    
     buyNowLink.href = `https://wa.me/${targetPhoneNumber}?text=${encodeURIComponent(buyNowMessage)}`;
     buyNowLink.target = "_blank";
     detailProductActions.appendChild(buyNowLink);
@@ -351,18 +470,48 @@ function showProductDetail(product, serviceType) {
     }
 }
 
-// --- Slider & Lightbox ---
-function updateSliderPosition() { if(stockImageSlider) stockImageSlider.style.transform = `translateX(-${currentStockImageIndex * 100}%)`; }
-function showNextImage() { currentStockImageIndex = (currentStockImageIndex + 1) % totalStockImages; updateSliderPosition(); }
-function showPrevImage() { currentStockImageIndex = (currentStockImageIndex - 1 + totalStockImages) % totalStockImages; updateSliderPosition(); }
-function openLightbox(imageUrl) { lightboxImage.src = imageUrl; imageLightbox.style.display = 'flex'; }
-function closeLightbox() { imageLightbox.style.display = 'none'; }
+// --- Logika untuk Slider & Lightbox ---
+function updateSliderPosition() {
+    if(stockImageSlider) stockImageSlider.style.transform = `translateX(-${currentStockImageIndex * 100}%)`;
+}
+function showNextImage() {
+    currentStockImageIndex = (currentStockImageIndex + 1) % totalStockImages;
+    updateSliderPosition();
+}
+function showPrevImage() {
+    currentStockImageIndex = (currentStockImageIndex - 1 + totalStockImages) % totalStockImages;
+    updateSliderPosition();
+}
+function openLightbox(imageUrl) {
+    lightboxImage.src = imageUrl;
+    imageLightbox.style.display = 'flex';
+}
+function closeLightbox() {
+    imageLightbox.style.display = 'none';
+}
 sliderNextBtn.addEventListener('click', showNextImage);
 sliderPrevBtn.addEventListener('click', showPrevImage);
 lightboxClose.addEventListener('click', closeLightbox);
-imageLightbox.addEventListener('click', (e) => { if (e.target === imageLightbox) closeLightbox(); });
+imageLightbox.addEventListener('click', (e) => {
+    if (e.target === imageLightbox) {
+        closeLightbox();
+    }
+});
 
-// --- Keranjang & Notifikasi ---
+// --- Logika Tombol Kembali ---
+backArrows.forEach(arrow => {
+    arrow.addEventListener('click', () => {
+        const backToPageId = arrow.dataset.backTo;
+        if (currentPage === 'service-detail-page' && productDetailViewDiv.style.display === 'block') {
+            productListDiv.style.display = 'block';
+            productDetailViewDiv.style.display = 'none';
+        } else {
+            showPage(backToPageId || 'home-page');
+        }
+    });
+});
+
+// --- Logika Notifikasi & Keranjang ---
 function showToastNotification(message, iconClass = 'fa-check-circle') {
     const toast = document.getElementById('toast-notification');
     if (toastTimeout) clearTimeout(toastTimeout);
@@ -384,15 +533,21 @@ function addToCart(event) {
         if (existingItem) {
             showToastNotification('Stok Akun hanya bisa dibeli 1 kali.', 'fa-exclamation-circle');
             return;
+        } else {
+            cart.push({ id, name: productName, price, quantity: 1, serviceType });
         }
-        cart.push({ id, name: productName, price, quantity: 1, serviceType });
     } else {
-        if (existingItem) existingItem.quantity++;
-        else cart.push({ id, name: productName, price, quantity: 1, serviceType });
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            cart.push({ id, name: productName, price, quantity: 1, serviceType });
+        }
     }
+
     localStorage.setItem('rikishop_cart', JSON.stringify(cart));
     updateCartCount();
-    showToastNotification(`<b>${productName}</b> ditambahkan ke keranjang.`);
+    const itemInCart = cart.find(item => item.id === id);
+    showToastNotification(`<b>${productName}</b><b>(${itemInCart.quantity} barang)</b> ditambahkan.`);
 }
 function renderCart() {
     cartItemsList.innerHTML = '';
@@ -408,19 +563,26 @@ function renderCart() {
         cart.forEach(item => {
             const cartItemCard = document.createElement('div');
             cartItemCard.className = 'cart-item-card';
-            let itemActionsHTML = (item.serviceType === 'Stock Akun') ? `
-                <div class="item-actions">
-                    <span class="stock-info">Hanya 1 Stok</span>
-                    <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
-                </div>` : `
-                <div class="item-actions">
-                    <div class="quantity-controls">
-                        <button type="button" class="quantity-btn" onclick="decreaseQuantity(${item.id})">-</button>
-                        <span class="item-quantity">${item.quantity}</span>
-                        <button type="button" class="quantity-btn" onclick="increaseQuantity(${item.id})">+</button>
-                    </div>
-                    <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
-                </div>`;
+
+            let itemActionsHTML = '';
+            if (item.serviceType === 'Stock Akun') {
+                itemActionsHTML = `
+                    <div class="item-actions">
+                        <span class="stock-info">Hanya 1 Stok</span>
+                        <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    </div>`;
+            } else {
+                itemActionsHTML = `
+                    <div class="item-actions">
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn" onclick="decreaseQuantity(${item.id})">-</button>
+                            <span class="item-quantity">${item.quantity}</span>
+                            <button type="button" class="quantity-btn" onclick="increaseQuantity(${item.id})">+</button>
+                        </div>
+                        <button type="button" class="remove-item-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    </div>`;
+            }
+
             cartItemCard.innerHTML = `
                 <div class="item-image"><i class="fas fa-box-open"></i></div>
                 <div class="item-details">
@@ -428,6 +590,7 @@ function renderCart() {
                     <div class="item-price">${formatRupiah(item.price)}</div>
                 </div>
                 ${itemActionsHTML}`;
+
             cartItemsList.appendChild(cartItemCard);
             total += item.price * item.quantity;
         });
@@ -445,13 +608,15 @@ function increaseQuantity(productId) {
 }
 function decreaseQuantity(productId) {
     const item = cart.find(p => p.id === productId);
-    if (item && item.quantity > 1) {
+    if (item) {
         item.quantity--;
-        localStorage.setItem('rikishop_cart', JSON.stringify(cart));
-        updateCartCount();
-        renderCart();
-    } else if (item && item.quantity === 1) {
-        removeFromCart(productId);
+        if (item.quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            localStorage.setItem('rikishop_cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCart();
+        }
     }
 }
 function removeFromCart(productId) {
@@ -463,251 +628,21 @@ function removeFromCart(productId) {
 openCartBtn.addEventListener('click', () => { showPage('cart-page'); renderCart(); });
 checkoutButton.addEventListener('click', () => {
     if (cart.length === 0) return;
-    let itemsText = cart.map((item, index) => `*${index + 1}. ${item.name}*\n   (${formatRupiah(item.price)}) x ${item.quantity}`).join('\n');
-    let totalOrder = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    let message = `Halo Kak, saya ingin mengonfirmasi pesanan:\n\n--- PESANAN ---\n${itemsText}\n--------------------\n\n*Total: ${formatRupiah(totalOrder)}*\n\nMohon konfirmasinya. Terima kasih! 🙏`;
+
+    let itemsText = '';
+    let totalOrder = 0;
+    cart.forEach((item, index) => {
+        itemsText += `*${index + 1}. ${item.name}*\n   (${formatRupiah(item.price)}) x ${item.quantity}\n`;
+        totalOrder += item.price * item.quantity;
+    });
+
+    let message = `Halo Kak, saya ingin mengonfirmasi pesanan dari keranjang:\n\n--- PESANAN ---\n${itemsText}--------------------\n\n*Total: ${formatRupiah(totalOrder)}*\n\nMohon konfirmasinya. Terima kasih! ðŸ™ `;
+    
     const checkoutNumber = siteSettings.globalPhoneNumber || WA_ADMIN_NUMBER;
     window.open(`https://wa.me/${checkoutNumber}?text=${encodeURIComponent(message)}`, '_blank');
 });
 
-// --- LOGIKA UTAMA FITUR DOMAIN (BARU) ---
-function requireApiKey(callback) {
-    if (validatedApiKey) {
-        callback();
-    } else {
-        apikeyPopup.style.display = 'flex';
-        setTimeout(() => apikeyPopup.classList.add('visible'), 10);
-    }
-}
-apikeySubmitBtn.addEventListener('click', async () => {
-    const key = apikeyInput.value.trim();
-    if (!key) return showToastNotification('API Key tidak boleh kosong.', 'fa-exclamation-circle');
-    apikeySubmitBtn.textContent = 'Memverifikasi...';
-    apikeySubmitBtn.disabled = true;
-    try {
-        const res = await fetch(API_CLOUDFLARE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'validateApiKey', data: { apikey: key } })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message);
-        validatedApiKey = key;
-        localStorage.setItem('validatedApiKey_rikishop', key);
-        showToastNotification('API Key valid! Selamat datang.', 'fa-check-circle');
-        apikeyPopup.classList.remove('visible');
-        setTimeout(() => {
-            apikeyPopup.style.display = 'none';
-            showPage('domain-creator-page');
-            loadRootDomains();
-        }, 300);
-    } catch (err) {
-        if (err.message.includes('kadaluwarsa') || err.message.includes('tidak valid')) {
-             showToastNotification('API Key tidak valid atau sudah kadaluwarsa.', 'fa-times-circle');
-        } else {
-             showToastNotification('Terjadi masalah koneksi. Coba lagi nanti.', 'fa-server');
-        }
-    } finally {
-        apikeySubmitBtn.textContent = 'Verifikasi';
-        apikeySubmitBtn.disabled = false;
-    }
-});
-buyApikeyLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    const waNumber = siteSettings.globalPhoneNumber || WA_ADMIN_NUMBER;
-    document.getElementById('purchase-link').href = `https://wa.me/${waNumber}?text=${encodeURIComponent('Halo Kak, saya ingin membeli API Key untuk layanan subdomain.')}`;
-    buyApikeyPopup.style.display = 'flex';
-    setTimeout(() => buyApikeyPopup.classList.add('visible'), 10);
-});
-async function loadRootDomains() {
-    if (!validatedApiKey) return;
-    try {
-        const res = await fetch(API_CLOUDFLARE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'getRootDomains', data: { apikey: validatedApiKey } })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message);
-        const optionsList = document.getElementById('domain-options-list');
-        optionsList.innerHTML = '';
-        result.domains.forEach(domain => {
-            const item = document.createElement('div');
-            item.className = 'option-item';
-            item.textContent = domain;
-            item.dataset.value = domain;
-            item.addEventListener('click', () => {
-                document.getElementById('root-domain-hidden').value = domain;
-                openDomainSelectPopupBtn.textContent = domain;
-                closeAnyPopup();
-            });
-            optionsList.appendChild(item);
-        });
-    } catch (err) {
-        showToastNotification(err.message || 'Gagal memuat daftar domain.', 'fa-times-circle');
-    }
-}
-openDomainSelectPopupBtn.addEventListener('click', () => {
-    domainSelectPopup.style.display = 'flex';
-    setTimeout(() => domainSelectPopup.classList.add('visible'), 10);
-});
-recordTypeSelect.addEventListener('change', () => {
-    ipInputSection.style.display = recordTypeSelect.value === 'A' ? 'block' : 'none';
-    cnameInputSection.style.display = recordTypeSelect.value === 'CNAME' ? 'block' : 'none';
-});
-createDomainBtn.addEventListener('click', async () => {
-    const subDomain = document.getElementById('subdomain-name').value.trim().toLowerCase();
-    const rootDomain = document.getElementById('root-domain-hidden').value;
-    const type = recordTypeSelect.value;
-    const content = (type === 'A') ? document.getElementById('ip-address').value.trim() : document.getElementById('cname-target').value.trim();
-    const proxied = document.getElementById('proxy-status').checked;
-    if (!subDomain || !content || !rootDomain) {
-        return showToastNotification('Semua kolom wajib diisi.', 'fa-exclamation-circle');
-    }
-    const domainData = { apikey: validatedApiKey, subdomain: subDomain, domain: rootDomain, type, content, proxied };
-    createDomainBtn.textContent = 'Memproses...';
-    createDomainBtn.disabled = true;
-    try {
-        const res = await fetch(API_CLOUDFLARE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'createSubdomain', data: domainData })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message);
-        showToastNotification('Subdomain berhasil dibuat!', 'fa-check-circle');
-        displaySuccessPopup(result.created_domains, content);
-        saveDomainsToHistory(result.created_domains, content);
-        document.getElementById('createDomainForm').reset();
-        openDomainSelectPopupBtn.textContent = "Pilih Domain";
-    } catch (err) {
-        showToastNotification(err.message || 'Gagal membuat subdomain.', 'fa-times-circle');
-    } finally {
-        createDomainBtn.textContent = 'Buat Domain';
-        createDomainBtn.disabled = false;
-    }
-});
-function displaySuccessPopup(domains, node) {
-    const resultContainer = document.getElementById('result-container');
-    resultContainer.innerHTML = '';
-    domains.forEach(domain => {
-        const item = document.createElement('div');
-        item.className = 'result-item';
-        item.innerHTML = `<div><span class="domain-name">${domain}</span><span class="node-info">Node: ${node}</span></div><button type="button" class="copy-btn">Salin</button>`;
-        resultContainer.appendChild(item);
-    });
-    successPopup.style.display = 'flex';
-    setTimeout(() => successPopup.classList.add('visible'), 10);
-}
-function closeAnyPopup() {
-    document.querySelectorAll('.popup-overlay.visible').forEach(popup => {
-        popup.classList.remove('visible');
-        setTimeout(() => popup.style.display = 'none', 300);
-    });
-}
-document.body.addEventListener('click', (e) => {
-    const target = e.target;
-    if (target.classList.contains('close-popup-btn') || target.parentElement.classList.contains('close-popup-btn')) {
-        closeAnyPopup();
-    } else if (target.id === 'view-history-btn') {
-        closeAnyPopup();
-        showPage('domain-history-page');
-        renderDomainHistory();
-    } else if (target.id === 'close-popup-btn') {
-        closeAnyPopup();
-    }
-});
-document.getElementById('result-container').addEventListener('click', (e) => {
-    if (e.target.classList.contains('copy-btn')) {
-        const domainText = e.target.parentElement.querySelector('.domain-name').textContent;
-        navigator.clipboard.writeText(domainText).then(() => showToastNotification('Domain disalin!', 'fa-copy'));
-    }
-});
-function saveDomainsToHistory(domains, node) {
-    let history = JSON.parse(localStorage.getItem('domainHistory_rikishop')) || [];
-    const newEntries = domains.map(domain => ({ domain, node, date: new Date().toISOString() }));
-    history = [...newEntries, ...history].slice(0, 50);
-    localStorage.setItem('domainHistory_rikishop', JSON.stringify(history));
-}
-function renderDomainHistory() {
-    const historyList = document.getElementById('domain-history-list');
-    const history = JSON.parse(localStorage.getItem('domainHistory_rikishop')) || [];
-    if (history.length === 0) {
-        historyList.innerHTML = '<p class="empty-message">Anda belum membuat subdomain.</p>';
-        return;
-    }
-    historyList.innerHTML = '';
-    history.forEach(item => {
-        const itemEl = document.createElement('div');
-        itemEl.className = 'result-item';
-        itemEl.innerHTML = `<div><span class="domain-name">${item.domain}</span><span class="node-info">Node: ${item.node}</span><span class="date-info">${new Date(item.date).toLocaleString('id-ID')}</span></div><button type="button" class="copy-btn">Salin</button>`;
-        historyList.appendChild(itemEl);
-    });
-}
-document.getElementById('domain-history-list').addEventListener('click', (e) => {
-    if (e.target.classList.contains('copy-btn')) {
-        const domainText = e.target.parentElement.querySelector('.domain-name').textContent;
-        navigator.clipboard.writeText(domainText).then(() => showToastNotification('Domain disalin!', 'fa-copy'));
-    }
-});
-
-
-// --- FAB, Tema, Musik & AI (Kode Lama) ---
-multifunctionFab.addEventListener('click', (e) => {
-    if (e.target.closest('.main-fab-icon')) {
-        multifunctionFab.classList.toggle('active');
-        if (isFabFirstClick) { playBackgroundMusic(); isFabFirstClick = false; }
-    }
-});
-themeSwitchBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.body.classList.toggle('dark-mode');
-    const icon = themeSwitchBtn.querySelector('i');
-    icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
-});
-linktreeBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(SOSMED_LINK, '_blank'); });
-muteAudioBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const icon = muteAudioBtn.querySelector('i');
-    if (youtubePlayer && typeof youtubePlayer.isMuted === 'function') {
-        if (youtubePlayer.isMuted()) {
-            youtubePlayer.unMute();
-            icon.className = 'fas fa-volume-up';
-        } else {
-            youtubePlayer.mute();
-            icon.className = 'fas fa-volume-mute';
-        }
-    } else {
-        backgroundAudio.muted = !backgroundAudio.muted;
-        icon.className = backgroundAudio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-    }
-});
-openMusicPopupBtn.addEventListener('click', (e) => { e.stopPropagation(); musicPlayerPopup.classList.add('active'); musicPlayerOverlay.classList.add('active'); });
-function closeMusicPlayerPopup() { musicPlayerPopup.classList.remove('active'); musicPlayerOverlay.classList.remove('active'); }
-closeMusicPlayer.addEventListener('click', closeMusicPlayerPopup);
-musicPlayerOverlay.addEventListener('click', closeMusicPlayerPopup);
-loadMediaBtn.addEventListener('click', () => {
-    const mediaLink = mediaLinkInput.value.trim();
-    if (!mediaLink) return;
-    backgroundAudio.pause();
-    if (youtubePlayer) youtubePlayer.destroy();
-    try {
-        const url = new URL(mediaLink);
-        const videoId = url.hostname === 'youtu.be' ? url.pathname.substring(1) : url.searchParams.get('v');
-        if (videoId) createYouTubePlayer(videoId);
-    } catch (error) { console.error("Error parsing link:", error); }
-});
-function createYouTubePlayer(videoId) {
-    if (!isYouTubeApiReady) { setTimeout(() => createYouTubePlayer(videoId), 100); return; }
-    mediaPlayerContainer.innerHTML = '<div id="youtube-player-embed"></div>';
-    youtubePlayer = new YT.Player('youtube-player-embed', {
-        videoId: videoId,
-        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'showinfo': 0, 'iv_load_policy': 3 },
-        events: { 'onReady': (e) => e.target.playVideo(), 'onStateChange': (e) => { if (e.data === YT.PlayerState.PLAYING) closeMusicPlayerPopup(); } }
-    });
-}
-function playBackgroundMusic() { if (backgroundAudio.src && !backgroundAudio.muted && backgroundAudio.paused) backgroundAudio.play().catch(e => console.log("Autoplay dicegah.")); }
-
+// --- Logika AI Lokal ---
 async function handleSendChatMessagePage() {
     const userInput = chatAiInputPage.value.trim();
     if (userInput === '') return;
@@ -718,24 +653,104 @@ async function handleSendChatMessagePage() {
         const response = getAiResponse(userInput);
         appendMessageToChatPage(response, 'ai-message');
         chatAiLoadingPage.style.display = 'none';
-    }, 1000);
+    }, 800 + Math.random() * 400);
 }
 function getAiResponse(input) {
-    const i = input.toLowerCase();
-    if (i.includes('siapa') && i.includes('kamu')) return `Saya Toko Riki AI, asisten virtual Anda.`;
-    if (i.includes('jual') || i.includes('produk')) return `Kami menjual Panel, VPS, Script, dan layanan digital lainnya. Silakan cek di Beranda.`;
-    if (i.includes('aman') || i.includes('terpercaya')) return `Tentu! Keamanan dan kepercayaan pelanggan adalah prioritas kami.`;
-    return `Maaf, saya belum mengerti. Coba tanyakan tentang produk atau keamanan toko.`;
+    const lowerInput = input.toLowerCase();
+    if (lowerInput.includes('assalamualaikum')) return `Wa'alaikumsalam warahmatullahi wabarakatuh. Ada yang bisa saya bantu?`;
+    if (lowerInput.includes('om swastiastu')) return `Om shanti, shanti, shanti, om. Selamat datang di Rikishop, ada yang bisa dibantu?`;
+    if (lowerInput.includes('namo buddhaya')) return `Namo buddhaya. Ada yang bisa saya bantu?`;
+    if (lowerInput.includes('salam sejahtera')) return `Salam sejahtera juga untuk Anda. Ada yang bisa saya bantu?`;
+    if (lowerInput.match(/\bselamat (pagi|siang|sore|malam)\b/)) { const time = lowerInput.match(/\b(pagi|siang|sore|malam)\b/)[0]; return `Selamat ${time} juga. Ada yang bisa saya bantu di Rikishop?`; }
+    if (lowerInput.match(/^(halo|hai|hi|hallo)$/)) return `Halo juga! Ada yang bisa saya bantu terkait layanan di Rikishop?`;
+    if (lowerInput.includes('terima kasih')) return `Sama-sama! Jika ada pertanyaan lain, jangan ragu untuk bertanya lagi.`;
+    if (lowerInput.includes('siapa namamu') || lowerInput.includes('kamu siapa')) return `Nama saya <b>Toko Riki AI</b>, asisten virtual yang siap membantu Anda di sini.`;
+    if (lowerInput.includes('dibuat oleh') || lowerInput.includes('pembuat') || lowerInput.includes('pengembang') || lowerInput.includes('creator')) return `Saya dikembangkan oleh <b>${CREATOR_USERNAME}</b> untuk membantu para pelanggan mendapatkan informasi dengan cepat.`;
+    if (lowerInput.includes('toko apa ini') || lowerInput.includes('rikishop itu apa')) return `<b>Rikishop</b> adalah platform penyedia layanan digital terlengkap. Kami fokus pada produk berkualitas seperti Panel Hosting, VPS, Script Bot, dan berbagai jasa digital lainnya dengan harga terjangkau.`;
+    if (lowerInput.includes('aman') || lowerInput.includes('terpercaya') || lowerInput.includes('tipu')) return `Tentu! Keamanan dan kepercayaan pelanggan adalah prioritas utama kami. Semua transaksi dijamin aman dan produk yang kami jual memiliki kualitas terbaik. Anda bisa melihat testimoni dari pelanggan kami.`;
+    if (lowerInput.includes('testi') || lowerInput.includes('testimoni')) return `Tentu, Anda bisa melihat semua testimoni pelanggan kami di halaman ini: <a href="${TESTIMONI_LINK}" target="_blank">${TESTIMONI_LINK}</a>`;
+    if (lowerInput.includes('jual apa') || lowerInput.includes('produk apa') || lowerInput.includes('layanan')) { const categories = Object.keys(products).join(', '); return `Kami menyediakan berbagai layanan digital, antara lain: <b>${categories}</b>. Apakah ada kategori spesifik yang ingin Anda ketahui lebih lanjut?`; }
+    if (lowerInput.includes('panel')) return `Kami menyediakan Panel Hosting dengan berbagai pilihan RAM, mulai dari 1GB hingga UNLIMITED. Server kami private, berkualitas, dan bergaransi. Cocok untuk menjalankan berbagai jenis bot.`;
+    if (lowerInput.includes('vps')) return `Tentu, untuk VPS kami punya banyak pilihan spesifikasi RAM dan CPU. Setiap pembelian VPS akan mendapatkan bonus menarik seperti gratis install panel. Sangat cocok untuk kebutuhan server Anda.`;
+    if (lowerInput.includes('script')) return `Kami menjual berbagai script fungsional seperti script push kontak, cpanel untuk reseller, bot Telegram, dan banyak lagi. Semua script sudah teruji dan siap pakai.`;
+    if (lowerInput.includes('harga')) return `Untuk informasi harga yang paling akurat dan terbaru, silakan pilih kategori layanan yang Anda minati di halaman Beranda. Harga kami sangat kompetitif, mulai dari ribuan rupiah saja.`;
+    if (lowerInput.includes('sosmed') || lowerInput.includes('sosial media') || lowerInput.includes('link')) return `Tentu, Anda bisa mengunjungi semua sosial media kami melalui link berikut: <a href="${SOSMED_LINK}" target="_blank">${SOSMED_LINK}</a>`;
+    if (lowerInput.includes('kontak') || lowerInput.includes('admin') || lowerInput.includes('nomor')) return `Anda bisa menghubungi admin kami langsung melalui WhatsApp di nomor <a href="https://wa.me/${WA_ADMIN_NUMBER}" target="_blank">${WA_ADMIN_NUMBER}</a>.`;
+    if (lowerInput.includes('grup') || lowerInput.includes('channel') || lowerInput.includes('saluran')) return `Tentu, Anda bisa bergabung dengan Saluran WhatsApp kami untuk info dan promo terbaru di sini: <a href="${SALURAN_WA_LINK}" target="_blank">Gabung Saluran WA</a>.`;
+    return `Maaf, saya hanya bisa membantu dengan pertanyaan seputar Rikishop. Coba tanyakan tentang: <br>â€¢ Keamanan toko <br>â€¢ Informasi produk (Panel, VPS, dll) <br>â€¢ Harga umum <br>â€¢ Kontak admin & sosial media`;
 }
 function appendMessageToChatPage(text, className) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${className}`;
-    messageDiv.innerHTML = text;
+    let formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    messageDiv.innerHTML = formattedText;
     chatAiMessagesPage.appendChild(messageDiv);
     chatAiMessagesPage.scrollTop = chatAiMessagesPage.scrollHeight;
 }
 sendChatAiBtnPage.addEventListener('click', handleSendChatMessagePage);
 chatAiInputPage.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChatMessagePage(); } });
+
+// --- Logika Musik ---
+openMusicPopupBtn.addEventListener('click', (e) => { e.stopPropagation(); musicPlayerPopup.classList.add('active'); musicPlayerOverlay.classList.add('active'); });
+function closeMusicPlayerPopup() { musicPlayerPopup.classList.remove('active'); musicPlayerOverlay.classList.remove('active'); }
+closeMusicPlayer.addEventListener('click', closeMusicPlayerPopup);
+musicPlayerOverlay.addEventListener('click', closeMusicPlayerPopup);
+loadMediaBtn.addEventListener('click', () => {
+    const mediaLink = mediaLinkInput.value.trim();
+    if (!mediaLink) return showToastNotification("Silakan masukkan link.", "fa-exclamation-circle");
+    
+    backgroundAudio.pause();
+    backgroundAudio.src = '';
+    if (youtubePlayer && typeof youtubePlayer.destroy === 'function') {
+        youtubePlayer.destroy();
+        youtubePlayer = null;
+    }
+    mediaPlayerContainer.innerHTML = '';
+    customMusicMuted = false;
+
+    try {
+        let videoId = null;
+        if (mediaLink.includes('youtu.be') || mediaLink.includes('youtube.com')) {
+            const url = new URL(mediaLink);
+            videoId = url.hostname === 'youtu.be' ? url.pathname.substring(1) : url.searchParams.get('v');
+        }
+
+        if (videoId) {
+            createYouTubePlayer(videoId);
+            showToastNotification("Memuat video...", "fa-play-circle");
+            muteAudioBtn.querySelector('i').className = 'fas fa-volume-up';
+        } else {
+            showToastNotification("Link YouTube tidak valid atau tidak didukung.", "fa-times-circle");
+        }
+    } catch (error) { 
+        console.error("Error parsing link:", error);
+        showToastNotification("Format link tidak dikenal.", "fa-times-circle"); 
+    }
+});
+function createYouTubePlayer(videoId) {
+    const checkApiReady = setInterval(() => {
+        if (isYouTubeApiReady) {
+            clearInterval(checkApiReady);
+            if (youtubePlayer && typeof youtubePlayer.destroy === 'function') {
+                youtubePlayer.destroy();
+            }
+            mediaPlayerContainer.innerHTML = '<div id="youtube-player-embed"></div>';
+            youtubePlayer = new YT.Player('youtube-player-embed', {
+                videoId: videoId,
+                playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'showinfo': 0, 'iv_load_policy': 3 },
+                events: {
+                    'onReady': (event) => { event.target.playVideo(); },
+                    'onStateChange': (event) => { if (event.data === YT.PlayerState.PLAYING) { closeMusicPlayerPopup(); } }
+                }
+            });
+        }
+    }, 100);
+}
+function playBackgroundMusic() { 
+    if (backgroundAudio.src && !backgroundAudio.muted && backgroundAudio.paused) { 
+        backgroundAudio.play().catch(e => console.log("Autoplay dicegah oleh browser.")); 
+    } 
+}
 
 // --- Inisialisasi Aplikasi ---
 async function initializeApp() {
@@ -746,24 +761,31 @@ async function initializeApp() {
             fetch(`products.json?v=${timestamp}`),
             fetch(`settings.json?v=${timestamp}`)
         ]);
-        if (!productsResponse.ok) throw new Error('Gagal memuat produk.');
+
+        if (!productsResponse.ok) throw new Error(`Gagal memuat produk: ${productsResponse.status}`);
         products = await productsResponse.json();
-        if (settingsResponse.ok) siteSettings = await settingsResponse.json();
+        
+        if (settingsResponse.ok) {
+            siteSettings = await settingsResponse.json();
+        } else {
+            console.warn("Gagal memuat settings.json, menggunakan nomor fallback.");
+        }
+
     } catch (error) {
         console.error("Gagal memuat data awal:", error);
+        document.querySelector('.main-content').innerHTML = `<p style="text-align:center; color:red;">Gagal memuat data. Coba muat ulang halaman.</p>`;
     }
-
     updateDateTime();
     setInterval(updateDateTime, 1000);
     updateCartCount();
-
+    welcomeScreen.style.display = 'flex';
     let progress = 0;
     let progressBar = document.getElementById("progressBar");
     let progressText = document.getElementById("progress-text");
     let interval = setInterval(() => {
         progress += 5;
-        if(progressBar) progressBar.style.width = progress + "%";
-        if(progressText) progressText.textContent = progress + "%";
+        progressBar.style.width = progress + "%";
+        progressText.textContent = progress + "%";
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
@@ -779,5 +801,13 @@ async function initializeApp() {
     }, 80);
 }
 
-// Inisialisasi setelah semua dimuat
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('firebaseReady', () => {
+    console.log("Firebase is ready, initializing app and visitor counter.");
+    initializeApp();
+    setupFirebaseVisitorCounter();
+});
+document.addEventListener('firebaseFailed', () => {
+    console.log("Firebase failed to load, initializing app without visitor counter.");
+    initializeApp();
+    if(visitorCountDisplay) visitorCountDisplay.querySelector('.count').textContent = 'R/S';
+});
