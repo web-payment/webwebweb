@@ -629,55 +629,66 @@ document.addEventListener('DOMContentLoaded', () => {
         return prices;
     }
 
-    saveSettingsButton.addEventListener('click', async () => {
-        const globalNumber = globalWhatsappNumberInput.value.trim();
-        const apiKeyNumber = apikeyWhatsappNumberInput.value.trim();
+    // GANTI BLOK LAMA DENGAN YANG INI
+saveSettingsButton.addEventListener('click', async () => {
+    // Mengumpulkan semua data dari form
+    const globalNumber = globalWhatsappNumberInput.value.trim();
+    const apiKeyNumber = apikeyWhatsappNumberInput.value.trim();
 
-        if (!validatePhoneNumber(globalNumber) || !globalNumber) return showToast("Nomor WA Global wajib diisi dengan format kode negara (contoh: 628...)", 'error');
-        if (!validatePhoneNumber(apiKeyNumber) || !apiKeyNumber) return showToast("Nomor WA Beli API Key wajib diisi.", 'error');
+    // Validasi nomor WA
+    if (!validatePhoneNumber(globalNumber) || !globalNumber) return showToast("Nomor WA Global wajib diisi dengan format kode negara (contoh: 628...)", 'error');
+    if (!validatePhoneNumber(apiKeyNumber) || !apiKeyNumber) return showToast("Nomor WA Beli API Key wajib diisi.", 'error');
 
-        const categoryNumbers = {};
-        let isCategoryValid = true;
-        categoryWhatsappNumbersContainer.querySelectorAll('input[data-category]').forEach(input => {
-            const num = input.value.trim();
-            if (num && !validatePhoneNumber(num)) {
-                showToast(`Format Nomor WA kategori ${input.dataset.category} salah.`, 'error');
-                isCategoryValid = false;
-            }
-            categoryNumbers[input.dataset.category] = num;
-        });
-        
-        const apiKeyPrices = collectApiKeyPrices().filter(p => p.tier && !isNaN(p.price));
-
-        if (collectApiKeyPrices().length !== apiKeyPrices.length) {
-             return showToast('Pastikan semua Nama dan Harga Asli pada tingkatan harga API Key terisi.', 'error');
+    // Mengumpulkan nomor WA per kategori
+    const categoryNumbers = {};
+    let isCategoryValid = true;
+    categoryWhatsappNumbersContainer.querySelectorAll('input[data-category]').forEach(input => {
+        const num = input.value.trim();
+        if (num && !validatePhoneNumber(num)) {
+            showToast(`Format Nomor WA kategori ${input.dataset.category} salah.`, 'error');
+            isCategoryValid = false;
         }
-
-        if (!isCategoryValid) return;
-
-        saveSettingsButton.disabled = true;
-        try {
-            const settingsData = {
-                globalPhoneNumber: globalNumber,
-                categoryPhoneNumbers: categoryNumbers,
-                apiKeyPurchaseNumber: apiKeyNumber,
-                apiKeyPrices: apiKeyPrices
-            };
-
-            const result = await fetch(`${API_BASE_URL}/updateSettings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
-                body: JSON.stringify(settingsData)
-            }).then(res => res.json());
-
-            if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
-            showToast('Pengaturan berhasil disimpan!', 'success');
-        } catch (err) {
-            showToast(err.message, 'error');
-        } finally {
-            saveSettingsButton.disabled = false;
-        }
+        categoryNumbers[input.dataset.category] = num;
     });
+    if (!isCategoryValid) return;
+
+    // PENTING: Mengumpulkan data harga API Key
+    const apiKeyPrices = collectApiKeyPrices();
+    if (collectApiKeyPrices().length > 0 && apiKeyPrices.length === 0) {
+         return showToast('Pastikan semua Nama dan Harga Asli pada tingkatan harga API Key terisi.', 'error');
+    }
+
+    // Menonaktifkan tombol saat proses
+    saveSettingsButton.disabled = true;
+    saveSettingsButton.textContent = 'Menyimpan...';
+
+    try {
+        // Membuat objek data yang LENGKAP untuk dikirim
+        const settingsData = {
+            globalPhoneNumber: globalNumber,
+            categoryPhoneNumbers: categoryNumbers,
+            apiKeyPurchaseNumber: apiKeyNumber,
+            apiKeyPrices: apiKeyPrices
+        };
+
+        // Mengirim data ke server
+        const result = await fetch(`${API_BASE_URL}/updateSettings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Admin-Password': sessionStorage.getItem('adminPassword') },
+            body: JSON.stringify(settingsData)
+        }).then(res => res.json());
+
+        if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
+        showToast('Pengaturan berhasil disimpan!', 'success');
+
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        // Mengaktifkan tombol kembali
+        saveSettingsButton.disabled = false;
+        saveSettingsButton.textContent = 'Simpan Semua Pengaturan';
+    }
+});
 
     if (sessionStorage.getItem('isAdminAuthenticated')) {
         loginScreen.style.display = 'none';
