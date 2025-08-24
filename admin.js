@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Variabel Elemen ---
-    const body = document.body;
-    const toastContainer = document.getElementById('toast-container');
     const loginScreen = document.getElementById('login-screen');
     const productFormScreen = document.getElementById('product-form-screen');
+    const toastContainer = document.getElementById('toast-container');
     const passwordInput = document.getElementById('password');
     const loginButton = document.getElementById('login-button');
     const passwordToggle = document.getElementById('passwordToggle');
-    const themeSwitchers = document.querySelectorAll('.theme-switch');
-    const modals = document.querySelectorAll('.modal');
-
+    const themeSwitchBtnLogin = document.getElementById('themeSwitchBtnLogin');
+    const themeSwitchBtnPanel = document.getElementById('themeSwitchBtnPanel');
+    const body = document.body;
+    
     // Variabel Produk
     const categorySelect = document.getElementById('category');
     const nameInput = document.getElementById('product-name');
@@ -39,20 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Variabel Pengaturan
     const saveSettingsButton = document.getElementById('save-settings-button');
     const globalWhatsappNumberInput = document.getElementById('global-whatsapp-number');
-    const apikeyWhatsappNumberInput = document.getElementById('apikey-whatsapp-number');
     const categoryWhatsappNumbersContainer = document.getElementById('category-whatsapp-numbers-container');
     
-    // Variabel Manajer Domain (Admin)
-    const showAddApiKeyModalBtn = document.getElementById('show-add-apikey-modal-btn');
-    const showAddDomainModalBtn = document.getElementById('show-add-domain-modal-btn');
-    const addApiKeyModal = document.getElementById('addApiKeyModal');
+    // Variabel Modal Edit
+    const editWhatsappNumberInput = document.getElementById('edit-whatsapp-number');
+
+    // --- Variabel Baru untuk Manajer Domain ---
+    const domainManagerTab = document.querySelector('.tab-button[data-tab="domainManager"]');
+    const apiKeyListContainer = document.getElementById('apiKeyListContainer');
     const createApiKeyBtn = document.getElementById('create-apikey-btn');
+    const rootDomainListContainer = document.getElementById('rootDomainListContainer');
+    const addDomainBtn = document.getElementById('add-domain-btn');
     const permanentKeyCheckbox = document.getElementById('permanent-key');
     const durationSection = document.getElementById('duration-section');
-    const addDomainModal = document.getElementById('addDomainModal');
-    const addDomainBtn = document.getElementById('add-domain-btn');
-    const apiKeyListContainer = document.getElementById('apiKeyListContainer');
-    const rootDomainListContainer = document.getElementById('rootDomainListContainer');
 
     // --- Alamat API ---
     const API_PRODUCTS_URL = '/api/products';
@@ -62,21 +61,31 @@ document.addEventListener('DOMContentLoaded', () => {
     let siteSettings = {};
     
     // --- FUNGSI DASAR (Tema, Toast, Konfirmasi, Validasi Nomor) ---
-    function applyTheme(theme) {
-        body.className = theme;
-        localStorage.setItem('admin-theme', theme);
-        const iconClass = theme === 'dark-mode' ? 'fa-sun' : 'fa-moon';
-        themeSwitchers.forEach(btn => {
-            btn.innerHTML = `<i class="fas ${iconClass}"></i>`;
-        });
+    const savedTheme = localStorage.getItem('admin-theme') || 'light-mode';
+    body.className = savedTheme;
+    function updateThemeButton() {
+        const iconClass = body.classList.contains('dark-mode') ? 'fa-sun' : 'fa-moon';
+        themeSwitchBtnLogin.querySelector('i').className = `fas ${iconClass}`;
+        if (themeSwitchBtnPanel) {
+            themeSwitchBtnPanel.querySelector('i').className = `fas ${iconClass}`;
+        }
     }
-    themeSwitchers.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const newTheme = body.classList.contains('light-mode') ? 'dark-mode' : 'light-mode';
-            applyTheme(newTheme);
-        });
-    });
-    applyTheme(localStorage.getItem('admin-theme') || 'light-mode');
+    updateThemeButton();
+
+    function toggleTheme() {
+        if (body.classList.contains('light-mode')) {
+            body.classList.replace('light-mode', 'dark-mode');
+            localStorage.setItem('admin-theme', 'dark-mode');
+        } else {
+            body.classList.replace('dark-mode', 'light-mode');
+            localStorage.setItem('admin-theme', 'light-mode');
+        }
+        updateThemeButton();
+    }
+    themeSwitchBtnLogin.addEventListener('click', toggleTheme);
+    if (themeSwitchBtnPanel) {
+        themeSwitchBtnPanel.addEventListener('click', toggleTheme);
+    }
     
     passwordToggle.addEventListener('click', () => {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -104,31 +113,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showCustomConfirm(message) {
         confirmMessage.innerHTML = message;
-        openModal(customConfirmModal);
+        customConfirmModal.classList.add('is-visible');
         return new Promise((resolve) => {
             resolveConfirmPromise = resolve;
         });
     }
 
     confirmOkBtn.addEventListener('click', () => {
-        closeModal(customConfirmModal);
+        customConfirmModal.classList.remove('is-visible');
         if (resolveConfirmPromise) resolveConfirmPromise(true);
     });
 
     confirmCancelBtn.addEventListener('click', () => {
-        closeModal(customConfirmModal);
+        customConfirmModal.classList.remove('is-visible');
         if (resolveConfirmPromise) resolveConfirmPromise(false);
     });
     
-    function openModal(modal) { if(modal) modal.classList.add('is-visible'); }
-    function closeModal(modal) { if(modal) modal.classList.remove('is-visible'); }
-
-    modals.forEach(modal => {
-        modal.addEventListener('click', (e) => {
-             if (e.target.classList.contains('modal') || e.target.classList.contains('close-button') || e.target.id === 'closeEditModal') {
-                closeModal(modal);
-             }
-        });
+    customConfirmModal.addEventListener('click', (e) => {
+        if (e.target === customConfirmModal) {
+             customConfirmModal.classList.remove('is-visible');
+             if (resolveConfirmPromise) resolveConfirmPromise(false);
+        }
     });
 
     function validatePhoneNumber(number) {
@@ -181,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadSettings();
             document.querySelector('.tab-button[data-tab="addProduct"]').click();
         } catch (e) {
+            console.error('Login error:', e);
             showToast(e.message || 'Password salah.', 'error');
         } finally {
             loginButton.textContent = 'Masuk';
@@ -188,7 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     loginButton.addEventListener('click', handleLogin);
-    passwordInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleLogin(); });
+    passwordInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); 
+            handleLogin();
+        }
+    });
 
     // --- LOGIKA NAVIGASI TAB ---
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -210,33 +221,347 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- LOGIKA TAB "TAMBAH & KELOLA PRODUK" ---
+    // --- LOGIKA TAB "TAMBAH PRODUK" ---
     categorySelect.addEventListener('change', () => {
         const category = categorySelect.value;
         stockPhotoSection.style.display = (category === 'Stock Akun' || category === 'Logo') ? 'block' : 'none';
         scriptMenuSection.style.display = category === 'Script' ? 'block' : 'none';
     });
     
-    addButton.addEventListener('click', async () => { /* ... Logika Tambah Produk ... */ });
-    manageCategorySelect.addEventListener('change', async () => { /* ... Logika Muat Produk Kelola ... */ });
+    addButton.addEventListener('click', async (e) => { 
+        e.preventDefault(); 
+        const waNumber = productWhatsappNumberInput.value.trim();
+        if (!validatePhoneNumber(waNumber)) {
+            return showToast("Format Nomor WA salah. Harus diawali kode negara (contoh: 628...)", 'error');
+        }
+        const productData = {
+            category: categorySelect.value,
+            nama: nameInput.value.trim(),
+            harga: parseInt(priceInput.value, 10),
+            deskripsiPanjang: descriptionInput.value.trim(),
+            images: photosInput.value.split(',').map(l => l.trim()).filter(Boolean),
+            nomorWA: waNumber,
+            menuContent: scriptMenuContentInput.value.trim()
+        };
+        if (!productData.nama || isNaN(productData.harga) || productData.harga < 0 || !productData.deskripsiPanjang) {
+            return showToast('Semua kolom wajib diisi dan harga harus angka positif.', 'error');
+        }
+        addButton.textContent = 'Memproses...';
+        addButton.disabled = true;
+        try {
+            const result = await fetch(API_PRODUCTS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'addProduct', data: productData })
+            }).then(res => res.json());
+            if (result.message !== 'Produk berhasil ditambahkan!') throw new Error(result.message);
+            showToast(`Produk "${productData.nama}" berhasil ditambahkan.`, 'success');
+            document.getElementById('addProductForm').reset();
+            categorySelect.dispatchEvent(new Event('change'));
+        } catch (err) {
+            showToast(err.message || 'Gagal menambahkan produk.', 'error');
+        } finally {
+            addButton.textContent = 'Tambah Produk';
+            addButton.disabled = false;
+        }
+    });
+
+    // --- LOGIKA TAB "KELOLA PRODUK" ---
+    manageCategorySelect.addEventListener('change', async () => {
+        manageProductList.innerHTML = 'Memuat...';
+        const category = manageCategorySelect.value;
+        if (!category) {
+            manageProductList.innerHTML = '<p>Pilih kategori untuk mengelola produk.</p>';
+            saveOrderButton.style.display = 'none';
+            bulkPriceEditContainer.style.display = 'none';
+            return;
+        }
+        try {
+            const res = await fetch(`/products.json?v=${new Date().getTime()}`);
+            if (!res.ok) throw new Error(`Gagal memuat produk: ${res.status}`);
+            const data = await res.json(); 
+            const productsInCat = data[category] || [];
+            if (productsInCat.length === 0) {
+                manageProductList.innerHTML = '<p>Tidak ada produk di kategori ini.</p>';
+                saveOrderButton.style.display = 'none';
+                bulkPriceEditContainer.style.display = 'none';
+                return;
+            }
+            renderManageList(productsInCat, category);
+            saveOrderButton.style.display = 'block';
+            bulkPriceEditContainer.style.display = 'flex'; 
+        } catch (err) {
+            showToast(err.message, 'error');
+            manageProductList.innerHTML = `<p style="color:red;">${err.message}</p>`;
+        }
+    });
+
+    function renderManageList(productsToRender, category) {
+        manageProductList.innerHTML = '';
+        productsToRender.forEach(prod => {
+            const isNew = prod.createdAt && Date.now() - new Date(prod.createdAt).getTime() < 24 * 60 * 60 * 1000;
+            const item = document.createElement('div');
+            item.className = 'delete-item';
+            item.setAttribute('draggable', 'true');
+            item.dataset.id = prod.id;
+            let priceDisplay = `<span>${formatRupiah(prod.harga)}</span>`;
+            if (prod.hargaAsli && prod.hargaAsli > prod.harga) {
+                priceDisplay = `<span class="original-price"><del>${formatRupiah(prod.hargaAsli)}</del></span> <span class="discounted-price">${formatRupiah(prod.harga)}</span>`;
+            } else if (prod.hargaAsli) {
+                priceDisplay = `<span>${formatRupiah(prod.hargaAsli)}</span>`;
+            }
+            item.innerHTML = `
+                <div class="item-header">
+                    <span>${prod.nama} - ${priceDisplay} ${isNew ? '<span class="new-badge">NEW</span>' : ''}</span>
+                    <div class="item-actions">
+                        <button type="button" class="edit-btn" data-id="${prod.id}"><i class="fas fa-edit"></i> Edit</button>
+                        <button type="button" class="delete-btn delete-product-btn" data-id="${prod.id}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    </div>
+                </div>`;
+            manageProductList.appendChild(item);
+        });
+        setupManageActions(category, productsToRender);
+    }
+    
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    function setupManageActions(category, productsInCat) {
+        const editModal = document.getElementById('editProductModal');
+        const closeEditModalBtn = document.getElementById('closeEditModal');
+        const editModalTitle = document.getElementById('editModalTitle');
+        const saveEditBtn = document.getElementById('save-edit-btn');
+        const editProductId = document.getElementById('edit-product-id');
+        const editProductCategory = document.getElementById('edit-product-category');
+        const editNameInput = document.getElementById('edit-name');
+        const editPriceInput = document.getElementById('edit-price');
+        const editDiscountPriceInput = document.getElementById('edit-discount-price');
+        const editDiscountDateInput = document.getElementById('edit-discount-date');
+        const editDescInput = document.getElementById('edit-desc');
+        const editPhotoSection = document.getElementById('edit-photo-section');
+        const editPhotoGrid = document.getElementById('edit-photo-grid');
+        const addPhotoInput = document.getElementById('add-photo-input');
+        const addPhotoBtn = document.getElementById('add-photo-btn');
+        const editScriptMenuSection = document.getElementById('edit-script-menu-section');
+        const editScriptMenuContent = document.getElementById('edit-script-menu-content');
+        
+        manageProductList.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const productId = parseInt(e.currentTarget.dataset.id);
+                const product = productsInCat.find(p => p.id === productId);
+                if (!product) return showToast('Produk tidak ditemukan.', 'error');
+                
+                editProductId.value = product.id;
+                editProductCategory.value = category;
+                editModalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Produk: ${product.nama}`;
+                editNameInput.value = product.nama;
+                editPriceInput.value = product.hargaAsli || product.harga;
+                editDiscountPriceInput.value = product.discountPrice || '';
+                editDiscountDateInput.value = product.discountEndDate ? product.discountEndDate.slice(0, 16) : '';
+                editDescInput.value = product.deskripsiPanjang ? product.deskripsiPanjang.replace(/ \|\| /g, '\n') : '';
+                editWhatsappNumberInput.value = product.nomorWA || '';
+                
+                const isPhotoCategory = category === 'Stock Akun' || category === 'Logo';
+                editPhotoSection.style.display = isPhotoCategory ? 'block' : 'none';
+                if (isPhotoCategory) {
+                    editPhotoGrid.innerHTML = '';
+                    (product.images || []).forEach(img => {
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item';
+                        photoItem.innerHTML = `<img src="${img}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
+                        editPhotoGrid.appendChild(photoItem);
+                        photoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => e_photo.currentTarget.closest('.photo-item').remove());
+                    });
+                }
+                
+                editScriptMenuSection.style.display = category === 'Script' ? 'block' : 'none';
+                if (category === 'Script') {
+                    editScriptMenuContent.value = product.menuContent || '';
+                }
+                
+                editModal.classList.add('is-visible');
+            });
+        });
+
+        closeEditModalBtn.addEventListener('click', () => editModal.classList.remove('is-visible'));
+        window.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('is-visible'); });
+        
+        addPhotoBtn.addEventListener('click', (e) => {
+            const newPhotoUrl = addPhotoInput.value.trim();
+            if (newPhotoUrl) {
+                const newPhotoItem = document.createElement('div');
+                newPhotoItem.className = 'photo-item';
+                newPhotoItem.innerHTML = `<img src="${newPhotoUrl}" alt="Product Photo"><button type="button" class="delete-photo-btn"><i class="fas fa-times"></i></button>`;
+                editPhotoGrid.appendChild(newPhotoItem);
+                newPhotoItem.querySelector('.delete-photo-btn').addEventListener('click', (e_photo) => e_photo.currentTarget.closest('.photo-item').remove());
+                addPhotoInput.value = '';
+            } else {
+                showToast('URL foto tidak boleh kosong.', 'error');
+            }
+        });
+
+        saveEditBtn.addEventListener('click', async (e) => {
+            const newWaNumber = editWhatsappNumberInput.value.trim();
+            if (!validatePhoneNumber(newWaNumber)) {
+                return showToast("Format Nomor WA salah. Harus diawali kode negara (contoh: 628...)", 'error');
+            }
+            const hargaAsli = parseInt(editPriceInput.value, 10);
+            const discountPrice = editDiscountPriceInput.value ? parseInt(editDiscountPriceInput.value, 10) : null;
+            const discountEndDate = editDiscountDateInput.value ? new Date(editDiscountDateInput.value).toISOString() : null;
+            let harga = hargaAsli;
+            if (discountPrice !== null && discountPrice > 0 && discountEndDate && new Date(discountEndDate) > new Date()) {
+                harga = discountPrice;
+            }
+            const productData = {
+                id: parseInt(editProductId.value),
+                category: editProductCategory.value,
+                nama: editNameInput.value.trim(),
+                hargaAsli,
+                harga,
+                discountPrice,
+                discountEndDate,
+                deskripsiPanjang: editDescInput.value.trim().replace(/\n/g, ' || '),
+                images: [...editPhotoGrid.querySelectorAll('.photo-item img')].map(img => img.src),
+                menuContent: editScriptMenuContent.value.trim(),
+                nomorWA: newWaNumber
+            };
+            if (isNaN(productData.hargaAsli) || productData.hargaAsli < 0 || !productData.nama || !productData.deskripsiPanjang) {
+                return showToast('Data tidak valid (Nama, Harga Asli, Deskripsi harus diisi).', 'error');
+            }
+            saveEditBtn.textContent = 'Menyimpan...';
+            saveEditBtn.disabled = true;
+            try {
+                const result = await fetch(API_PRODUCTS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'updateProduct', data: productData })
+                }).then(res => res.json());
+                if (result.message !== 'Produk berhasil diperbarui!') throw new Error(result.message);
+                showToast('Produk berhasil diperbarui.', 'success');
+                editModal.classList.remove('is-visible'); 
+                manageCategorySelect.dispatchEvent(new Event('change'));
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                saveEditBtn.textContent = 'Simpan Perubahan';
+                saveEditBtn.disabled = false;
+            }
+        });
+        
+        let draggingItem = null;
+        manageProductList.addEventListener('dragstart', (e) => {
+            draggingItem = e.currentTarget;
+            setTimeout(() => draggingItem.classList.add('dragging'), 0);
+        });
+        manageProductList.addEventListener('dragend', (e) => {
+            e.currentTarget.classList.remove('dragging');
+        });
+        manageProductList.addEventListener('dragover', (e) => {
+            e.preventDefault(); 
+            const afterElement = getDragAfterElement(manageProductList, e.clientY);
+            const draggable = document.querySelector('.dragging');
+            if (draggable) {
+                 if (afterElement == null) manageProductList.appendChild(draggable);
+                 else manageProductList.insertBefore(draggable, afterElement);
+            }
+        });
+
+        saveOrderButton.addEventListener('click', async (e) => {
+            const newOrder = [...manageProductList.children].map(item => parseInt(item.dataset.id));
+            const category = manageCategorySelect.value;
+            if (!category || newOrder.length === 0) return;
+            saveOrderButton.disabled = true;
+            try {
+                const result = await fetch(API_PRODUCTS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'reorderProducts', data: { category, order: newOrder } })
+                }).then(res => res.json());
+                if (result.message !== 'Urutan berhasil disimpan.') throw new Error(result.message);
+                showToast('Urutan berhasil disimpan.', 'success');
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                saveOrderButton.disabled = false;
+            }
+        });
+
+        applyBulkPriceBtn.addEventListener('click', async (e) => {
+            const category = manageCategorySelect.value;
+            const newBulkPrice = parseInt(bulkPriceInput.value, 10);
+            if (!category || isNaN(newBulkPrice)) return;
+            if (!(await showCustomConfirm(`Yakin mengubah harga SEMUA produk di "<b>${category}</b>" menjadi <b>${formatRupiah(newBulkPrice)}</b>?`))) return;
+            applyBulkPriceBtn.disabled = true;
+            try {
+                const result = await fetch(API_PRODUCTS_URL, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'updateProductsInCategory', data: { category, newPrice: newBulkPrice } })
+                }).then(res => res.json());
+                if (result.message.indexOf('berhasil diubah') === -1) throw new Error(result.message);
+                showToast(result.message, 'success');
+                bulkPriceInput.value = ''; 
+                manageCategorySelect.dispatchEvent(new Event('change')); 
+            } catch (err) {
+                showToast(`Gagal: ${err.message}`, 'error');
+            } finally {
+                applyBulkPriceBtn.disabled = false;
+            }
+        });
+        
+        resetPricesBtn.addEventListener('click', async (e) => {
+            const category = manageCategorySelect.value;
+            if (!category) return;
+            if (!(await showCustomConfirm(`Yakin mengembalikan harga SEMUA produk di "<b>${category}</b>" ke harga awal?`))) return;
+            resetPricesBtn.disabled = true;
+            try {
+                const result = await fetch(API_PRODUCTS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'resetCategoryPrices', data: { category } })
+                }).then(res => res.json());
+                if (result.message.indexOf('berhasil dikembalikan') === -1) throw new Error(result.message);
+                showToast(result.message, 'success');
+                manageCategorySelect.dispatchEvent(new Event('change'));
+            } catch (err) {
+                showToast(`Gagal: ${err.message}`, 'error');
+            } finally {
+                resetPricesBtn.disabled = false;
+            }
+        });
+    }
+    
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.delete-item:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
 
     // --- LOGIKA TAB "PENGATURAN" ---
     async function loadSettings() {
         try {
-            const res = await fetch(`${API_BASE_URL}/getSettings?v=${Date.now()}`);
+            const res = await fetch(`${API_BASE_URL}/getSettings`);
             if (!res.ok) throw new Error('Gagal memuat pengaturan.');
             siteSettings = await res.json();
             globalWhatsappNumberInput.value = siteSettings.globalPhoneNumber || '';
-            apikeyWhatsappNumberInput.value = siteSettings.apiKeyPurchaseNumber || '';
-            
+            categoryWhatsappNumbersContainer.innerHTML = '<h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>';
             const categoriesInSettings = siteSettings.categoryPhoneNumbers || {};
             const allCategories = [...manageCategorySelect.options].filter(opt => opt.value).map(opt => opt.value);
-            categoryWhatsappNumbersContainer.innerHTML = '<h3><i class="fas fa-list-alt"></i> Nomor WA per Kategori (Opsional)</h3>';
             allCategories.forEach(cat => {
-                 const div = document.createElement('div');
-                 div.className = 'category-wa-input';
-                 div.innerHTML = `<label for="wa-${cat}">${cat}:</label><input type="text" id="wa-${cat}" data-category="${cat}" value="${categoriesInSettings[cat] || ''}" placeholder="Kosongkan untuk pakai nomor global">`;
-                 categoryWhatsappNumbersContainer.appendChild(div);
+                const div = document.createElement('div');
+                div.className = 'category-wa-input';
+                div.innerHTML = `
+                    <label for="wa-${cat}">${cat}:</label>
+                    <input type="text" id="wa-${cat}" data-category="${cat}" value="${categoriesInSettings[cat] || ''}" placeholder="Kosongkan untuk pakai nomor global">`;
+                categoryWhatsappNumbersContainer.appendChild(div);
             });
         } catch (err) {
             showToast(err.message, 'error');
@@ -245,30 +570,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveSettingsButton.addEventListener('click', async () => {
         const globalNumber = globalWhatsappNumberInput.value.trim();
-        const apiKeyNumber = apikeyWhatsappNumberInput.value.trim();
-        if (!validatePhoneNumber(globalNumber) || !globalNumber || !validatePhoneNumber(apiKeyNumber) || !apiKeyNumber) {
-            return showToast("Semua Nomor WA wajib diisi dengan format yang benar (contoh: 628...).", 'error');
+        if (!validatePhoneNumber(globalNumber) || !globalNumber) {
+            return showToast("Nomor WA Global wajib diisi dengan format kode negara (contoh: 628...)", 'error');
         }
-
         const categoryNumbers = {};
+        let isCategoryValid = true;
         categoryWhatsappNumbersContainer.querySelectorAll('input[data-category]').forEach(input => {
-            categoryNumbers[input.dataset.category] = input.value.trim();
+            const cat = input.dataset.category;
+            const num = input.value.trim();
+            if (num && !validatePhoneNumber(num)) {
+                showToast(`Format Nomor WA kategori ${cat} salah.`, 'error');
+                isCategoryValid = false;
+            }
+            categoryNumbers[cat] = num;
         });
+        if (!isCategoryValid) return;
 
         saveSettingsButton.disabled = true;
         try {
             const result = await fetch(`${API_BASE_URL}/updateSettings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    globalPhoneNumber: globalNumber, 
-                    categoryPhoneNumbers: categoryNumbers,
-                    apiKeyPurchaseNumber: apiKeyNumber 
-                })
+                body: JSON.stringify({ globalPhoneNumber: globalNumber, categoryPhoneNumbers: categoryNumbers })
             }).then(res => res.json());
             if (result.message !== 'Pengaturan berhasil disimpan!') throw new Error(result.message);
             showToast('Pengaturan berhasil disimpan!', 'success');
-            await loadSettings();
         } catch (err) {
             showToast(err.message, 'error');
         } finally {
@@ -276,13 +602,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    if (sessionStorage.getItem('isAdminAuthenticated')) {
+        loginScreen.style.display = 'none';
+        productFormScreen.style.display = 'block';
+        loadSettings();
+        document.querySelector('.tab-button[data-tab="addProduct"]').click();
+    }
+    
+    // --- EVENT DELEGATION UNTUK SEMUA TOMBOL HAPUS ---
+    document.body.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (!deleteBtn) return;
+
+        // Hapus Produk
+        if (deleteBtn.classList.contains('delete-product-btn')) {
+            const parent = deleteBtn.closest('.delete-item');
+            const id = parseInt(parent.dataset.id);
+            const category = manageCategorySelect.value;
+            const confirm = await showCustomConfirm(`Yakin ingin menghapus produk <b>${parent.querySelector('span').textContent.split(' - ')[0]}</b>?`);
+            if (confirm) {
+                try {
+                    const result = await fetch(API_PRODUCTS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'deleteProduct', data: { id, category } })
+                    }).then(res => res.json());
+                    if (result.message !== 'Produk berhasil dihapus.') throw new Error(result.message);
+                    parent.remove();
+                    showToast(result.message, 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+        }
+        // Hapus API Key
+        else if (deleteBtn.classList.contains('delete-apikey-btn')) {
+            const key = deleteBtn.dataset.key;
+            if (await showCustomConfirm(`Yakin menghapus API Key "<b>${key}</b>"?`)) {
+                try {
+                    const result = await fetchAdminApi('deleteApiKey', { key });
+                    showToast(result.message, 'success');
+                    loadApiKeys();
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+        }
+        // Hapus Domain
+        else if (deleteBtn.classList.contains('delete-domain-btn')) {
+            const domain = deleteBtn.dataset.domain;
+            if (await showCustomConfirm(`Yakin menghapus Domain "<b>${domain}</b>"?`)) {
+                 try {
+                    const result = await fetchAdminApi('deleteRootDomain', { domain });
+                    showToast(result.message, 'success');
+                    loadRootDomains();
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+        }
+    });
+
     // --- LOGIKA TAB "MANAJER DOMAIN" ---
     permanentKeyCheckbox.addEventListener('change', (e) => {
         durationSection.style.display = e.target.checked ? 'none' : 'block';
     });
-
-    showAddApiKeyModalBtn.addEventListener('click', () => openModal(addApiKeyModal));
-    showAddDomainModalBtn.addEventListener('click', () => openModal(addDomainModal));
 
     async function loadApiKeys() {
         apiKeyListContainer.innerHTML = 'Memuat...';
@@ -354,9 +738,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await fetchAdminApi('createApiKey', { key, duration, unit, isPermanent });
             showToast(result.message, 'success');
-            document.getElementById('addApiKeyForm').reset();
+            document.getElementById('new-apikey-name').value = '';
             loadApiKeys();
-            closeModal(addApiKeyModal);
         } catch (err) {
             showToast(err.message, 'error');
         } finally {
@@ -380,9 +763,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await fetchAdminApi('addRootDomain', { domain, zone, apitoken });
             showToast(result.message, 'success');
-            document.getElementById('addDomainForm').reset();
+            document.getElementById('new-domain-name').value = '';
+            document.getElementById('new-domain-zone').value = '';
+            document.getElementById('new-domain-token').value = '';
             loadRootDomains();
-            closeModal(addDomainModal);
         } catch (err) {
             showToast(err.message, 'error');
         } finally {
@@ -390,42 +774,4 @@ document.addEventListener('DOMContentLoaded', () => {
             addDomainBtn.disabled = false;
         }
     });
-
-    // --- EVENT DELEGATION UNTUK TOMBOL HAPUS ---
-    document.body.addEventListener('click', async (e) => {
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (!deleteBtn) return;
-        
-        // Hapus API Key
-        if (deleteBtn.classList.contains('delete-apikey-btn')) {
-            const key = deleteBtn.dataset.key;
-            if (await showCustomConfirm(`Yakin menghapus API Key "<b>${key}</b>"?`)) {
-                try {
-                    const result = await fetchAdminApi('deleteApiKey', { key });
-                    showToast(result.message, 'success');
-                    loadApiKeys();
-                } catch (err) { showToast(err.message, 'error'); }
-            }
-        }
-        // Hapus Domain
-        else if (deleteBtn.classList.contains('delete-domain-btn')) {
-            const domain = deleteBtn.dataset.domain;
-            if (await showCustomConfirm(`Yakin menghapus Domain "<b>${domain}</b>"?`)) {
-                 try {
-                    const result = await fetchAdminApi('deleteRootDomain', { domain });
-                    showToast(result.message, 'success');
-                    loadRootDomains();
-                } catch (err) { showToast(err.message, 'error'); }
-            }
-        }
-    });
-
-    // --- INISIALISASI ---
-    if (sessionStorage.getItem('isAdminAuthenticated')) {
-        loginScreen.style.display = 'none';
-        productFormScreen.style.display = 'block';
-        loadSettings().then(() => {
-            document.querySelector('.tab-button[data-tab="addProduct"]').click();
-        });
-    }
 });
