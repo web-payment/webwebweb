@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="admin.css">
 </head>
 <body class="light-mode">
+    <!-- Container untuk notifikasi toast -->
     <div id="toast-container"></div>
 
+    <!-- Layar Login -->
     <div id="login-screen" class="main-container">
         <div class="form-card login-card">
             <div class="login-header">
@@ -27,6 +29,7 @@
         </div>
     </div>
     
+    <!-- Layar Panel Admin Utama -->
     <div id="product-form-screen" class="main-container" style="display: none;">
         <header class="admin-header">
             <img src="logo.jpg" alt="Rikishopreal" class="profile-pic">
@@ -34,6 +37,7 @@
             <div class="theme-switch" id="themeSwitchBtnPanel"><i class="fas fa-moon"></i></div>
         </header>
         
+        <!-- Navigasi Tab -->
         <nav class="admin-tabs">
             <button type="button" class="tab-button active" data-tab="addProduct">Tambah Produk</button>
             <button type="button" class="tab-button" data-tab="manageProducts">Kelola Produk</button>
@@ -41,6 +45,7 @@
             <button type="button" class="tab-button" data-tab="settings">Pengaturan</button>
         </nav>
         
+        <!-- Konten Tab: Tambah Produk -->
         <div id="addProduct" class="admin-tab-content active">
              <form class="admin-form" id="addProductForm">
                 <h2><i class="fas fa-plus-circle"></i> Tambah Produk</h2>
@@ -76,6 +81,7 @@
             </form>
         </div>
         
+        <!-- Konten Tab: Kelola Produk -->
         <div id="manageProducts" class="admin-tab-content">
             <form class="admin-form">
                 <h2><i class="fas fa-cogs"></i> Kelola Produk</h2>
@@ -105,6 +111,7 @@
             </form>
         </div>
 
+        <!-- Konten Tab: Manajer Domain -->
         <div id="domainManager" class="admin-tab-content">
             <div class="admin-form" style="margin-bottom: 30px;">
                 <div class="section-header">
@@ -123,11 +130,12 @@
             </div>
         </div>
 
+        <!-- Konten Tab: Pengaturan -->
         <div id="settings" class="admin-tab-content">
             <form class="admin-form" id="settingsForm">
                 <h2><i class="fas fa-cogs"></i> Pengaturan Website</h2>
                 
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+                <hr>
                 
                 <h3><i class="fas fa-shopping-cart"></i> Pengaturan Pembelian API Key</h3>
                 <label for="apikey-whatsapp-number">Nomor WA untuk Pembelian API Key (Wajib):</label>
@@ -137,22 +145,25 @@
                 <label style="margin-top: 20px;">Daftar Harga API Key:</label>
                 <small>Atur harga dan diskon untuk penjualan API Key. Biarkan harga diskon kosong jika tidak ada diskon.</small>
                 <div id="api-key-price-settings-container">
-                    </div>
-                <button type="button" id="add-new-price-tier-btn" style="width: auto; margin-top: 15px; font-size: 0.9em; padding: 10px 15px;"><i class="fas fa-plus"></i> Tambah Tingkatan Harga</button>
+                    <!-- Daftar harga akan dimuat di sini oleh JS -->
+                </div>
+                <button type="button" id="add-new-price-tier-btn" class="secondary-button"><i class="fas fa-plus"></i> Tambah Paket Harga</button>
 
-                <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
+                <hr>
 
                 <h3><i class="fab fa-whatsapp"></i> Pengaturan Nomor WhatsApp Global</h3>
                 <label for="global-whatsapp-number">Nomor WA Global (Wajib diisi):</label>
                 <input type="text" id="global-whatsapp-number" placeholder="Contoh: 628123456789">
                 <small>Nomor ini akan digunakan untuk pembelian produk jika nomor spesifik per produk/kategori tidak diatur.</small>
                 <div id="category-whatsapp-numbers-container">
-                    </div>
+                    <!-- Nomor WA per kategori akan dimuat di sini oleh JS -->
+                </div>
                 <button type="button" id="save-settings-button">Simpan Semua Pengaturan</button>
             </form>
         </div>
     </div>
     
+    <!-- Modal: Edit Produk -->
     <div id="editProductModal" class="modal">
         <div class="modal-content">
             <form class="admin-form" id="editProductForm">
@@ -189,6 +200,7 @@
         </div>
     </div>
 
+    <!-- Modal: Konfirmasi Custom -->
     <div id="customConfirmModal" class="modal">
         <div class="modal-content confirm-modal-content">
             <div class="confirm-message" id="confirmMessage"></div>
@@ -199,6 +211,7 @@
         </div>
     </div>
 
+    <!-- Modal: Tambah API Key -->
     <div id="addApiKeyModal" class="modal">
         <div class="modal-content">
             <form class="admin-form" id="addApiKeyForm">
@@ -227,6 +240,7 @@
         </div>
     </div>
 
+    <!-- Modal: Tambah Domain -->
     <div id="addDomainModal" class="modal">
         <div class="modal-content">
             <form class="admin-form" id="addDomainForm">
@@ -243,12 +257,13 @@
         </div>
     </div>
     
+    <!-- [MODIFIKASI] Modal Baru untuk Sukses Buat API Key -->
     <div id="apiKeySuccessModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2><i class="fas fa-check-circle" style="color: var(--success-color);"></i> API Key Berhasil Dibuat!</h2>
             <p>Kunci akses baru telah berhasil dibuat. Salin dan kirimkan detail berikut kepada pengguna Anda dengan aman.</p>
-            <textarea id="apiKeyDetails" readonly rows="6" style="background-color: var(--secondary-color); font-family: monospace; resize: none;"></textarea>
+            <textarea id="apiKeyDetails" readonly rows="7"></textarea>
             <button type="button" id="copyApiKeyDetailsBtn"><i class="fas fa-copy"></i> Salin Detail</button>
         </div>
     </div>

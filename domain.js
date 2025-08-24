@@ -73,16 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logika Utama ---
     async function initializePage() {
         try {
+            // Muat pengaturan dari server, tambahkan cache-busting
             const res = await fetch(`/settings.json?v=${Date.now()}`);
             if (res.ok) {
                 siteSettings = await res.json();
-                // We will populate prices when the user clicks the buy button
             } else {
                  throw new Error("Gagal memuat pengaturan.");
             }
         } catch (e) {
             console.error("Gagal memuat settings.json", e);
-            apiKeyPriceListContainer.innerHTML = '<p style="color: var(--error-color);">Gagal memuat daftar harga.</p>';
+            // Jangan tampilkan error di sini, biarkan populateApiKeyPrices yang menanganinya
         }
 
         const savedUserApiKey = localStorage.getItem('userApiKey');
@@ -96,7 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
     }
 
+    // [MODIFIKASI] Fungsi untuk mengisi popup harga API Key
     function populateApiKeyPrices() {
+        apiKeyPriceListContainer.innerHTML = '<p>Memuat daftar harga...</p>'; // Tampilkan pesan loading
+
         if (!siteSettings.apiKeyPrices || siteSettings.apiKeyPrices.length === 0) {
             apiKeyPriceListContainer.innerHTML = '<p>Daftar harga belum diatur oleh admin.</p>';
             return;
@@ -119,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const now = new Date();
             const discountEndDate = item.discountEndDate ? new Date(item.discountEndDate) : null;
+            // Cek jika ada harga diskon, tanggal akhir diskon, dan diskon masih berlaku
             if (item.discountPrice && discountEndDate && now < discountEndDate) {
                 priceHTML = `<span class="original-price"><del>${formatRupiah(item.price)}</del></span> <strong class="discounted-price">${formatRupiah(item.discountPrice)}</strong>`;
                 effectivePrice = item.discountPrice;
@@ -132,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="tier-name">${item.tier}</span>
                     <div class="price-values">${priceHTML}</div>
                 </div>
-                <a href="${waLink}" target="_blank" class="buy-button">Beli Sekarang</a>
+                <a href="${waLink}" target="_blank" class="buy-button">Beli</a>
             `;
             apiKeyPriceListContainer.appendChild(div);
         });
@@ -169,9 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // [MODIFIKASI] Event listener untuk link Beli API Key
     buyApikeyLink.addEventListener('click', (e) => { 
         e.preventDefault(); 
-        populateApiKeyPrices(); // Always populate with the latest data
+        populateApiKeyPrices(); // Panggil fungsi untuk mengisi data harga terbaru
         openModal(buyApiKeyModal); 
     });
     
@@ -317,5 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Panggil inisialisasi halaman saat dokumen siap
     initializePage();
 });
