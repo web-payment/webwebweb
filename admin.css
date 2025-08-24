@@ -13,7 +13,7 @@
     --success-color: #34c759;
 }
 
-.dark-mode {
+body.dark-mode {
     --primary-color: #0a84ff;
     --secondary-color: #1c1c1e;
     --text-color: #f2f2f7;
@@ -29,7 +29,7 @@
 /* ANIMASI                                      */
 /* ============================================== */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); } /* CHANGED: Animation from top */
+    from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeOut {
@@ -127,10 +127,7 @@ body {
     color: var(--text-color);
 }
 
-#login-screen .theme-switch {
-    position: absolute;
-    top: 15px;
-    right: 15px;
+.theme-switch {
     width: 40px; 
     height: 40px;
     border-radius: 50%;
@@ -141,17 +138,8 @@ body {
     cursor: pointer;
     box-shadow: 0 2px 5px var(--shadow-color); 
 }
-.admin-header .theme-switch {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background-color: var(--secondary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 5px var(--shadow-color);
-}
+#login-screen .theme-switch { position: absolute; top: 15px; right: 15px; }
+.admin-header .theme-switch { width: 38px; height: 38px; }
 
 /* ============================================== */
 /* FORM CARD & GENERAL ELEMENTS                 */
@@ -330,6 +318,9 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     box-sizing: border-box;
 }
 
+/* ============================================== */
+/* TOAST NOTIFICATION                           */
+/* ============================================== */
 #toast-container {
     position: fixed;
     top: 20px;
@@ -370,7 +361,9 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .toast.info { background-color: rgba(0, 122, 255, 0.9); color: white; }
 .toast.fade-out { animation: fadeOut 0.5s ease forwards; }
 
-/* Penyesuaian Modal/Popup agar lebih modern */
+/* ============================================== */
+/* MODAL / POPUP                                */
+/* ============================================== */
 .modal {
     position: fixed;
     z-index: 2000;
@@ -422,16 +415,6 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     transition: transform 0.2s;
 }
 .modal .close-button:hover { transform: rotate(90deg); }
-.modal .admin-form { padding: 0; box-shadow: none; border: none; }
-.modal .admin-form h2 { margin-bottom: 25px; }
-.close-button {
-    font-size: 2rem;
-    color: var(--light-text-color);
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    cursor: pointer;
-}
 
 .confirm-modal-content {
     text-align: center;
@@ -470,8 +453,8 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     padding: 15px;
     border-radius: 10px;
     border: 1px solid var(--border-color);
-    cursor: grab;
 }
+.delete-item[draggable="true"] { cursor: grab; }
 .delete-item.dragging { opacity: 0.7; transform: scale(1.02); }
 .item-header {
     display: flex;
@@ -491,7 +474,6 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 }
 .edit-btn { background-color: var(--primary-color); }
 .delete-btn { background-color: var(--error-color); }
-/* ADDED: Styles for discount display */
 .original-price del {
     color: var(--light-text-color);
     font-weight: normal;
@@ -537,15 +519,10 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
 .bulk-price-input-group input { flex-grow: 1; margin-top: 0; }
 .bulk-price-input-group button { width: auto; margin-top: 0; padding: 10px 15px; }
 
-/* ADDED: Style for reset price button */
 .secondary-button {
-    background-color: #ff9500; /* Apple Orange */
+    background-color: #ff9500;
     color: white;
 }
-.dark-mode .secondary-button {
-    background-color: #ff9f0a;
-}
-
 
 #category-whatsapp-numbers-container .category-wa-input {
     display: grid;
@@ -563,28 +540,9 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     margin: 0;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
-    .admin-header h2 { font-size: 1.2em; }
-    .tab-button { font-size: 0.9em; }
-    .item-header { flex-direction: column; align-items: flex-start; }
-    .item-actions { width: 100%; margin-top: 10px; }
-    #category-whatsapp-numbers-container .category-wa-input {
-        grid-template-columns: 1fr;
-    }
-    #category-whatsapp-numbers-container label {
-        text-align: left;
-        margin-bottom: 5px;
-    }
-}
-
-/* ... (SEMUA KODE CSS LAMA ANDA BIARKAN SEPERTI ADANYA) ... */
-
 /* ============================================== */
-/* MODIFIKASI & TAMBAHAN UNTUK UI BARU            */
+/* MANAJER DOMAIN                               */
 /* ============================================== */
-
-/* Header Section dengan Tombol "Tambah Baru" */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -603,46 +561,22 @@ button.add-new-btn {
     align-items: center;
     gap: 8px;
 }
+.modal .admin-form { padding: 0; box-shadow: none; border: none; }
+.duration-group { display: flex; gap: 10px; }
+.permanent-key-toggle { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.permanent-key-toggle label { margin: 0; }
 
-
-
-/* Style untuk toggle checkbox (Proxy Status) - ala iPhone */
-.proxy-toggle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    background-color: var(--secondary-color);
-    padding: 15px;
-    border-radius: 10px;
+/* Media Queries */
+@media (max-width: 768px) {
+    .admin-header h2 { font-size: 1.2em; }
+    .tab-button { font-size: 0.9em; }
+    .item-header { flex-direction: column; align-items: flex-start; }
+    .item-actions { width: 100%; margin-top: 10px; }
+    #category-whatsapp-numbers-container .category-wa-input {
+        grid-template-columns: 1fr;
+    }
+    #category-whatsapp-numbers-container label {
+        text-align: left;
+        margin-bottom: 5px;
+    }
 }
-.proxy-toggle label { margin: 0; }
-.switch { position: relative; display: inline-block; width: 51px; height: 31px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 31px; }
-.slider:before { position: absolute; content: ""; height: 27px; width: 27px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-input:checked + .slider { background-color: var(--success-color); }
-input:checked + .slider:before { transform: translateX(20px); }
-
-/* Style untuk hasil sukses dan riwayat */
-.result-item, .history-item {
-    background-color: var(--secondary-color);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-}
-.result-item button, .history-item button {
-    width: auto; margin: 0; padding: 8px 15px; font-size: 0.85em;
-    background-color: var(--primary-color); color: white; border: none;
-    border-radius: 8px; cursor: pointer;
-}
-.history-item-info { display: flex; flex-direction: column; }
-.history-item-info strong { font-size: 1.1em; }
-.history-item-info small { font-size: 0.85em; color: var(--light-text-color); }
-.apikey-actions a { color: var(--primary-color); text-decoration: none; }
-
