@@ -66,5 +66,9 @@
   "kangpanel.biz.id": {
     "zone": "90ab3a017b7b29dd9ee92fdbb5831b0a",
     "apitoken": "MbuO3DVbNX9aTG2Sj5OLZ67lcZyM0MILLdnzXt8w-O"
+  },
+  "mypanelstore.web.id": {
+    "zone": "c61c442d70392500611499c5af816532",
+    "apitoken": "gqg5B6_1UQhb72wg4zS1U7AGNbofMYRXT8zFiKZC"
   }
 }
