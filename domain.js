@@ -173,16 +173,6 @@ function populateApiKeyPrices() {
     openModal(buyApiKeyModal); 
 });
     
-    buyNowBtn.addEventListener('click', () => {
-        const waNumber = siteSettings.apiKeyPurchaseNumber;
-        if (waNumber) {
-            const message = encodeURIComponent('Halo Admin, saya ingin membeli API Key untuk layanan subdomain.');
-            window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
-        } else {
-            showToast('Nomor admin belum diatur. Silakan hubungi pemilik website.', 'error');
-        }
-    });
-    
     function formatRupiah(number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 }

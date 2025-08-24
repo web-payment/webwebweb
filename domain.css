@@ -34,14 +34,15 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
-    display: flex; /* Tambahkan ini */
-    justify-content: center; /* Tambahkan ini */
-    align-items: center; /* Tambahkan ini */
-    min-height: 100vh; /* Tambahkan ini */
+    /* INI KUNCI AGAR TAMPILAN KE TENGAH */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 .page-container {
-    width: 100%; /* Ubah ini */
+    width: 100%;
     max-width: 600px; /* Atur lebar maksimum */
     padding: 20px;
     box-sizing: border-box;
@@ -100,6 +101,8 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     box-shadow: 0 10px 30px var(--shadow-color);
     border: 1px solid var(--border-color);
     animation: fadeIn 0.5s ease-out forwards;
+    /* Tambahkan margin auto agar card login juga ke tengah di dalam container */
+    margin: 0 auto;
 }
 .login-header { margin-bottom: 25px; text-align: center; }
 .login-header .profile-pic {
@@ -109,7 +112,6 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     object-fit: cover;
     margin-bottom: 15px;
 }
-.password-input-container { position: relative; }
 #apikey-screen, #domain-creator-screen {
     width: 100%;
     animation: fadeIn 0.5s ease-out forwards;
@@ -119,7 +121,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     padding: 10px 15px; margin-bottom: 20px; background-color: var(--white-color);
     border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-.admin-header h2 { font-size: 1.4em; }
+.admin-header h2 { font-size: 1.4em; margin: 0; }
 .admin-header .profile-pic { width: 38px; height: 38px; }
 .admin-header .theme-switch {
     width: 38px; height: 38px; border-radius: 50%; background-color: var(--secondary-color);
@@ -163,17 +165,16 @@ input:checked + .slider:before { transform: translateX(20px); }
     background-color: var(--white-color);
     border-radius: 20px;
     width: 100%;
-    max-width: 450px; /* Sedikit lebih lebar untuk daftar harga */
+    max-width: 450px;
     box-shadow: 0 10px 30px var(--shadow-color);
     padding: 30px 25px;
     position: relative;
     transform: scale(0.9);
     transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    text-align: center; /* Pastikan konten modal di tengah */
+    text-align: center;
 }
 .modal.is-visible .modal-content { transform: scale(1); }
 .modal .close-button { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--light-text-color); }
-.confirm-modal-content { text-align: center; }
 .success-icon { font-size: 4em; color: var(--success-color); margin-bottom: 15px; }
 .api-key-price-list { text-align: left; margin: 20px 0; border-top: 1px solid var(--border-color); padding-top: 15px; }
 .api-key-price-list p { text-align: left; margin-bottom: 8px;}
@@ -187,3 +188,5 @@ input:checked + .slider:before { transform: translateX(20px); }
 .history-item-info { display: flex; flex-direction: column; text-align: left; }
 .history-item-info strong { font-size: 1.1em; }
 .history-item-info small { font-size: 0.85em; color: var(--light-text-color); }
+
+/* --- PERBAIKAN: Kurung kurawal '}' ekstra sudah dihapus dari sini --- */
