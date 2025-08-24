@@ -34,19 +34,25 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
-    /* INI KUNCI AGAR TAMPILAN KE TENGAH */
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
 }
 
 .page-container {
     width: 100%;
-    max-width: 600px; /* Atur lebar maksimum */
+    max-width: 600px;
     padding: 20px;
     box-sizing: border-box;
 }
+
+/* KUNCI UNTUK MEMBUAT LOGIN KE TENGAH */
+#apikey-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px); /* 100vh dikurangi padding container */
+}
+
 
 /* Elemen Umum (Tombol, Input, dll) */
 h2, p { text-align: center; }
@@ -101,7 +107,6 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     box-shadow: 0 10px 30px var(--shadow-color);
     border: 1px solid var(--border-color);
     animation: fadeIn 0.5s ease-out forwards;
-    /* Tambahkan margin auto agar card login juga ke tengah di dalam container */
     margin: 0 auto;
 }
 .login-header { margin-bottom: 25px; text-align: center; }
@@ -112,7 +117,7 @@ button:disabled { background-color: var(--light-text-color); cursor: not-allowed
     object-fit: cover;
     margin-bottom: 15px;
 }
-#apikey-screen, #domain-creator-screen {
+#domain-creator-screen {
     width: 100%;
     animation: fadeIn 0.5s ease-out forwards;
 }
@@ -176,8 +181,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 .modal.is-visible .modal-content { transform: scale(1); }
 .modal .close-button { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--light-text-color); }
 .success-icon { font-size: 4em; color: var(--success-color); margin-bottom: 15px; }
-.api-key-price-list { text-align: left; margin: 20px 0; border-top: 1px solid var(--border-color); padding-top: 15px; }
-.api-key-price-list p { text-align: left; margin-bottom: 8px;}
 
 /* Riwayat & Hasil */
 .result-item, .history-item {
@@ -189,4 +192,28 @@ input:checked + .slider:before { transform: translateX(20px); }
 .history-item-info strong { font-size: 1.1em; }
 .history-item-info small { font-size: 0.85em; color: var(--light-text-color); }
 
-/* --- PERBAIKAN: Kurung kurawal '}' ekstra sudah dihapus dari sini --- */
+/* Daftar Harga API Key di Modal */
+#api-key-price-list-container .price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--secondary-color);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.price-info { text-align: left; }
+.tier-name { font-weight: 500; font-size: 1.05em; }
+.price-values { margin-top: 4px; }
+.original-price del { color: var(--light-text-color); font-weight: normal; margin-right: 8px; }
+.discounted-price { color: var(--error-color); font-weight: bold; }
+.buy-button {
+    text-decoration: none;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+    white-space: nowrap;
+}

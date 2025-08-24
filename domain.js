@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen-elemen ---
     const body = document.body;
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const successPopup = document.getElementById('success-popup');
     const resultContainer = document.getElementById('result-container');
     const buyApiKeyModal = document.getElementById('buyApiKeyModal');
-    const buyNowBtn = document.getElementById('buy-now-btn');
     const subdomainHistoryContainer = document.getElementById('subdomain-history-container');
     const modals = document.querySelectorAll('.modal');
     const apiKeyPriceListContainer = document.getElementById('api-key-price-list-container');
@@ -74,64 +72,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Logika Utama ---
     async function initializePage() {
-    try {
-        const res = await fetch(`/settings.json?v=${Date.now()}`);
-        if (res.ok) {
-            siteSettings = await res.json();
-            populateApiKeyPrices(); // Panggil fungsi baru
-        } else {
-             throw new Error("Gagal memuat pengaturan.");
-        }
-    } catch (e) {
-        console.error("Gagal memuat settings.json", e);
-        apiKeyPriceListContainer.innerHTML = '<p style="color: var(--error-color);">Gagal memuat daftar harga.</p>';
-    }
-
-    const savedUserApiKey = localStorage.getItem('userApiKey');
-    if (savedUserApiKey) {
-        apikeyInput.value = savedUserApiKey;
-        apikeySubmitBtn.click();
-    }
-}
-
-function populateApiKeyPrices() {
-    if (!siteSettings.apiKeyPrices || siteSettings.apiKeyPrices.length === 0) {
-        apiKeyPriceListContainer.innerHTML = '<p>Daftar harga belum diatur oleh admin.</p>';
-        return;
-    }
-
-    apiKeyPriceListContainer.innerHTML = ''; // Kosongkan kontainer
-    const waNumber = siteSettings.apiKeyPurchaseNumber;
-
-    siteSettings.apiKeyPrices.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'price-item'; // Anda bisa menambahkan style untuk class ini
-        div.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background-color: var(--secondary-color); padding: 12px 15px; border-radius: 10px; margin-bottom: 10px;';
-
-        let priceHTML = `<strong>${formatRupiah(item.price)}</strong>`;
-        let effectivePrice = item.price;
-
-        // Logika Diskon
-        const now = new Date();
-        const discountEndDate = item.discountEndDate ? new Date(item.discountEndDate) : null;
-        if (item.discountPrice && discountEndDate && now < discountEndDate) {
-            priceHTML = `<span style="text-decoration: line-through; color: var(--light-text-color);">${formatRupiah(item.price)}</span> <strong style="color: var(--error-color);">${formatRupiah(item.discountPrice)}</strong>`;
-            effectivePrice = item.discountPrice;
+        try {
+            const res = await fetch(`/settings.json?v=${Date.now()}`);
+            if (res.ok) {
+                siteSettings = await res.json();
+                populateApiKeyPrices();
+            } else {
+                 throw new Error("Gagal memuat pengaturan.");
+            }
+        } catch (e) {
+            console.error("Gagal memuat settings.json", e);
+            apiKeyPriceListContainer.innerHTML = '<p style="color: var(--error-color);">Gagal memuat daftar harga.</p>';
         }
 
-        const message = encodeURIComponent(`Halo Admin, saya ingin membeli API Key untuk durasi ${item.tier} dengan harga ${formatRupiah(effectivePrice)}.`);
-        const waLink = `https://wa.me/${waNumber}?text=${message}`;
+        const savedUserApiKey = localStorage.getItem('userApiKey');
+        if (savedUserApiKey) {
+            apikeyInput.value = savedUserApiKey;
+            apikeySubmitBtn.click();
+        }
+    }
 
-        div.innerHTML = `
-            <div style="text-align: left;">
-                <span>${item.tier}</span>
-                <div class="price">${priceHTML}</div>
-            </div>
-            <a href="${waLink}" target="_blank" class="buy-button" style="text-decoration: none; background-color: var(--primary-color); color: white; padding: 8px 15px; border-radius: 8px; font-weight: 500; font-size: 0.9em;">Beli</a>
-        `;
-        apiKeyPriceListContainer.appendChild(div);
-    });
-}
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    function populateApiKeyPrices() {
+        if (!siteSettings.apiKeyPrices || siteSettings.apiKeyPrices.length === 0) {
+            apiKeyPriceListContainer.innerHTML = '<p>Daftar harga belum diatur oleh admin.</p>';
+            return;
+        }
+
+        apiKeyPriceListContainer.innerHTML = ''; 
+        const waNumber = siteSettings.apiKeyPurchaseNumber;
+        if (!waNumber) {
+            apiKeyPriceListContainer.innerHTML = '<p>Nomor admin belum diatur.</p>';
+            return;
+        }
+
+        siteSettings.apiKeyPrices.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'price-item';
+            
+            let priceHTML = `<strong>${formatRupiah(item.price)}</strong>`;
+            let effectivePrice = item.price;
+
+            const now = new Date();
+            const discountEndDate = item.discountEndDate ? new Date(item.discountEndDate) : null;
+            if (item.discountPrice && discountEndDate && now < discountEndDate) {
+                priceHTML = `<span class="original-price"><del>${formatRupiah(item.price)}</del></span> <strong class="discounted-price">${formatRupiah(item.discountPrice)}</strong>`;
+                effectivePrice = item.discountPrice;
+            }
+
+            const message = encodeURIComponent(`Halo Admin, saya ingin membeli API Key untuk durasi ${item.tier} dengan harga ${formatRupiah(effectivePrice)}.`);
+            const waLink = `https://wa.me/${waNumber}?text=${message}`;
+
+            div.innerHTML = `
+                <div class="price-info">
+                    <span class="tier-name">${item.tier}</span>
+                    <div class="price-values">${priceHTML}</div>
+                </div>
+                <a href="${waLink}" target="_blank" class="buy-button">Beli Sekarang</a>
+            `;
+            apiKeyPriceListContainer.appendChild(div);
+        });
+    }
 
     apikeySubmitBtn.addEventListener('click', async () => {
         const key = apikeyInput.value.trim();
@@ -165,18 +169,13 @@ function populateApiKeyPrices() {
     });
 
     buyApikeyLink.addEventListener('click', (e) => { 
-    e.preventDefault(); 
-    // Pastikan harga sudah ter-populate sebelum membuka modal
-    if (!apiKeyPriceListContainer.hasChildNodes()) {
-        populateApiKeyPrices();
-    }
-    openModal(buyApiKeyModal); 
-});
+        e.preventDefault(); 
+        if (!apiKeyPriceListContainer.hasChildNodes() || apiKeyPriceListContainer.querySelector('p')) {
+            populateApiKeyPrices(); // Muat ulang jika kosong atau ada pesan error
+        }
+        openModal(buyApiKeyModal); 
+    });
     
-    function formatRupiah(number) {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
-}
-
     async function loadRootDomains() {
         try {
             const res = await fetch(API_URL, {
