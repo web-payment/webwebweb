@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/settings.json?v=${Date.now()}`);
             if (res.ok) {
                 siteSettings = await res.json();
-                populateApiKeyPrices();
+                // We will populate prices when the user clicks the buy button
             } else {
                  throw new Error("Gagal memuat pengaturan.");
             }
@@ -102,13 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        apiKeyPriceListContainer.innerHTML = ''; 
         const waNumber = siteSettings.apiKeyPurchaseNumber;
         if (!waNumber) {
-            apiKeyPriceListContainer.innerHTML = '<p>Nomor admin belum diatur.</p>';
+            apiKeyPriceListContainer.innerHTML = '<p>Nomor admin belum diatur untuk pembelian.</p>';
             return;
         }
 
+        apiKeyPriceListContainer.innerHTML = ''; 
+        
         siteSettings.apiKeyPrices.forEach(item => {
             const div = document.createElement('div');
             div.className = 'price-item';
@@ -123,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 effectivePrice = item.discountPrice;
             }
 
-            const message = encodeURIComponent(`Halo Admin, saya ingin membeli API Key untuk durasi ${item.tier} dengan harga ${formatRupiah(effectivePrice)}.`);
+            const message = encodeURIComponent(`Halo Admin, saya ingin membeli API Key paket "${item.tier}" dengan harga ${formatRupiah(effectivePrice)}.`);
             const waLink = `https://wa.me/${waNumber}?text=${message}`;
 
             div.innerHTML = `
@@ -170,9 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     buyApikeyLink.addEventListener('click', (e) => { 
         e.preventDefault(); 
-        if (!apiKeyPriceListContainer.hasChildNodes() || apiKeyPriceListContainer.querySelector('p')) {
-            populateApiKeyPrices(); // Muat ulang jika kosong atau ada pesan error
-        }
+        populateApiKeyPrices(); // Always populate with the latest data
         openModal(buyApiKeyModal); 
     });
     
